@@ -1,0 +1,346 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>BudsiDesk – Intro</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/SplitText.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --green: #40d466;
+      --blue-dark: #324EA2;
+      --blue-mid: #4064D2;
+      --yellow: #D3AF3F;
+      --magenta: #EE51D4;
+      --white: #FFFFFF;
+      --text-dark: #111111;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--white);
+      color: var(--text-dark);
+    }
+
+    header {
+      padding: 2rem 0;
+      text-align: center;
+      background-color: var(--green);
+      color: var(--white);
+    }
+
+    header img {
+      width: 1000px;
+      margin-bottom: 1rem;
+    }
+
+    section {
+      padding: 60px 20px;
+      border-bottom: 1px solid #eee;
+      background-color: #fefefe;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: var(--blue-dark);
+    }
+    h3 {
+      color: var(--magenta)
+    }
+
+    p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto 1rem auto;
+      text-align: justify;
+    }
+
+    li {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto 1rem auto;
+      text-align: left; /* o justify si prefieres también */
+    }
+
+
+    ul {
+      padding-left: 0;
+      list-style: none;
+    }
+
+    ul li::before {
+      content: "✔ ";
+      color: var(--green);
+      font-weight: bold;
+    }
+
+    .center-btns {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      background-color: var(--blue-mid);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--blue-dark);
+    }
+
+    footer {
+      background: var(--blue-dark);
+      color: var(--white);
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    footer h3 {
+      margin-bottom: 1rem;
+      color: var(--yellow);
+    }
+
+    footer h4 {
+      margin-top: 2rem;
+      color: var(--green);
+    }
+
+    footer a {
+      color: var(--magenta);
+      text-decoration: none;
+      margin: 0 10px;
+    }
+    .intro-text {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+  </style>
+</head>
+<body>
+
+{% include 'budgidesk_app/navbar.html' %}
+
+<div id="intro-welcome" style="text-align:center; padding: 120px 40px;">
+  <h1 class="intro-text">Welcome</h1>
+  <h3 class="intro-text">“Your smarter, lighter, Budsi-er desk.”
+</h3>
+</div>
+
+
+ <!-- Sección: Hero Visual Figma -->
+<section style="background-color: #eaeaea; padding: 60px 20px;">
+  <div class="container">
+    <div class="row align-items-center">
+      
+      <!-- Imagen -->
+      <div class="col-md-6 mb-4 mb-md-0 text-center">
+        <img src="{% static 'image.jpg' %}" alt="Person working" style="max-width: 100%; border-radius: 12px;">
+      </div>
+
+      <!-- Dos bloques dentro de una columna -->
+      <div class="col-md-6 d-flex flex-column gap-4">
+     
+
+        <!-- Empower box -->
+        <div class="text-white" style="background-color: #01BFIF; padding: 2rem; border-radius: 12px; border: 3px solid #40D466;">
+          <p style="font-size: 1.2rem; color: #324EA2;">
+            Hey you!<br><br>
+            Welcome to BudsiDesk — your business BFF, not just another boring tool!
+            <br><br>
+            <i>"Running your business just got easier — your all-in-one desk for doing what you do best."</i>
+          </p>
+          <button onclick="location.href='/register/'"
+            style="background-color: #4064D2; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
+            Learn More
+          </button>
+        </div>
+
+        <!-- BudsiDesk box -->
+        <div class="text-white" style="background-color:#40d466; padding: 2rem; border-radius: 12px; border: 3px solid #40D466;">
+          <h2 style="color: #FFFFFF; font-weight: bold;">BudsiDesk</h2>
+          <p style="font-size: 1.2rem; color: #324EA2;">
+            Your desk, your flow, your way.<br><br>
+            We’ve got you! Get safe and convenient tax help today.<br>
+            Let’s start!
+          </p>
+         
+          <button onclick="location.href='/register/'"
+            style="background-color: #4064D2; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
+            Create your account
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  <!-- Logo + Hero -->
+  <header>
+    <img src="{% static 'logo.png' %}" alt="BudsiDesk Logo">
+    <h1 id="headline">Pay your taxes like magic.</h1>
+    <p>We take care of the numbers — so you don’t have to.</p>
+    <div class="center-btns">
+      <button onclick="location.href='/register/'">Create Account</button>
+      <button onclick="location.href='/login/'">Log in</button>
+    </div>
+  </header>
+
+  <!-- Sección: ¿Qué es BudsiDesk? -->
+  <section>
+    <h2>What is BudsiDesk?</h2>
+    <p>
+      BudsiDesk is a smart digital assistant built for solo bosses.
+      We make it easy to manage your invoices, taxes, budgets, time tracking, and essential business docs — all in one friendly, organised platform. You don’t need to be an accountant or tech-savvy.
+      Just plug in your info and let BudsiDesk do the hard stuff — so you can focus on doing what you love.
+
+    </p>
+  </section>
+
+  <!-- Sección: Cómo funciona -->
+  <section>
+    <h2>How does it work?</h2>
+    <ul>
+        <p>Create your account
+        <p>Enter basic info — step by step
+        <p>Check your dashboard
+        <p>Pay only what you owe
+    </ul>
+    <p>No jargon. No guesswork. Just clear steps and peace of mind.</p>
+  </section>
+
+  <!-- Sección: Ventajas con imagen del pulpo -->
+<section>
+  <div class="container">
+    <div class="row align-items-center">
+      
+      <!-- Columna del texto -->
+      <div class="col-md-6">
+        <h2 class="text-center">Why BudsiDesk?</h2>
+        <ul style="font-size: 1.1rem; text-align: justify; padding-left: 1.2rem;">
+          <li>All-in-One & Easy: Invoicing, tax estimates, budgets, time logs — no more switching between 10 apps and spreadsheets.</li>
+          <li>IMade for Solo Pros: Built specifically for self-employed creatives, contractors, and side hustlers.</li>
+          <li>Friendly & Flexible: No jargon. No pressure. Just intuitive tools that make sense from day one.</li>
+          <li>Stress Less, Work Smarter: Know what you’ve earned, what you’re owed, and what you’ll owe in tax — all at a glance.
+          </li>
+          <li>Templates That Work for You: Contracts, quotes, NDAs, and more — just fill, click, send.</li>
+        </ul>
+
+
+      <!-- Columna de la imagen del pulpo -->
+      <div class="col-md-6 text-center">
+        <img src="{% static 'pulpo.PNG' %}" alt="Pulpo illustration"
+             style="max-width: 100%; height: auto; border-radius: 12px;">
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+  <!-- Sección: Promesa -->
+  <section>
+    <h2>Our Promise</h2>
+    <p>At BudsiDesk, we believe freelancers and solo business deserve tools that work as hard as they do.
+        We promise to:
+          <p>Keep it simple — No confusing dashboards, no accounting degree required.
+          <p>Respect your time — Fast setup, clean tools, real results.
+          <p>Make business less boring — Friendly design, helpful reminders, and zero spreadsheet stress.
+          <p>Grow with you — Whether you're just starting or scaling up, BudsiDesk evolves with your journey.
+          <p>Put you first — Built for real people, not corporate suits. Your feedback shapes everything we do.
+    </p>
+    <div class="center-btns">
+      <button onclick="location.href='/register/'">Create Account</button>
+      <button onclick="alert('Coming soon')">Try Demo</button>
+    </div>
+  </section>
+
+  <!-- Sección: Movile -->
+  <section style="padding: 80px 20px; text-align: center;">
+    <h2 style="font-size: 2rem; margin-bottom: 1rem;">
+      Next on mobile platforms
+    </h2>
+    <p style="font-size: 1.2rem; color: #555; margin-bottom: 2rem;">
+      Budgidesk will be available as an app for iOS and Android
+    </p>
+
+    <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; align-items: center;">
+      <img src="{% static 'movile/appstore.png' %}" alt="App Store" style="height: 110px;">
+      <img src="{% static 'movile/googleplay.png' %}" alt="Google Play" style="height: 260px; width: 200px; object-fit: contain;">
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <h3>Contact & Social</h3>
+    <p>Email: <a href="mailto:hello@budgidesk.com">hello@budgidesk.com</a></p>
+    <p>
+      <a href="https://instagram.com/" target="_blank">Instagram</a>
+      <a href="https://linkedin.com/" target="_blank">LinkedIn</a>
+      <a href="https://twitter.com/" target="_blank">Twitter</a>
+    </p>
+    <div class="mt-4">
+      <h4>Frequently Asked Questions</h4>
+      <p>What taxes do I need to pay in Ireland?</p>
+      <p>Is BudsiDesk free?</p>
+      <p>How is my data protected?</p>
+      <p>Who is BudsiDesk for?</p>
+    </div>
+    <p class="mt-3">&copy; 2025 BudsiDesk</p>
+  </footer>
+
+  <!-- animación -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const texts = document.querySelectorAll(".intro-text");
+
+    // Animar entrada
+    gsap.to(texts, {
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      stagger: 0.8,
+      ease: "power3.out",
+    });
+
+    // Luego de 5 segundos, ocultar y eliminar sección
+    setTimeout(() => {
+      gsap.to("#intro-welcome", {
+        opacity: 0,
+        y: -50,
+        duration: 1,
+        ease: "power3.inOut",
+        onComplete: () => {
+          document.getElementById("intro-welcome").style.display = "none";
+        }
+      });
+    }, 5000);
+  });
+</script>
+
+
+
+
+
+</body>
+</html>

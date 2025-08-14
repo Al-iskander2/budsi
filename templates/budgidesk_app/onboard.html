@@ -1,0 +1,382 @@
+{% extends 'budgidesk_app/base.html' %}
+
+{% block content %}
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+      color: #333;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    header h2 {
+      color: #324EA2;
+      font-size: 1.8rem;
+      margin-bottom: .3rem;
+    }
+    header p, #progress {
+      color: #555;
+      margin: 0.3rem 0 1.5rem;
+    }
+    .progress-bar {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    .circle {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #ccc;
+      margin: 0 .3rem;
+      transition: background .3s;
+    }
+    .circle.active {
+      background: #324EA2;
+    }
+    .step {
+      display: none;
+    }
+    .step.active {
+      display: block;
+    }
+    .step-content {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity .5s ease, transform .5s ease;
+    }
+    label {
+      display: block;
+      text-align: left;
+      margin: 1rem 0 .3rem;
+      font-weight: 500;
+    }
+    input, select, button {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    input, select {
+      padding: .8rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      transition: border-color .3s, box-shadow .3s;
+    }
+    input:focus, select:focus {
+      border-color: #324EA2;
+      box-shadow: 0 0 6px rgba(50,78,162,0.3);
+      outline: none;
+    }
+    button {
+      padding: 1rem;
+      background: #324EA2;
+      color: #fff;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .3s;
+    }
+    button:hover {
+      background: #22367e;
+    }
+    .error {
+      color: red;
+      font-size: 0.9rem;
+      margin-top: -0.8rem;
+      margin-bottom: 0.8rem;
+      text-align: left;
+    }
+  </style>
+
+  <div class="container">
+    <header>
+      <h2 id="mainHeader">Hey there!</h2>
+      <p id="subHeader">
+        We’ll ask you a few simple things to build your smart dashboard—skip anything you’re not ready for!
+      </p>
+      <p id="progress">Step 1 of 7</p>
+      <div class="progress-bar">
+        <span class="circle active"></span>
+        <span class="circle"></span>
+        <span class="circle"></span>
+        <span class="circle"></span>
+        <span class="circle"></span>
+        <span class="circle"></span>
+        <span class="circle"></span>
+      </div>
+    </header>
+
+    <form id="onboardForm" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <!-- Paso 1 -->
+      <div class="step active" id="step1">
+        <div class="step-content">
+          <p>Let’s get you set up with BudsiDesk in just a few steps.</p>
+          <button type="button" onclick="nextStep(1)">Let’s Begin</button>
+        </div>
+      </div>
+
+      <!-- Paso 2 -->
+      <div class="step" id="step2">
+        <div class="step-content">
+          <label for="full_name">What’s your name?</label>
+          <input type="text" id="full_name" name="full_name" required>
+
+          <label for="email">Email we can reach you at?</label>
+          <input type="email" id="email" name="email" required>
+
+          <label for="phone">Got a phone number? (optional)</label>
+          <input type="tel" id="phone" name="phone">
+
+          <label for="logo">Add your logo</label>
+          <input type="file" id="logo" name="logo" accept="image/png, image/jpeg">
+
+          <button type="button" onclick="validateStep2()">Next</button>
+        </div>
+      </div>
+
+      <!-- Paso 3 -->
+      <div class="step" id="step3">
+        <div class="step-content">
+          <label for="business_name">Business name (or just your name!)</label>
+          <input type="text" id="business_name" name="business_name" required>
+
+          <label for="profession">What do you do best?</label>
+          <select id="profession" name="profession" required>
+            <option>Creative & Digital</option>
+            <option>Business & Finance</option>
+            <option>Tech & Development</option>
+            <option>Language & Communication</option>
+            <option>Education & Coaching</option>
+            <option>Trades & Skilled Work</option>
+            <option>Health & Wellness</option>
+            <option>Lifestyle & Events</option>
+            <option>Retail & Craft</option>
+            <option>Other</option>
+          </select>
+
+          <label for="sector">What sector do you mostly work in?</label>
+          <select id="sector" name="sector" required>
+            <option value="">Select...</option>
+            <option>Graphic Design</option>
+            <option>Web Design</option>
+            <option>Content Writing</option>
+            <option>Copywriting</option>
+            <option>Video Editing</option>
+            <option>Photography</option>
+            <option>Social Media Management</option>
+            <option>Digital Marketing</option>
+            <option>Branding Consultant</option>
+            <option>Virtual Assistant</option>
+            <option>Project Management</option>
+            <option>Data Entry</option>
+            <option>Web Development</option>
+            <option>Software Development</option>
+            <option>App Development</option>
+            <option>Cybersecurity</option>
+            <option>Translator</option>
+            <option>Editor</option>
+            <option>Voiceover Artist</option>
+            <option>Language Tutor</option>
+            <option>Online Tutor</option>
+            <option>Career Coach</option>
+            <option>Life Coach</option>
+            <option>Workshop Facilitator</option>
+            <option>E-learning Creator</option>
+            <option>Electrician</option>
+            <option>Plumber</option>
+            <option>Carpenter</option>
+            <option>Handyman</option>
+            <option>Mechanic</option>
+            <option>Cleaner</option>
+            <option>Personal Trainer</option>
+            <option>Yoga Instructor</option>
+            <option>Massage Therapist</option>
+            <option>Nutritionist</option>
+            <option>Wellness Coach</option>
+            <option>Chef / Caterer</option>
+            <option>Event Planner</option>
+            <option>Wedding Photographer</option>
+            <option>DJ / Entertainer</option>
+            <option>Florist</option>
+            <option>E-commerce Seller</option>
+            <option>Etsy Shop Owner</option>
+            <option>Craftsperson / Maker</option>
+            <option>Jewellery Designer</option>
+            <option>Fashion Designer</option>
+            <option>Other</option>
+            <option>Retail & Craft</option>
+          </select>
+
+          <button type="button" onclick="nextStep(3)">Next</button>
+        </div>
+      </div>
+
+      <!-- Paso 4 -->
+      <div class="step" id="step4">
+        <div class="step-content">
+          <label for="currency">Preferred currency</label>
+          <select id="currency" name="currency" required>
+            <option value="">Select...</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="USD">USD</option>
+          </select>
+
+          <label>Want us to set up invoice defaults for you?</label>
+          <select id="invoice_defaults" name="invoice_defaults" required>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+
+          <label for="payment_terms">Payment terms (e.g., 7 days)</label>
+          <input type="text" id="payment_terms" name="payment_terms">
+
+          <label for="late_notice">Late payment notice (optional)</label>
+          <input type="text" id="late_notice" name="late_notice">
+
+          <label for="payment_methods">Preferred payment methods</label>
+          <input type="text" id="payment_methods" name="payment_methods">
+
+          <button type="button" onclick="nextStep(4)">Next</button>
+        </div>
+      </div>
+
+      <!-- Paso 5 -->
+      <div class="step" id="step5">
+        <div class="step-content">
+          <label for="vat_registered">Are you VAT registered?</label>
+          <select id="vat_registered" name="vat_registered" required>
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+          </select>
+
+          <div id="vat_section" style="display:none">
+            <label for="vat_number">VAT number</label>
+            <input type="text" id="vat_number" name="vat_number">
+            <div id="vat_error" class="error"></div>
+          </div>
+
+          <label for="pps_number">PPS number (optional)</label>
+          <input type="text" id="pps_number" name="pps_number">
+          <div id="pps_error" class="error"></div>
+
+          <button type="button" onclick="validateStep5()">Next</button>
+        </div>
+      </div>
+
+      <!-- Paso 6 -->
+      <div class="step" id="step6">
+        <div class="step-content">
+          <label for="iban">Add a bank account (IBAN)</label>
+          <input type="text" id="iban" name="iban" required>
+          <div id="iban_error" class="error"></div>
+
+          <button type="button" onclick="validateStep6()">Next</button>
+        </div>
+      </div>
+
+      <!-- Paso 7: submit -->
+      <div class="step" id="step7">
+        <div class="step-content">
+          <h2>You’re ready to rock your Solo Finances.</h2>
+          <p>We’ll take it from here.</p>
+          <button type="submit">View Your Dashboard</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script>
+    const totalSteps = 7;
+    const circles = document.querySelectorAll('.circle');
+    const headers = [
+      { title: 'Hey there!', sub: '' },
+      { title: 'Who’s behind the biz?', sub: '' },
+      { title: 'Your Solo Venture', sub: '' },
+      { title: 'Let’s talk money', sub: '' },
+      { title: 'Tax stuff (we keep it safe)', sub: '' },
+      { title: 'Getting Paid', sub: '' },
+      { title: 'That’s it!', sub: 'We’ll take it from here.' }
+    ];
+
+    document.getElementById('vat_registered').addEventListener('change', e => {
+      document.getElementById('vat_section').style.display = e.target.value === 'yes' ? 'block' : 'none';
+    });
+
+    function showStep(i) {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      circles.forEach((c, idx) => c.classList.toggle('active', idx < i));
+      const st = document.getElementById(`step${i}`);
+      st.classList.add('active');
+      gsap.fromTo(st.querySelector('.step-content'),
+                  { y: 40, opacity: 0 },
+                  { y: 0, opacity: 1, duration: .6 });
+      document.getElementById('progress').textContent = `Step ${i} of ${totalSteps}`;
+      document.getElementById('mainHeader').textContent = headers[i-1].title;
+      document.getElementById('subHeader').textContent = headers[i-1].sub;
+    }
+
+    function nextStep(c) {
+      gsap.to(`#step${c} .step-content`, {
+        y: -40, opacity: 0, duration: .4,
+        onComplete: () => showStep(c+1)
+      });
+    }
+
+    function validateStep2() {
+      const name = document.getElementById('full_name').value;
+      const email = document.getElementById('email').value;
+      if (!name || !email) return alert('Please fill in required fields.');
+      nextStep(2);
+    }
+
+    function validateStep5() {
+      let valid = true;
+      const vatReq = document.getElementById('vat_registered').value === 'yes';
+      const vat    = document.getElementById('vat_number').value.trim();
+      const pps    = document.getElementById('pps_number').value.trim();
+
+      if (vatReq && !/^\d{7}[A-Za-z]{1,2}$/.test(vat)) {
+        document.getElementById('vat_error').textContent = 'Invalid VAT number.';
+        valid = false;
+      } else {
+        document.getElementById('vat_error').textContent = '';
+      }
+
+      if (pps && !/^\d{7}[A-Za-z]{1,2}$/.test(pps)) {
+        document.getElementById('pps_error').textContent = 'Invalid PPS number.';
+        valid = false;
+      } else {
+        document.getElementById('pps_error').textContent = '';
+      }
+
+      if (valid) nextStep(5);
+    }
+
+    function validateStep6() {
+      const iban = document.getElementById('iban').value.trim();
+      if (!/^IE\d{2}[A-Za-z0-9]{18}$/.test(iban)) {
+        document.getElementById('iban_error').textContent = 'Invalid IBAN format.';
+      } else {
+        document.getElementById('iban_error').textContent = '';
+        nextStep(6);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => showStep(1));
+  </script>
+{% endblock %}
+

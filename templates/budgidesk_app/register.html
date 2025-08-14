@@ -1,0 +1,54 @@
+{% extends 'budgidesk_app/base.html' %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<h2>Create your account</h2>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  {# Mensajes generales (por ejemplo, contraseñas que no coinciden) #}
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+      {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+    </div>
+  {% endif %}
+
+  {# Campo de email #}
+  <div class="form-group{% if form.email.errors %} has-error{% endif %}">
+    <label for="{{ form.email.id_for_label }}">Email</label>
+    {{ form.email }}
+    {% for error in form.email.errors %}
+      <span class="help-block">{{ error }}</span>
+    {% endfor %}
+  </div>
+
+  {# Contraseña 1 #}
+  <div class="form-group{% if form.password1.errors %} has-error{% endif %}">
+    <label for="{{ form.password1.id_for_label }}">Password</label>
+    {{ form.password1 }}
+    {% for error in form.password1.errors %}
+      <span class="help-block">{{ error }}</span>
+    {% endfor %}
+  </div>
+
+  {# Contraseña 2 #}
+  <div class="form-group{% if form.password2.errors %} has-error{% endif %}">
+    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+    {{ form.password2 }}
+    {% for error in form.password2.errors %}
+      <span class="help-block">{{ error }}</span>
+    {% endfor %}
+  </div>
+
+  <button type="submit" class="btn btn-primary">Register</button>
+</form>
+
+<p>Already have an account? <a href="{% url 'login' %}">Log in here</a></p>
+
+<style>
+  .has-error input { border-color: #d9534f; }
+  .help-block { color: #d9534f; font-size: .9rem; }
+  .alert-danger { color: #a94442; background: #f2dede; padding: .75rem; border-radius: 4px; margin-bottom: 1rem; }
+</style>
+{% endblock %}

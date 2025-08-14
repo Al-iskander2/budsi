@@ -1,0 +1,77 @@
+{% extends 'budgidesk_app/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container text-center mt-4">
+  <h1>Invoice Created!</h1>
+  <p>You have now created {{ profile.invoice_count }} invoices.</p>
+
+  <iframe src="" style="width:40%; height:300px;" frameborder="0"></iframe>
+
+  <!-- Texto de confirmación -->
+  <h3>All in order for Download or Send?</h3>
+  <button id="confirmYesButton" class="btn btn-success mt-3">Yes</button>
+  <button id="editButton" class="btn btn-danger mt-3">No, edit. Please!</button>
+
+  <!-- Botones Print y Send ocultos inicialmente -->
+  <form id="printForm" style="display:none; margin-top: 15px;">
+    <button type="button" class="btn btn-primary" id="printBtn">Print</button>
+    <button type="button" class="btn btn-warning ms-2" id="sendBtn">Send</button>
+  </form>
+
+  <!-- Input para enviar email -->
+  <div id="sendSection" style="display:none; margin-top: 20px;">
+    <h4>Which email do you want to send?</h4>
+    <input type="email" id="emailInput" class="form-control mt-2" placeholder="Enter email" required>
+    <button type="button" class="btn btn-success mt-2" id="sendEmailBtn">Send Invoice</button>
+  </div>
+</div>
+
+<script>
+  // Acción al hacer clic en "Yes"
+  document.getElementById("confirmYesButton").addEventListener("click", function() {
+    document.getElementById("confirmYesButton").style.display = "none";
+    document.getElementById("editButton").style.display = "none";
+    document.getElementById("printForm").style.display = "block";
+  });
+
+  // Acción al hacer clic en "Edit"
+  document.getElementById("editButton").addEventListener("click", function() {
+    document.getElementById("confirmYesButton").style.display = "none";
+    document.getElementById("editButton").style.display = "none";
+    window.location.href = "{% url 'invoice_create' %}";
+  });
+
+  // Acción de Print
+  document.getElementById("printBtn").addEventListener("click", function() {
+    window.open("{% url 'generate_invoice' %}", "_blank");
+    setTimeout(function() {
+      window.location.href = "{% url 'invoice_create' %}";
+    }, 0);
+  });
+
+  // Mostrar input de email
+  document.getElementById("sendBtn").addEventListener("click", function() {
+    document.getElementById("sendSection").style.display = "block";
+  });
+
+  // Enviar email (simulado)
+  document.getElementById("sendEmailBtn").addEventListener("click", function() {
+    const email = document.getElementById("emailInput").value;
+    if (!email) {
+      alert("Please enter an email address.");
+      return;
+    }
+
+    // Abrir PDF como si fuera la descarga y simular envío
+    window.open("{% url 'generate_invoice' %}", "_blank");
+
+    // Simular envío con mensaje
+    alert("Invoice sent successfully to " + email);
+
+    // Opcional: redirigir
+    setTimeout(function() {
+      window.location.href = "{% url 'invoice_create' %}";
+    }, 0);
+  });
+</script>
+{% endblock %}

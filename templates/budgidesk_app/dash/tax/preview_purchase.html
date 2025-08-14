@@ -1,0 +1,122 @@
+
+
+{% extends 'budgidesk_app/base.html' %}
+{% block title %}Invoice Preview{% endblock %}
+{% load static %}
+{% block content %}
+
+
+
+
+<style>
+  :root{
+    --green-500:#01BF1F;
+    --blue-900:#324EA2;
+    --blue-700:#4064D2;
+    --blue-500:#7498D4;
+    --white:#FFFFFF;
+    --gold:#D3AF3F;
+  }
+  .preview-wrap{max-width:1100px;margin:32px auto;padding:0 20px;}
+  .grid{display:grid;grid-template-columns:1fr;gap:24px;}
+  @media(min-width:960px){.grid{grid-template-columns:1fr 1fr}}
+  .panel{background:#fff;border:1px solid rgba(116,152,212,.18);border-radius:16px;box-shadow:0 10px 24px rgba(50,78,162,.10);}
+  .panel h2{margin:0;padding:16px 18px;border-bottom:1px solid rgba(116,152,212,.18);color:var(--blue-900);font-size:18px}
+  .panel-body{padding:18px}
+  .docbox{display:flex;align-items:center;justify-content:center;background:#f6f8ff;border:1px dashed rgba(50,78,162,.35);border-radius:12px;min-height:560px;overflow:hidden}
+  .docbox img,.docbox embed{max-width:100%;max-height:100%;object-fit:contain}
+  form .row{display:grid;grid-template-columns:1fr;gap:14px}
+  @media(min-width:680px){form .row{grid-template-columns:1fr 1fr}}
+  label{font-weight:600;color:#2a3550;font-size:14px}
+  input,select,textarea{width:100%;padding:10px 12px;border:1px solid rgba(50,78,162,.35);border-radius:10px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .btn{border:0;border-radius:12px;padding:12px 14px;font-weight:700;cursor:pointer}
+  .btn-primary{background:linear-gradient(135deg,var(--green-500),var(--blue-700));color:#fff}
+  .btn-outline{background:#fff;border:2px solid var(--blue-700);color:var(--blue-900)}
+  .note{margin-top:8px;font-size:12px;color:#6b7a90}
+  .warn{display:none;margin-top:8px;background:#fff0d6;border:1px solid #f0c36d;color:#6b4a00;padding:10px;border-radius:10px}
+</style>
+
+<div class="preview-wrap">
+  <div class="grid">
+    <!-- Left: Original document -->
+    <div class="panel">
+      <h2>Original Document</h2>
+      <div class="panel-body">
+        {% if original_url %}
+          <div class="docbox">
+            {% if is_pdf %}
+              <embed src="{{ original_url }}" type="application/pdf" />
+            {% else %}
+              <img src="{{ original_url }}" alt="original invoice"/>
+            {% endif %}
+          </div>
+          <p class="note">File: {{ invoice.original_file.name }}</p>
+        {% else %}
+          <div class="docbox"><em>No original file attached.</em></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right: Editable form -->
+    <div class="panel">
+      <h2>Extracted Data (Edit as needed)</h2>
+      <div class="panel-body">
+        <form method="post">
+          {% csrf_token %}
+          <div class="row">
+            <div>
+              <label>Client / Supplier</label>
+              {{ form.client }}
+            </div>
+            <div>
+              <label>Date</label>
+              {{ form.date }}
+            </div>
+            <div>
+              <label>Total (Gross)</label>
+              {{ form.amount }}
+            </div>
+            <div>
+              <label>VAT</label>
+              {{ form.vat }}
+            </div>
+            <div style="grid-column:1/-1">
+              <label>Description</label>
+              {{ form.description }}
+            </div>
+          </div>
+
+          <div id="vat-warning" class="warn">VAT amount seems inconsistent with total.</div>
+
+          <div class="actions">
+            <button type="submit" name="save" class="btn btn-outline">Save Draft</button>
+            <button type="submit" name="confirm" class="btn btn-primary">Confirm & Save</button>
+          </div>
+          <p class="note">OCR data stored: {{ invoice.ocr_data|default:"{}" }}</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // VAT quick check
+  (function(){
+    const amount = document.querySelector('[name="amount"]');
+    const vat = document.querySelector('[name="vat"]');
+    const warn = document.getElementById('vat-warning');
+    function check(){
+      const a = parseFloat((amount && amount.value) || 0) || 0;
+      const v = parseFloat((vat && vat.value) || 0) || 0;
+      if (v > 0 && a > 0 && v >= a) { warn.style.display='block'; }
+      else { warn.style.display='none'; }
+    }
+    if(amount) amount.addEventListener('input', check);
+    if(vat) vat.addEventListener('input', check);
+    check();
+  })();
+</script>
+
+{% endblock %}
+

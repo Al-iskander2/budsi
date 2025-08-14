@@ -1,0 +1,37 @@
+{% extends 'budgidesk_app/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container d-flex" style="align-items: flex-start; gap: 30px; margin-top: 20px;">
+
+  <!-- Sección izquierda con imagen y botón -->
+  <div style="flex: 1; text-align: center;">
+    <img src="{% static 'tax.jpeg' %}" alt="Tax" style="width: 250px; margin-bottom: 20px;">
+    <h2>Invoices</h2>
+    <p>You have created {{ invoice_count }} invoices so far.</p>
+
+    <form method="post" action="{% url 'invoice_create' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">Create a new invoice</button>
+    </form>
+  </div>
+
+  <!-- Sección derecha con lista de facturas -->
+  <div style="flex: 1;">
+    <div class="card p-3">
+      <h4>Invoice List</h4>
+      {% if invoices %}
+        <ul class="list-group">
+          {% for invoice in invoices %}
+            <li class="list-group-item">
+              Invoice #{{ invoice.id }} - {{ invoice.created_at|date:"d M Y" }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No invoices created yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

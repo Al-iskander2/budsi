@@ -1,0 +1,243 @@
+{% extends 'budgidesk_app/base.html' %}
+
+{% block content %}
+<style>
+  :root {
+    --green: #40D466;
+    --blue-dark: #324EA2;
+    --blue-mid: #4064D2;
+    --yellow: #D3AF3F;
+    --white: #ffffff;
+    --gray-light: #f5f5f5;
+    --gray-border: #e0e0e0;
+  }
+
+  header {
+    background: linear-gradient(90deg, var(--blue-mid), var(--green));
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+
+  .logout-btn {
+    background: white;
+    color: var(--blue-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  h2 {
+    text-align: center;
+    margin: 2rem 0 1rem;
+    color: var(--blue-dark);
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    padding: 0 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .card-button {
+    background: var(--white);
+    border: 1px solid var(--gray-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    text-align: center;
+    transition: 0.3s;
+  }
+
+  .card-button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  }
+
+  .card-button h3 {
+    font-size: 1.2rem;
+    color: var(--blue-mid);
+    margin-bottom: 1rem;
+  }
+
+  .card-button button {
+    background-color: var(--green);
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1.2rem;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .dashboard-charts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4rem;
+    margin: -5rem;
+    justify-content: center;
+  }
+
+  .chart-box {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    width: 300px;
+  }
+
+  .chart-box h4 {
+    margin-bottom: 1rem;
+    color: var(--blue-dark);
+  }
+
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .chart-box ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+  }
+
+  .chart-box ul li {
+    margin-bottom: 0.5rem;
+  }
+</style>
+
+<div class="dashboard-grid">
+  <h2></h2>
+</div>
+
+
+<!-- Sección Visual: Charts & Deadlines -->
+<div class="dashboard-charts">
+  <div class="chart-box">
+    <h4>Monthly Income Overview</h4>
+    <canvas id="incomeChart"></canvas>
+  </div>
+  <div class="chart-box">
+    <h4>Budget vs Expenses</h4>
+    <canvas id="budgetChart"></canvas>
+  </div>
+  <div class="chart-box">
+    <h4>Upcoming Deadlines</h4>
+    <ul>
+      <li> Tax return — Nov 15</li>
+      <li> Invoice #1012 — overdue</li>
+      <li> Upload receipts — July 30</li>
+    </ul>
+  </div>
+</div>
+
+<canvas id="incomeChart" style="height:200px;"></canvas>
+<canvas id="budgetChart" style="height:200px;"></canvas>
+
+<!-- Navegación -->
+<div class="dashboard-grid">
+  <div class="card-button">
+    <h3>Invoice</h3>
+    <button onclick="location.href='{% url "invoice_create" %}'">Go</button>
+  </div>
+  <div class="card-button">
+    <h3>Tax</h3>
+    <button onclick="location.href='{% url "dash_tax" %}'">Go</button>
+  </div>
+  <div class="card-button">
+    <h3>Flow</h3>
+    <button onclick="location.href='{% url "dash_flow" %}'">Go</button>
+  </div>
+    <div class="card-button">
+    <h3>Pulse</h3>
+    <button onclick="location.href='{% url "dash_pulse" %}'">Go</button>
+  </div>
+  <div class="card-button">
+    <h3>Docs</h3>
+    <button onclick="location.href='{% url "dash_doc" %}'">Go</button>
+  </div>
+  <div class="card-button">
+    <h3>Buzz</h3>
+    <button onclick="location.href='{% url "dash_buzz" %}'">Go</button>
+  </div>
+  <div class="card-button">
+    <h3>Track</h3>
+    <button onclick="location.href='{% url "dash_track" %}'">Go</button>
+  </div>
+  <div class="card-button">
+    <h3>Nest</h3>
+    <button onclick="location.href='{% url "dash_nest" %}'">Go</button>
+  </div>
+  <div class="card-button">
+    <h3>Budsi Whiz</h3>
+    <button onclick="location.href='{% url "dash_whiz" %}'">Go</button>
+  </div>
+  <div class="card-button">
+    <h3>Help Support</h3>
+    <button onclick="location.href='{% url "dash_help" %}'">Go</button>
+  </div>
+</div>
+
+
+
+
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+  new Chart(incomeCtx, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [{
+        label: 'Income (€)',
+        data: [200, 500, 100, 800, 200, 0],
+        borderColor: '#40D466',
+        backgroundColor: 'rgba(64, 212, 102, 0.1)',
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      
+    }
+  });
+
+  const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+  new Chart(budgetCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [
+        {
+          label: 'Budget (€)',
+          data: [100, 200, 100, 100, 100, 600],
+          backgroundColor: '#D3AF3F'
+        },
+        {
+          label: 'Expenses (€)',
+          data: [450, 300, 90, 450, 800, 550],
+          backgroundColor: '#7498D4'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      
+    }
+  });
+</script>
+
+{% endblock %}

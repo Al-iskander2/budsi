@@ -1,0 +1,122 @@
+{% extends 'budgidesk_app/base.html' %}
+{% block title %}Pricing{% endblock %}
+
+{% block content %}
+<style>
+  .pricing-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem; /* ✅ espacio uniforme entre tarjetas */
+    justify-content: space-between;
+    padding: 2rem 1rem 3rem;
+    max-width: 1100px;
+    margin: auto;
+  }
+  .plan {
+    flex: 1 1 calc(25% - 1rem); /* cuatro tarjetas por fila, cuenta el gap */
+    max-width: 260px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 1.6rem;
+    min-height: 500px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 2px solid transparent;
+    opacity: 0;
+    animation: slideUp 0.6s ease forwards;
+  }
+  .plan.highlight {
+    border-color: #D3AF3F;
+    transform: scale(1.02);
+  }
+  .plan:nth-child(1) { animation-delay: 0.1s; }
+  .plan:nth-child(2) { animation-delay: 0.2s; }
+  .plan:nth-child(3) { animation-delay: 0.3s; }
+  .plan:nth-child(4) { animation-delay: 0.4s; }
+
+  @keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .btn {
+    margin-top: 1rem;
+    padding: 0.6rem 1rem;
+    background: linear-gradient(to right, #40d466, #7498D4);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+  .btn:hover { transform: scale(1.05); }
+  .btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+
+  header.text-center {
+    text-align: center;
+    padding-bottom: 1rem;
+  }
+</style>
+
+<header class="text-center pb-3">
+  <h1>Plans & Pricing</h1>
+  <p class="subtitle">Simple plans for solo pros — built to grow with you.</p>
+</header>
+
+<div class="pricing-container">
+  <div class="plan">
+    <h2>Budsi Lite</h2>
+    <p class="price">€0 / month</p>
+    <ul class="features">
+      <li>Up to 5 invoices/month</li>
+      <li>Basic income tax calc.</li>
+      <li>Export to PDF</li>
+      <li>Limited budget tracker</li>
+      <li>Email reminders</li>
+      <li>Helpful resources</li>
+    </ul>
+    <button class="btn" disabled>Current Plan</button>
+  </div>
+
+  <div class="plan highlight">
+    <h2>Budsi Smart</h2>
+    <p class="price">€12.99 / month</p>
+    <p class="annual">or €129/year (save 17%)</p>
+    <ul class="features">
+      <li>Unlimited invoices</li>
+      <li>Budget planner + insights</li>
+      <li>VAT & income tax calc.</li>
+      <li>Up to 20 clients/projects</li>
+      <li>Dashboard & reports</li>
+      <li>Chat & email support</li>
+    </ul>
+    <a href="{% url 'payment_page' %}?plan=smart_monthly" class="btn">Upgrade to Smart</a>
+  </div>
+
+  <div class="plan">
+    <h2>Budsi Elite</h2>
+    <p class="price">€17.99 / month</p>
+    <p class="annual">or €179/year (save 17%)</p>
+    <ul class="features">
+      <li>Everything in Smart</li>
+      <li>Smart invoice templates</li>
+      <li>Recurring invoices</li>
+      <li>Expense auto‑categorisation</li>
+      <li>Legal templates (SOW, NDA)</li>
+      <li>Advanced reports & uploads</li>
+      <li>Priority support</li>
+    </ul>
+    <a href="{% url 'payment_page' %}?plan=elite_monthly" class="btn">Go Elite</a>
+  </div>
+
+  
+{% endblock %}

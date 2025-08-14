@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Checkout – BudsiDesk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    :root {
+      --green: #40d466;
+      --blue-dark: #324EA2;
+      --blue-mid: #4064D2;
+      --yellow: #D3AF3F;
+      --magenta: #EE51D4;
+      --text-dark: #111111;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fefefe;
+      color: var(--text-dark);
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .checkout-container {
+      background: white;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--blue-dark);
+    }
+
+    label {
+      display: block;
+      margin: 1rem 0 0.3rem;
+      font-weight: 600;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .StripeElement {
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    button {
+      margin-top: 2rem;
+      width: 100%;
+      padding: 0.9rem;
+      background-color: var(--yellow);
+      border: none;
+      border-radius: 8px;
+      color: var(--text-dark);
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #bfa332;
+    }
+
+    .small-text {
+      font-size: 0.85rem;
+      color: #777;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    #card-errors {
+      color: red;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="checkout-container">
+    <h2>Upgrade to {{ name }}</h2>
+
+    <form id="payment-form">
+      {% csrf_token %}
+      <input type="hidden" name="plan_code" id="plan_code" value="{{ plan_code }}">
+
+      <label for="name">Cardholder Name</label>
+      <input type="text" id="name" name="name" placeholder="Jane Doe" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="you@example.com" required>
+
+      <label for="card-element">Card Details</label>
+      <div id="card-element"><!-- Stripe.js will insert the card UI here --></div>
+
+      <div id="card-errors" role="alert"></div>
+
+      <button type="submit" id="submit-button">Confirm Payment</button>
+
+      <p class="small-text">
+        You will be charged €{{ amount }}/{{ interval }}. Cancel anytime.
+      </p>
+    </form>
+  </div>
+
+  <script>
+    const stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
+    const elements = stripe.elements();
+    const card = elements.create("card");
+    card.mount("#card-element");
+
+    const form = document.getElementById('payment-form');
+    const errorDisplay = document.getElementById('card-errors');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const planCode = document.getElementById("plan_code").value;
+
+      // Llama al backend para crear un PaymentIntent
+      const response = await fetch("/crear-intento-pago/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify({
+          amount: {{ amount|floatformat:0 }}00,  // convierte euros a centavos
+          email: email,
+          name: name,
+          plan_code: planCode
+        })
+      });
+
+      const data = await response.json();
+
+      if (!data.clientSecret) {
+        errorDisplay.textContent = "Error al iniciar el pago.";
+        return;
+      }
+
+      const result = await stripe.confirmCardPayment(data.clientSecret, {
+        payment_method: {
+          card: card,
+          billing_details: {
+            name: name,
+            email: email
+          }
+        }
+      });
+
+      if (result.error) {
+        errorDisplay.textContent = result.error.message;
+      } else {
+        if (result.paymentIntent.status === 'succeeded') {
+          alert(" ¡Pago realizado con éxito!");
+          window.location.href = "/dashboard/";  // Redirige a página de éxito si tienes una
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

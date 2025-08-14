@@ -1,0 +1,357 @@
+{% extends 'budgidesk_app/base.html' %}
+{% block title %}Tax Report{% endblock %}
+{% load static %}
+{% block content %}
+
+<!-- Wrapper para aislar estilos del layout -->
+<div id="tax-root" lang="en">
+
+  <style>
+    :root{
+      /* Company palette */
+      --green-500:#01BF1F;
+      --green-400:#40D466;
+      --blue-900:#324EA2;
+      --blue-700:#4064D2;
+      --blue-500:#7498D4;
+      --white:#FFFFFF;
+      --gold:#D3AF3F;
+      --magenta:#EE51D4;
+
+      /* UI tokens */
+      --bg: #0e1220;
+      --card-bg: var(--white);
+      --text: #0B1020;
+      --muted: #5b6b7f;
+      --ring: var(--blue-700);
+      --shadow: 0 20px 40px rgba(50,78,162,.15);
+      --radius: 18px;
+    }
+
+    /* ===== Estilos scopeados al wrapper para no pelear con el layout global ===== */
+ 
+    .tax-body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+    }
+
+    /* Layout superior (Upload + Report) */
+    .page{
+      max-width:1100px; margin:48px auto; padding:0 20px;
+    }
+
+    .header{
+      display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:28px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px; color:var(--white);
+    }
+    .brand-mark{
+      width:14px; height:14px; border-radius:3px;
+      background: linear-gradient(135deg, var(--green-500), var(--blue-700));
+      box-shadow:0 6px 16px rgba(1,191,31,.35), 0 10px 28px rgba(64,100,210,.25);
+    }
+    .brand span{
+      font-weight:700; letter-spacing:.4px; font-size:14px; opacity:.9;
+    }
+
+    .grid{
+      display:grid; grid-template-columns:1fr; gap:24px;
+    }
+    @media (min-width: 960px){
+      .grid{ grid-template-columns: 1.25fr .75fr; }
+    }
+
+    .card{
+      background:var(--card-bg); border-radius:var(--radius);
+      box-shadow: var(--shadow);
+      padding:22px;
+      border:1px solid rgb(255, 255, 255);
+    }
+    .card h2{
+      margin:0 0 6px; font-size:20px; color:var(--blue-900);
+    }
+    .subtitle{
+      margin:0 0 18px; color:var(--muted); font-size:14px;
+    }
+
+    /* Dropzone */
+    .dropzone{
+      position:relative; border:2px dashed rgba(50,78,162,.35); border-radius:16px;
+      padding:28px; text-align:center; transition:.2s ease;
+      background: linear-gradient(180deg, rgba(116,152,212,.10), rgba(116,152,212,.04));
+    }
+    .dropzone:hover{ border-color: var(--blue-700); box-shadow:0 0 0 4px rgba(64,100,210,.10); }
+    .dropzone.drag{ border-color: var(--green-500); background:linear-gradient(180deg, rgba(1,191,31,.10), rgba(116,152,212,.05)); }
+
+    .dz-icon{
+      width:64px; height:64px; margin:0 auto 10px; border-radius:14px;
+      display:grid; place-items:center;
+      background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
+      color:var(--white); font-weight:700; font-size:28px;
+      box-shadow:0 10px 22px rgba(64,100,210,.25);
+    }
+
+    .dz-title{ font-weight:700; margin:6px 0 2px; }
+    .dz-help{ color:var(--muted); font-size:13px; margin:0; }
+
+    .file-chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 12px; border-radius:999px; background:#f2f6ff; border:1px solid rgba(50,78,162,.18);
+      margin-top:12px; font-size:13px;
+    }
+
+    /* Buttons */
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 16px; border-radius:14px; border:0; cursor:pointer; font-weight:700; letter-spacing:.2px;
+      transition:transform .08s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn-primary{
+      background: linear-gradient(135deg, var(--green-500), var(--blue-700));
+      color:var(--white); box-shadow:0 12px 26px rgba(1,191,31,.25), 0 10px 24px rgba(64,100,210,.22);
+    }
+    .btn-primary:hover{ box-shadow:0 16px 34px rgba(1,191,31,.28), 0 12px 28px rgba(64,100,210,.28); }
+
+    .btn-outline{
+      background:var(--white); color:var(--blue-900); border:2px solid var(--blue-700);
+    }
+    .btn-gold{
+      background: var(--gold); color:#1a1200; box-shadow:0 12px 26px rgba(211,175,63,.25);
+    }
+
+    .actions{ display:flex; gap:12px; flex-wrap:wrap; margin-top:16px; }
+
+    /* Report card */
+    .report-card{
+      background:linear-gradient(160deg, rgba(50,78,162,.12), rgba(116,152,212,.10)), var(--card-bg);
+      border-radius:var(--radius); padding:22px; box-shadow:var(--shadow);
+      border:1px solid rgba(50,78,162,.18);
+    }
+    .report-hero{
+      display:flex; align-items:center; gap:14px; margin:8px 0 18px;
+    }
+    .badge{
+      padding:6px 10px; border-radius:10px; font-size:12px; font-weight:700; color:#083; background:rgba(1,191,31,.12); border:1px solid rgba(1,191,31,.25);
+    }
+    .mini-stats{ display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:#2a3550; }
+    .pill{
+      padding:8px 10px; border-radius:999px; background:#f6f9ff; border:1px solid rgba(116,152,212,.28);
+    }
+
+    /* ===== Bloque decorativo inferior (Dashboard TAX) ===== */
+
+    /* Evita conflicto con .container de Bootstrap */
+    .tax-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+
+    section {
+      background: var(--white);
+      border: 1px solid #CCCCCC;
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 300px;
+      box-shadow: 0 8px 24px rgba(50,78,162,.08);
+    }
+
+    .placeholder {
+      background: #EAEAEA;
+      border: 1px dashed #CCCCCC;
+      border-radius: 4px;
+      height: 100px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #888888;
+      font-style: italic;
+    }
+
+    h2.section-title {
+      margin-bottom: 16px;
+      font-size: 1.5rem;
+      color: var(--blue-900);
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-start;
+      margin-top: 16px;
+    }
+
+    .buttons button {
+      padding: 8px 12px;
+      border: 1px solid var(--blue-900);
+      border-radius: 4px;
+      background: var(--white);
+      color: var(--blue-900);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .buttons button:hover {
+      background: var(--green-500);
+      color: var(--white);
+      border-color: var(--green-500);
+    }
+
+    /* Salvavidas contra restricciones del layout global */
+    #tax-root .card, #tax-root .report-card, #tax-root section { min-width:0; }
+  </style>
+
+  <!-- ======== BLOQUE 1: Upload & Report ======== -->
+<div class="tax-body">
+  <div class="page">
+
+    <!-- Topbar (opcional) -->
+    <!-- <div class="topbar">...</div> -->
+
+    <div class="grid-two">
+      <!-- LEFT: Upload Purchase Invoice -->
+      <div class="card">
+        <h2>Upload Purchase Invoice</h2>
+        <p class="subtitle">JPG or PDF. We’ll OCR it and pre-fill the fields for review.</p>
+
+        <form id="upload-form" method="post" action="{% url 'invoice_upload' %}" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          <label id="dropzone" class="dropzone" for="file">
+            <div class="dz-icon">↑</div>
+            <div class="dz-title">Drag & drop your file here</div>
+            <p class="dz-help">or click to choose a file</p>
+            <input id="file" class="sr-only" type="file" name="file" accept="image/*,application/pdf" required />
+            <div id="file-chip" class="file-chip" style="display:none">
+              <span id="file-name"></span>
+            </div>
+          </label>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">Process with OCR</button>
+          </div>
+        </form>
+      </div> <!-- <-- IMPORTANTE: cerrar la tarjeta izquierda -->
+
+      <!-- RIGHT: View Tax Report -->
+      <div class="card report-card">
+        <h2>View Tax Report</h2>
+        <div class="report-hero">
+          <span class="badge">Live</span>
+          <span class="pill">VAT • USC • PRSI • Income Tax</span>
+        </div>
+        <p class="subtitle">See your up-to-date tax breakdown, thresholds and VAT position.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="{% url 'tax_report' %}">Open Tax Report</a>
+          <a class="btn btn-outline" href="{% url 'dash_tax' %}">Go to TAX module</a>
+        </div>
+      </div>
+    </div> <!-- .grid-two -->
+
+  </div> <!-- .page -->
+</div> <!-- .tax-body -->
+
+  <!-- ======== BLOQUE 2: Tax Module Dashboard (decorativo) ======== -->
+  <div class="tax-body" style="padding:20px">
+    <div class="tax-container">
+      <!-- Section 1: Tax Dashboard -->
+      <section id="dashboard">
+        <h2 class="section-title">Tax Dashboard</h2>
+        <div class="placeholder">[Tax chart]</div>
+        <div class="placeholder">[Monthly summary]</div>
+        <div class="buttons">
+          <button>Add Expense</button>
+          <button>Upload Receipt</button>
+          <button>Refresh Estimates</button>
+          <button>Download PDF</button>
+          <button>Download CSV</button>
+        </div>
+      </section>
+
+      <!-- Section 2: Compliance -->
+      <section id="compliance">
+        <h2 class="section-title">Compliance</h2>
+        <div class="placeholder">[Reminders list]</div>
+        <div class="placeholder">[Deadline alerts]</div>
+        <div class="buttons">
+          <button>View Details</button>
+          <button>Mark as Read</button>
+          <button>Configure Alerts</button>
+        </div>
+      </section>
+
+      <!-- Section 3: Sync & Settings -->
+      <section id="sync-settings">
+        <h2 class="section-title">Sync & Settings</h2>
+        <div class="placeholder">[Sync status]</div>
+        <div class="placeholder">[Tax profile]</div>
+        <div class="buttons">
+          <button>Sync Now</button>
+          <button>View History</button>
+          <button>Edit Profile</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- JS mínimo para UX de upload (decorativo) -->
+  <script>
+    // Drag & drop UX
+    const dz = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file');
+    const chip = document.getElementById('file-chip');
+    const fileName = document.getElementById('file-name');
+    const clearBtn = document.getElementById('clear-file');
+
+    if (dz) {
+      ['dragenter','dragover'].forEach(evt=>{
+        dz.addEventListener(evt, e=>{ e.preventDefault(); e.stopPropagation(); dz.classList.add('drag'); });
+      });
+      ['dragleave','drop'].forEach(evt=>{
+        dz.addEventListener(evt, e=>{ e.preventDefault(); e.stopPropagation(); dz.classList.remove('drag'); });
+      });
+      dz.addEventListener('drop', e=>{
+        const f = e.dataTransfer.files[0];
+        if(!f) return;
+        fileInput.files = e.dataTransfer.files;
+        chip.style.display='inline-flex';
+        fileName.textContent = `${f.name} • ${(f.size/1024/1024).toFixed(2)} MB`;
+      });
+    }
+
+    if (fileInput) {
+      fileInput.addEventListener('change', e=>{
+        const f = e.target.files[0];
+        if(!f){ chip.style.display='none'; return; }
+        chip.style.display='inline-flex';
+        fileName.textContent = `${f.name} • ${(f.size/1024/1024).toFixed(2)} MB`;
+      });
+    }
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', ()=>{
+        fileInput.value = '';
+        chip.style.display='none';
+        fileName.textContent = '';
+      });
+    }
+
+    // Decorativo: evita submit real hasta que tengamos endpoint
+    const form = document.getElementById('upload-form');
+    if (form) {
+      form.addEventListener('submit', function(e){ e.preventDefault(); });
+    }
+  </script>
+
+</div> <!-- /#tax-root -->
+
+{% endblock %}
