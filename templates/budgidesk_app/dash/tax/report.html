@@ -1,387 +1,217 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Reporte Fiscal</title>
-    <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --light: #f8f9fa;
-            --dark: #343a40;
-        }
-        
-        body { 
-            font-family: Arial, sans-serif; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            background-color: #f5f7fa;
-            color: #333;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid var(--secondary);
-        }
-        
-        .header h1 {
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-        
-        .back-btn {
-            display: inline-block;
-            background: var(--secondary);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 4px;
-            text-decoration: none;
-            margin-top: 20px;
-        }
-        
-        .back-btn:hover {
-            background: #2980b9;
-        }
-        
-        .section { 
-            margin-bottom: 30px; 
-            background: white; 
-            padding: 25px; 
-            border-radius: 8px; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .section h2 {
-            color: var(--primary);
-            border-bottom: 2px solid var(--light);
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-        
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-bottom: 20px;
-        }
-        
-        th, td { 
-            padding: 12px 15px; 
-            text-align: left; 
-            border-bottom: 1px solid #ddd;
-        }
-        
-        th { 
-            background-color: var(--primary);
-            color: white;
-            font-weight: bold;
-        }
-        
-        tr:hover {
-            background-color: #f9f9f9;
-        }
-        
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .summary-card { 
-            background: white; 
-            border: 1px solid #e0e0e0; 
-            border-radius: 8px; 
-            padding: 20px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        
-        .tax-value {
-            font-size: 1.4em;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        .tax-total { 
-            color: var(--danger);
-            font-weight: bold;
-            font-size: 1.3em;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-        
-        .positive {
-            color: var(--success);
-        }
-        
-        .negative {
-            color: var(--danger);
-        }
-        
-        .invoice-section {
-            overflow-x: auto;
-        }
-        
-        .excel-style {
-            font-family: Arial;
-            background-color: #f8f9fa;
-        }
-        
-        .excel-style th {
-            background-color: #2c3e50;
-            color: white;
-            text-align: center;
-        }
-        
-        .excel-style td {
-            border: 1px solid #ddd;
-        }
-        
-        .excel-style .total-row {
-            font-weight: bold;
-            background-color: #e6e6e6;
-        }
-        
-        .excel-style .formula {
-            font-style: italic;
-            color: #0070c0;
-        }
-        
-        .excel-style .note {
-            font-size: 0.9em;
-            color: #666;
-        }
-        
-        .section-title {
-            font-weight: bold;
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            color: var(--primary);
-            border-bottom: 2px solid var(--secondary);
-            padding-bottom: 5px;
-        }
-    </style>
+  <title>Reporte Fiscal</title>
+  <style>
+    /* (tus estilos tal cual) */
+    :root{--primary:#2c3e50;--secondary:#3498db;--success:#27ae60;--danger:#e74c3c;--light:#f8f9fa;--dark:#343a40}
+    body{font-family:Arial,sans-serif;max-width:1200px;margin:0 auto;padding:20px;background:#f5f7fa;color:#333}
+    .header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid var(--secondary)}
+    .header h1{color:var(--primary);margin-bottom:10px}
+    .back-btn{display:inline-block;background:var(--secondary);color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;margin-top:20px}
+    .back-btn:hover{background:#2980b9}
+    .section{margin-bottom:30px;background:#fff;padding:25px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+    .section h2{color:var(--primary);border-bottom:2px solid var(--light);padding-bottom:10px;margin-top:0}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px}
+    th,td{padding:12px 15px;text-align:left;border-bottom:1px solid #ddd}
+    th{background:#2c3e50;color:#fff;font-weight:bold}
+    tr:hover{background:#f9f9f9}
+    .excel-style{font-family:Arial;background:#f8f9fa}
+    .excel-style td{border:1px solid #ddd}
+    .excel-style .total-row{font-weight:bold;background:#e6e6e6}
+    .excel-style .formula{font-style:italic;color:#0070c0}
+    .excel-style .note{font-size:.9em;color:#666}
+    .section-title{font-weight:bold;font-size:1.2em;margin-bottom:15px;color:var(--primary);border-bottom:2px solid var(--secondary);padding-bottom:5px}
+  </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📊 Reporte Fiscal (Formato Excel)</h1>
-        <a href="/" class="back-btn">Volver a Inicio</a>
-    </div>
+  <div class="header">
+    <h1>📊 Reporte Fiscal (Formato Excel)</h1>
+    <a href="{% url 'dash_tax' %}" class="back-btn">Volver a TAX</a>
+  </div>
 
-        <!-- Facturas Emitidas -->
-    <div class="section">
-        <div class="section-title">Facturas Emitidas</div>
-        <table class="excel-style">
-            <thead>
-                <tr>
-                    <th>Factura</th>
-                    <th>Subtotal (Neto)</th>
-                    <th>VAT 23%</th>
-                    <th>Total (Bruto)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for invoice in invoices %}
-                <tr>
-                    <td>Invoice {{ loop.index }}</td>
-                    <td class="formula">€{{ (invoice.total|float / 1.23)|round(2) }}</td>
-                    <td class="formula">€{{ (invoice.total|float / 1.23 * 0.23)|round(2) }}</td>
-                    <td>€{{ invoice.total|float|round(2) }}</td>
-                </tr>
-                {% endfor %}
-                <tr class="total-row">
-                    <td>Totales</td>
-                    <td class="formula">€{{ tax_data.income.gross|float|round(2) }}</td>
-                    <td class="formula">€{{ tax_data.vat.collected|float|round(2) }}</td>
-                    <td class="formula">€{{ (tax_data.income.gross|float + tax_data.vat.collected|float)|round(2) }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <!-- Facturas Emitidas -->
+  <div class="section">
+    <div class="section-title">Facturas Emitidas</div>
+    <table class="excel-style">
+      <thead>
+        <tr>
+          <th>Factura</th>
+          <th>Subtotal (Neto)</th>
+          <th>VAT 23%</th>
+          <th>Total (Bruto)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows_sales %}
+        <tr>
+          <td>Invoice {{ forloop.counter }}</td>
+          <td class="formula">€{{ r.net }}</td>
+          <td class="formula">€{{ r.vat }}</td>
+          <td>€{{ r.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4"><em>No hay facturas emitidas.</em></td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td>Totales</td>
+          <td class="formula">€{{ tax_data.income.gross }}</td>
+          <td class="formula">€{{ tax_data.vat.collected }}</td>
+          <td class="formula">€{{ tax_data.income.gross|add:tax_data.vat.collected }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Facturas de Gasto -->
-    <div class="section">
-        <div class="section-title">Facturas de Gasto</div>
-        <table class="excel-style">
-            <thead>
-                <tr>
-                    <th>Factura</th>
-                    <th>Subtotal (Neto)</th>
-                    <th>VAT 23%</th>
-                    <th>Total (Bruto)</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for purchase in purchases %}
-                <tr>
-                    <td>Invoice {{ loop.index }}</td>
-                    <td class="formula">€{{ (purchase.total|float / 1.23)|round(2) }}</td>
-                    <td class="formula">€{{ (purchase.total|float / 1.23 * 0.23)|round(2) }}</td>
-                    <td>€{{ purchase.total|float|round(2) }}</td>
-                </tr>
-                {% endfor %}
-                <tr class="total-row">
-                    <td>Totales</td>
-                    <td class="formula">€{{ tax_data.income.expenses|float|round(2) }}</td>
-                    <td class="formula">€{{ tax_data.vat.paid|float|round(2) }}</td>
-                    <td class="formula">€{{ (tax_data.income.expenses|float + tax_data.vat.paid|float)|round(2) }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <!-- Facturas de Gasto -->
+  <div class="section">
+    <div class="section-title">Facturas de Gasto</div>
+    <table class="excel-style">
+      <thead>
+        <tr>
+          <th>Factura</th>
+          <th>Subtotal (Neto)</th>
+          <th>VAT 23%</th>
+          <th>Total (Bruto)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows_purchases %}
+        <tr>
+          <td>Invoice {{ forloop.counter }}</td>
+          <td class="formula">€{{ r.net }}</td>
+          <td class="formula">€{{ r.vat }}</td>
+          <td>€{{ r.total }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4"><em>No hay facturas de gasto.</em></td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td>Totales</td>
+          <td class="formula">€{{ tax_data.income.expenses }}</td>
+          <td class="formula">€{{ tax_data.vat.paid }}</td>
+          <td class="formula">€{{ tax_data.income.expenses|add:tax_data.vat.paid }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Resumen VAT -->
-    <div class="section">
-        <div class="section-title">Resumen VAT</div>
-        <table class="excel-style">
-            <tr>
-                <td>Tax collected</td>
-                <td class="formula">€{{ tax_data.vat.collected|float|round(2) }}</td>
-            </tr>
-            <tr>
-                <td>Tax paid</td>
-                <td class="formula">€{{ tax_data.vat.paid|float|round(2) }}</td>
-            </tr>
-            <tr class="total-row">
-                <td>Tax liability</td>
-                <td class="formula">€{{ tax_data.vat.liability|float|round(2) }}</td>
-            </tr>
-            <tr>
-                <td colspan="2" class="note">*VAT Return</td>
-            </tr>
-        </table>
-    </div>
+  <!-- Resumen VAT -->
+  <div class="section">
+    <div class="section-title">Resumen VAT</div>
+    <table class="excel-style">
+      <tr><td>Tax collected</td><td class="formula">€{{ tax_data.vat.collected }}</td></tr>
+      <tr><td>Tax paid</td><td class="formula">€{{ tax_data.vat.paid }}</td></tr>
+      <tr class="total-row"><td>Tax liability</td><td class="formula">€{{ tax_data.vat.liability }}</td></tr>
+      <tr><td colspan="2" class="note">*VAT Return</td></tr>
+    </table>
+  </div>
 
-    <!-- Resumen Fiscal -->
-    <div class="section">
-        <div class="section-title">Resumen Fiscal</div>
-        <table class="excel-style">
-            <thead>
-                <tr>
-                    <th>Gross Income</th>
-                    <th>Expenses</th>
-                    <th>Taxable Income</th>
-                    <th>Income Tax</th>
-                    <th>Tax Credits</th>
-                    <th>USC</th>
-                    <th>PRSI</th>
-                    <th>Total Tax</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="formula">€{{ tax_data.income.gross|float|round(2) }}</td>
-                    <td class="formula">€{{ tax_data.income.expenses|float|round(2) }}</td>
-                    <td class="formula">€{{ tax_data.income.taxable|float|round(2) }}</td>
-                    <td class="formula">€{{ tax_data.income_tax.net|float|round(2) }}</td>
-                    <td class="formula">€{{ tax_data.income_tax.credits|float|round(2) }}</td>
-                    <td class="formula">€{{ tax_data.usc.total|float|round(2) }}</td>
-                    <td class="formula">€{{ tax_data.prsi|float|round(2) }}</td>
-                    <td class="formula">€{{ tax_data.total_tax|float|round(2) }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <!-- Resumen Fiscal -->
+  <div class="section">
+    <div class="section-title">Resumen Fiscal</div>
+    <table class="excel-style">
+      <thead>
+        <tr>
+          <th>Gross Income</th><th>Expenses</th><th>Taxable Income</th>
+          <th>Income Tax</th><th>Tax Credits</th><th>USC</th><th>PRSI</th><th>Total Tax</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="formula">€{{ tax_data.income.gross }}</td>
+          <td class="formula">€{{ tax_data.income.expenses }}</td>
+          <td class="formula">€{{ tax_data.income.taxable }}</td>
+          <td class="formula">€{{ tax_data.income_tax.net }}</td>
+          <td class="formula">€{{ tax_data.income_tax.credits }}</td>
+          <td class="formula">€{{ tax_data.usc.total }}</td>
+          <td class="formula">€{{ tax_data.prsi }}</td>
+          <td class="formula">€{{ tax_data.total_tax }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Detalle Income Tax -->
-    <div class="section">
-        <div class="section-title">1. Income Tax</div>
-        <table class="excel-style">
-            <thead>
-                <tr>
-                    <th>Tramo</th>
-                    <th>Base</th>
-                    <th>Tasa</th>
-                    <th>Impuesto</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Primer tramo</td>
-                    <td>€44,000</td>
-                    <td>20%</td>
-                    <td class="formula">€{{ [44000 * 0.2, tax_data.income.taxable|float * 0.2]|min|round(2) }}</td>
-                </tr>
-                {% if tax_data.income.taxable|float > 44000 %}
-                <tr>
-                    <td>Exceso ({{ tax_data.income.taxable|float|round(2) }} - 44,000)</td>
-                    <td class="formula">€{{ (tax_data.income.taxable|float - 44000)|round(2) }}</td>
-                    <td>40%</td>
-                    <td class="formula">€{{ ((tax_data.income.taxable|float - 44000) * 0.4)|round(2) }}</td>
-                </tr>
-                {% endif %}
-                <tr class="total-row">
-                    <td colspan="3">Subtotal</td>
-                    <td class="formula">€{{ tax_data.income_tax.gross|float|round(2) }}</td>
-                </tr>
-                <tr>
-                    <td colspan="3">Tax Credits</td>
-                    <td class="formula">-€{{ tax_data.income_tax.credits|float|round(2) }}</td>
-                </tr>
-                <tr class="total-row">
-                    <td colspan="3">Net Income Tax</td>
-                    <td class="formula">€{{ tax_data.income_tax.net|float|round(2) }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <!-- Detalle Income Tax -->
+  <div class="section">
+    <div class="section-title">1. Income Tax</div>
+    <table class="excel-style">
+      <thead>
+        <tr><th>Tramo</th><th>Base</th><th>Tasa</th><th>Impuesto</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Primer tramo</td>
+          <td>€44,000</td>
+          <td>20%</td>
+          <td class="formula">€{{ first_band_tax }}</td>
+        </tr>
+        {% if show_excess %}
+        <tr>
+          <td>Exceso</td>
+          <td class="formula">€{{ excess_amount }}</td>
+          <td>40%</td>
+          <td class="formula">€{{ excess_tax }}</td>
+        </tr>
+        {% endif %}
+        <tr class="total-row">
+          <td colspan="3">Subtotal</td>
+          <td class="formula">€{{ tax_data.income_tax.gross }}</td>
+        </tr>
+        <tr>
+          <td colspan="3">Tax Credits</td>
+          <td class="formula">-€{{ tax_data.income_tax.credits }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="3">Net Income Tax</td>
+          <td class="formula">€{{ tax_data.income_tax.net }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Detalle USC -->
-    <div class="section">
-        <div class="section-title">2. USC - Universal Social Charge</div>
-        <table class="excel-style">
-            <thead>
-                <tr>
-                    <th>Tramo</th>
-                    <th>Desde</th>
-                    <th>Hasta</th>
-                    <th>Tasa</th>
-                    <th>Monto</th>
-                    <th>Impuesto</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for band in tax_data.usc.breakdown %}
-                <tr>
-                    <td>Tramo {{ loop.index }}</td>
-                    <td>€{{ band.band.split(' - ')[0].replace('€','') }}</td>
-                    <td>€{{ band.band.split(' - ')[1].replace('€','') }}</td>
-                    <td>{{ band.rate }}</td>
-                    <td class="formula">€{{ band.amount|float|round(2) }}</td>
-                    <td class="formula">€{{ band.tax|float|round(2) }}</td>
-                </tr>
-                {% endfor %}
-                <tr class="total-row">
-                    <td colspan="5">Total USC</td>
-                    <td class="formula">€{{ tax_data.usc.total|float|round(2) }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <!-- Detalle USC -->
+  <div class="section">
+    <div class="section-title">2. USC - Universal Social Charge</div>
+    <table class="excel-style">
+      <thead>
+        <tr><th>Tramo</th><th>Desde</th><th>Hasta</th><th>Tasa</th><th>Monto</th><th>Impuesto</th></tr>
+      </thead>
+      <tbody>
+        {% for band in tax_data.usc.breakdown %}
+        <tr>
+          <td>Tramo {{ forloop.counter }}</td>
+          <td>{{ band.band|slice:":-1"|cut:"€"|cut:" " }}</td>
+          <td>{{ band.band|slice:"-999:"|cut:"€"|cut:" " }}</td>
+          <td>{{ band.rate }}</td>
+          <td class="formula">€{{ band.amount }}</td>
+          <td class="formula">€{{ band.tax }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6"><em>Sin tramos USC.</em></td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="5">Total USC</td>
+          <td class="formula">€{{ tax_data.usc.total }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Detalle PRSI -->
-    <div class="section">
-        <div class="section-title">3. PRSI (Clase S)</div>
-        <table class="excel-style">
-            <thead>
-                <tr>
-                    <th>Base</th>
-                    <th>Tasa</th>
-                    <th>Impuesto</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="formula">€{{ tax_data.income.taxable|float|round(2) }}</td>
-                    <td>4%</td>
-                    <td class="formula">€{{ tax_data.prsi|float|round(2) }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+  <!-- PRSI -->
+  <div class="section">
+    <div class="section-title">3. PRSI (Clase S)</div>
+    <table class="excel-style">
+      <thead><tr><th>Base</th><th>Tasa</th><th>Impuesto</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="formula">€{{ tax_data.income.taxable }}</td>
+          <td>4%</td>
+          <td class="formula">€{{ tax_data.prsi }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </body>
 </html>

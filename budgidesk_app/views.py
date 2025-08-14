@@ -27,7 +27,7 @@ from logic import stripe as stripe_logic
 # ---- 4. NUEVO: OCR + CSV reutilizando tu código existente ----
 # Estos módulos vienen de tu fiscal_funcional: ocr_processor, data_manager
 from logic.ocr_processor import process_invoice       # devuelve dict: supplier, date, total, vat, description
-from logic.data_manager import save_invoice              # guarda en CSV si quieres (opcional)
+from logic.data_manager import save_invoice, load_data              # guarda en CSV si quieres (opcional)
 
 # ---- 5. NUEVO: modelos y formulario de facturas ----
 from .models import Invoice, Client
@@ -37,6 +37,14 @@ try:
 except Exception:
     # Fallback: por si aún no lo has creado; no rompe import.
     InvoiceForm = None
+
+from decimal import Decimal, ROUND_HALF_UP
+ 
+
+
+from logic.tax_calculator import calculate_taxes
+
+
 
 
 ######################################
@@ -110,8 +118,46 @@ def invoice_list_view(request):
 @login_required
 def tax_report_view(request):
     debug("Accessing tax_report_view")
-    check_template_exists("budgidesk_app/taxes/tax_report.html")
-    return render(request, "budgidesk_app/taxes/tax_report.html")
+
+    # 1. Cargar CSV
+    invoices = load_data('invoices.csv') or []
+    purchases = load_data('purchases.csv') or []
+
+    # 2. Convertir datos
+    rows_sales = []
+    for i, inv in enumerate(invoices, start=1):
+        total = _D(inv.get('total', 0))
+        net = (total / Decimal('1.23')) if total else Decimal('0')
+        vat = net * Decimal('0.23')
+        rows_sales.append({"n": i, "net": _q2(net), "vat": _q2(vat), "total": _q2(total)})
+
+    rows_pur = []
+    for i, pur in enumerate(purchases, start=1):
+        total = _D(pur.get('total', 0))
+        net = (total / Decimal('1.23')) if total else Decimal('0')
+        vat = net * Decimal('0.23')
+        rows_pur.append({"n": i, "net": _q2(net), "vat": _q2(vat), "total": _q2(total)})
+
+    # 3. Calcular impuestos
+    tax_data = calculate_tax_data(invoices, purchases)
+
+    # 4. Variables adicionales para el cálculo IRPF (banda de 44k)
+    taxable = _D(tax_data['income']['taxable'])
+    first_band = min(taxable, Decimal('44000'))
+    excess = max(taxable - Decimal('44000'), Decimal('0'))
+
+    context = {
+        "rows_sales": rows_sales,
+        "rows_purchases": rows_pur,
+        "tax_data": tax_data,
+        "first_band_amount": _q2(first_band),
+        "first_band_tax": _q2(first_band * Decimal('0.2')),
+        "excess_amount": _q2(excess),
+        "excess_tax": _q2(excess * Decimal('0.4')),
+        "show_excess": taxable > Decimal('44000'),
+    }
+
+    return render(request, "budgidesk_app/dash/tax/report.html", context)
 
 
 @require_plan('smart')
@@ -417,17 +463,67 @@ def invoice_upload_view(request):
     return redirect("dash_tax")
 
 
+
+@login_required
+def budsi_tax_report(request):
+    from decimal import Decimal, ROUND_HALF_UP
+    from logic.data_manager import load_data
+    from logic.tax_calculator import calculate_tax_data
+
+    def _D(x):
+        try:
+            return Decimal(str(x))
+        except:
+            return Decimal('0')
+
+    def _q2(x):
+        return x.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+    invoices = load_data('invoices.csv')
+    purchases = load_data('purchases.csv')
+
+    rows_sales = []
+    for i, inv in enumerate(invoices, start=1):
+        total = _D(inv.get('total', 0))
+        net = (total / Decimal('1.23')) if total else Decimal('0')
+        vat = net * Decimal('0.23')
+        rows_sales.append({"n": i, "net": _q2(net), "vat": _q2(vat), "total": _q2(total)})
+
+    rows_pur = []
+    for i, pur in enumerate(purchases, start=1):
+        total = _D(pur.get('total', 0))
+        net = (total / Decimal('1.23')) if total else Decimal('0')
+        vat = net * Decimal('0.23')
+        rows_pur.append({"n": i, "net": _q2(net), "vat": _q2(vat), "total": _q2(total)})
+
+    tax_data = calculate_tax_data(invoices, purchases)
+
+    taxable_income = _D(tax_data['income']['taxable'])
+    first_band = min(taxable_income, Decimal('44000'))
+    excess = max(taxable_income - Decimal('44000'), Decimal('0'))
+
+    context = {
+        "rows_sales": rows_sales,
+        "rows_purchases": rows_pur,
+        "tax_data": tax_data,
+        "first_band_amount": _q2(first_band),
+        "first_band_tax": _q2(first_band * Decimal('0.2')),
+        "excess_amount": _q2(excess),
+        "excess_tax": _q2(excess * Decimal('0.4')),
+        "show_excess": taxable_income > Decimal('44000'),
+    }
+    return render(request, "budgidesk_app/dash/tax/report.html", context)
+
 @login_required
 def invoice_preview_view(request, invoice_id: int):
     """
-    Muestra 'preview.html' con el documento original (img/pdf) y form editable.
+    Muestra 'preview_purchase.html' con el documento original (img/pdf) y form editable.
     Al confirmar, marca is_confirmed=True y vuelve a la lista de invoices.
     """
     invoice = get_object_or_404(Invoice, id=invoice_id, user=request.user)
 
-    # Asegurar template (si usas debugger)
     try:
-        check_template_exists("budgidesk_app/invoices/preview.html")
+        check_template_exists("budgidesk_app/dash/tax/preview_purchase.html")
     except Exception:
         pass
 
@@ -439,7 +535,6 @@ def invoice_preview_view(request, invoice_id: int):
                 inv.is_confirmed = True
             inv.save()
 
-            # (Opcional) si confirmas una recibida, regraba CSV “purchases”
             try:
                 save_invoice(
                     {
@@ -454,16 +549,19 @@ def invoice_preview_view(request, invoice_id: int):
             except Exception as e:
                 debug(f"CSV save on confirm skipped: {e}")
 
-            return redirect("invoice_list")
+            return redirect("dash_tax")
     else:
         form = InvoiceForm(instance=invoice, user=request.user) if InvoiceForm else None
 
     original_url = invoice.original_file.url if invoice.original_file else None
     is_pdf = (original_url or "").lower().endswith(".pdf")
 
-    return render(request, "budgidesk_app/invoices/preview.html", {
+    return render(request, "budgidesk_app/dash/tax/preview_purchase.html", {
         "invoice": invoice,
         "form": form,
         "original_url": original_url,
         "is_pdf": is_pdf,
     })
+
+
+

@@ -24,7 +24,7 @@ urlpatterns = [
     path("invoice/list/", views.invoice_list_view, name="invoice_list"),
 
     # Taxes
-    path("tax/report/", views.tax_report_view, name="tax_report"),
+    path("tax/report/", views.budsi_tax_report, name="tax_report"),
 
     # Finances
     path("finances/overview/", views.balance_overview_view, name="balance_overview"),
@@ -61,6 +61,9 @@ urlpatterns = [
     # Upload OCR + Preview
     path("invoice/upload/", views.invoice_upload_view, name="invoice_upload"),
     path("invoices/<int:invoice_id>/preview/", views.invoice_preview_view, name="invoice_preview"),
+    path("budsi/report/", views.budsi_tax_report, name="budsi_tax_report"),
+
+
     
 
 

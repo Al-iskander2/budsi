@@ -1,4 +1,4 @@
-from data_manager import load_data
+from logic.data_manager import load_data
 
 def calculate_taxes():
     # Constantes fiscales (actualizadas para coincidir con Excel)
