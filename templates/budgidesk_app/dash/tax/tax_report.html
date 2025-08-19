@@ -5,23 +5,202 @@
 
 <!-- Wrapper para aislar estilos del layout -->
 <div id="tax-root" lang="en">
-  <!-- TODO: Tus estilos (sin cambios) -->
-  <!-- (OMITIDO AQUÍ PARA ENFOCARNOS EN LA LÓGICA DEL FORMULARIO) -->
+  <style>
+    /* Estilos modernizados */
+    .tax-body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      padding: 2rem 0;
+    }
+    
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+    
+    @media (max-width: 768px) {
+      .grid-two {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e2e8f0;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .card h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+    }
+    
+    .subtitle {
+      color: #64748b;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    
+    /* Dropzone mejorado */
+    .dropzone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+      margin-bottom: 1.5rem;
+    }
+    
+    .dropzone:hover, .dropzone.drag {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    
+    .dz-icon {
+      font-size: 2rem;
+      color: #94a3b8;
+      margin-bottom: 1rem;
+    }
+    
+    .dropzone:hover .dz-icon, .dropzone.drag .dz-icon {
+      color: #3b82f6;
+    }
+    
+    .dz-title {
+      font-weight: 500;
+      color: #334155;
+      margin-bottom: 0.5rem;
+    }
+    
+    .dz-help {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      margin: 0;
+    }
+    
+    /* File chip mejorado */
+    .file-chip {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    /* Botones mejorados */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.2s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+    }
+    
+    /* Report card mejorado */
+    .report-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .report-card h2,
+    .report-card .subtitle {
+      color: white;
+    }
+    
+    .report-hero {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    
+    .badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      backdrop-filter: blur(10px);
+    }
+    
+    .pill {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    
+    .actions {
+      margin-top: 1.5rem;
+    }
+  </style>
 
   <!-- ======== BLOQUE 1: Upload & Report ======== -->
   <div class="tax-body">
     <div class="page">
-
       <div class="grid-two">
         <!-- LEFT: Upload Purchase Invoice -->
         <div class="card">
           <h2>Upload Purchase Invoice</h2>
-          <p class="subtitle">JPG or PDF. We’ll OCR it and pre-fill the fields for review.</p>
+          <p class="subtitle">JPG or PDF. We'll OCR it and pre-fill the fields for review.</p>
 
           <form id="upload-form" method="post" action="{% url 'invoice_upload' %}" enctype="multipart/form-data">
             {% csrf_token %}
             <label id="dropzone" class="dropzone" for="file">
-              <div class="dz-icon">↑</div>
+              <div class="dz-icon">📁</div>
               <div class="dz-title">Drag & drop your file here</div>
               <p class="dz-help">or click to choose a file</p>
               <input id="file" class="sr-only" type="file" name="file" accept="image/*,application/pdf" required />
@@ -45,19 +224,10 @@
           </div>
           <p class="subtitle">See your up-to-date tax breakdown, thresholds and VAT position.</p>
           <div class="actions">
-            <a class="btn btn-primary" href="{% url 'tax_report' %}">Open Tax Report</a>
-            
+            <a class="btn btn-primary" href="{% url 'tax_report' %}" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);">Open Tax Report</a>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- ======== BLOQUE 2: Tax Module Dashboard (decorativo) ======== -->
-  <div class="tax-body" style="padding:20px">
-    <div class="tax-container">
-      <!-- (no modifiques este bloque, está bien como está) -->
-      <!-- ... -->
     </div>
   </div>
 
@@ -67,7 +237,6 @@
     const fileInput = document.getElementById('file');
     const chip = document.getElementById('file-chip');
     const fileName = document.getElementById('file-name');
-    const clearBtn = document.getElementById('clear-file');
 
     if (dz) {
       ['dragenter','dragover'].forEach(evt=>{
@@ -93,9 +262,50 @@
         fileName.textContent = `${f.name} • ${(f.size/1024/1024).toFixed(2)} MB`;
       });
     }
-
-
   </script>
+</div>
 
-</div> <!-- /#tax-root -->
+<!-- ======== BLOQUE 2: Tax Module Dashboard ======== -->
+<div class="tax-body" style="padding:20px">
+  <div class="tax-container">
+    <!-- Section 1: Tax Dashboard -->
+    <section id="dashboard">
+      <h2 class="section-title">Tax Dashboard</h2>
+      <div class="placeholder">[Tax chart]</div>
+      <div class="placeholder">[Monthly summary]</div>
+      <div class="buttons">
+        <button>Add Expense</button>
+        <button>Upload Receipt</button>
+        <button>Refresh Estimates</button>
+        <button>Download PDF</button>
+        <button>Download CSV</button>
+      </div>
+    </section>
+
+    <!-- Section 2: Compliance -->
+    <section id="compliance">
+      <h2 class="section-title">Compliance</h2>
+      <div class="placeholder">[Reminders list]</div>
+      <div class="placeholder">[Deadline alerts]</div>
+      <div class="buttons">
+        <button>View Details</button>
+        <button>Mark as Read</button>
+        <button>Configure Alerts</button>
+      </div>
+    </section>
+
+    <!-- Section 3: Sync & Settings -->
+    <section id="sync-settings">
+      <h2 class="section-title">Sync & Settings</h2>
+      <div class="placeholder">[Sync status]</div>
+      <div class="placeholder">[Tax profile]</div>
+      <div class="buttons">
+        <button>Sync Now</button>
+        <button>View History</button>
+        <button>Edit Profile</button>
+      </div>
+    </section>
+  </div>
+</div>
+
 {% endblock %}

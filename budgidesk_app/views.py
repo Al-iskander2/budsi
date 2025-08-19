@@ -44,6 +44,9 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from logic.tax_calculator import calculate_taxes
 
+from logic.data_manager import load_data
+
+
 
 
 
@@ -139,7 +142,7 @@ def tax_report_view(request):
         rows_pur.append({"n": i, "net": _q2(net), "vat": _q2(vat), "total": _q2(total)})
 
     # 3. Calcular impuestos
-    tax_data = calculate_tax_data(invoices, purchases)
+    tax_data = calculate_taxes(invoices, purchases)
 
     # 4. Variables adicionales para el cálculo IRPF (banda de 44k)
     taxable = _D(tax_data['income']['taxable'])
@@ -462,25 +465,21 @@ def invoice_upload_view(request):
     # GET o sin archivo → vuelve al módulo TAX (tu pantalla actual)
     return redirect("dash_tax")
 
+def _D(x):
+    try:
+        return Decimal(str(x))
+    except:
+        return Decimal('0')
 
+def _q2(x):
+    return x.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 @login_required
 def budsi_tax_report(request):
-    from decimal import Decimal, ROUND_HALF_UP
-    from logic.data_manager import load_data
-    from logic.tax_calculator import calculate_tax_data
-
-    def _D(x):
-        try:
-            return Decimal(str(x))
-        except:
-            return Decimal('0')
-
-    def _q2(x):
-        return x.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     invoices = load_data('invoices.csv')
     purchases = load_data('purchases.csv')
+    tax_data = calculate_taxes(invoices, purchases)
 
     rows_sales = []
     for i, inv in enumerate(invoices, start=1):
@@ -496,7 +495,7 @@ def budsi_tax_report(request):
         vat = net * Decimal('0.23')
         rows_pur.append({"n": i, "net": _q2(net), "vat": _q2(vat), "total": _q2(total)})
 
-    tax_data = calculate_tax_data(invoices, purchases)
+    tax_data = calculate_taxes(invoices, purchases)
 
     taxable_income = _D(tax_data['income']['taxable'])
     first_band = min(taxable_income, Decimal('44000'))
