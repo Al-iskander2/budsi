@@ -19,6 +19,7 @@ import stripe
 # ---- 3. Código local de la aplicación ----
 from .forms import CustomUserCreationForm
 from .models import FiscalProfile
+from .models import Invoice 
 from logic.debugger import check_template_exists, debug
 from logic.fill_pdf import generate_invoice_pdf
 from logic.plan_tiers import PLAN_TIERS, require_plan
@@ -47,6 +48,15 @@ from logic.tax_calculator import calculate_taxes
 from logic.data_manager import load_data
 
 
+# invoices ventas
+
+from decimal import Decimal, InvalidOperation
+from django.db import transaction
+from django.utils.dateparse import parse_date
+from django.shortcuts import render, redirect
+from .models import Client, Invoice, FiscalProfile
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 
 
@@ -283,7 +293,13 @@ def track_view(request):
 
 @login_required
 def tax_view(request):
-    return render(request, "budgidesk_app/dash/tax/tax_report.html")
+    invoices = (
+        Invoice.objects
+        .filter(user=request.user, type='in', is_confirmed=True)
+        .select_related('client')   # evita N+1 (mejora rendimiento)
+        .order_by('-date', '-id')
+    )
+    return render(request, "budgidesk_app/dash/tax/tax_report.html", {"invoices": invoices})
 
 @login_required
 def doc_view(request):
@@ -512,6 +528,84 @@ def budsi_tax_report(request):
         "show_excess": taxable_income > Decimal('44000'),
     }
     return render(request, "budgidesk_app/dash/tax/report.html", context)
+
+
+### todo lo que es por parte de guardar la invoice en clients de la base de datos
+
+@login_required
+def invoice_create(request):
+    if request.method == 'POST':
+        # 1. Extraer y validar datos del formulario
+        client_name = (request.POST.get("client") or "").strip()
+        date_str = (request.POST.get("date") or "").strip()
+        amount_str = (request.POST.get("amount") or "0").strip()
+        vat_str = (request.POST.get("vat") or "0").strip()
+        description = (request.POST.get("description") or "").strip()
+
+        errors = []
+        if not client_name:
+            errors.append("El nombre del cliente es obligatorio.")
+        
+        inv_date = parse_date(date_str)
+        if not inv_date:
+            errors.append("Fecha inválida. Usa el formato AAAA-MM-DD.")
+
+        try:
+            amount = Decimal(amount_str)
+            vat = Decimal(vat_str)
+        except InvalidOperation:
+            errors.append("El monto y el IVA deben ser números válidos.")
+            amount, vat = Decimal("0"), Decimal("0")
+
+        if errors:
+            messages.error(request, " ".join(errors))
+            return render(request, "budgidesk_app/dash/invoice/invoice_created.html", {
+                "errors": errors, 
+                "form_data": request.POST
+            })
+
+        # 2. Guardar en la base de datos
+        try:
+            profile = FiscalProfile.objects.get(user=request.user)
+            with transaction.atomic():
+                client, _ = Client.objects.get_or_create(
+                    user=request.user, 
+                    name=client_name, 
+                    defaults={"is_supplier": False}
+                )
+                
+                Invoice.objects.create(
+                    user=request.user,
+                    client=client,
+                    type="out",
+                    date=inv_date,
+                    amount=amount,
+                    vat=vat,
+                    description=description,
+                    is_confirmed=True,
+                )
+                
+                profile.invoice_count += 1
+                profile.save()
+            
+            messages.success(request, "¡Factura guardada con éxito!")
+            return redirect("invoice_create")
+
+        except FiscalProfile.DoesNotExist:
+            return redirect("onboarding")
+    
+    # Método GET: Mostrar el formulario inicial
+    try:
+        profile = FiscalProfile.objects.get(user=request.user)
+    except FiscalProfile.DoesNotExist:
+        return redirect('onboarding')
+
+    invoices = Invoice.objects.filter(user=request.user, type="out").order_by('-date')
+    return render(request, "budgidesk_app/dash/invoice/invoice_create.html", {
+        'invoice_count': profile.invoice_count,
+        'invoices': invoices
+    })
+
 
 @login_required
 def invoice_preview_view(request, invoice_id: int):

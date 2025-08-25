@@ -48,7 +48,7 @@ endobj
 /F1 193 0 R
 /F2 194 0 R
 >>
-/ProcSet [ /ImageI /Text /ImageB /ImageC /PDF ]
+/ProcSet [ /Text /PDF /ImageC /ImageB /ImageI ]
 >>
 /Rotate 0
 /Tabs /S
@@ -1452,12 +1452,12 @@ BT
 ET
 BT
 1 0 0 1 450 740 Tm
-(24) Tj
+(63) Tj
 T*
 ET
 BT
 1 0 0 1 450 725 Tm
-(2025\05508\05514) Tj
+(2025\05508\05522) Tj
 T*
 ET
 BT

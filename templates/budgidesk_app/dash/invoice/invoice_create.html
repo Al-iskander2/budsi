@@ -2,40 +2,172 @@
 {% load static %}
 {% block content %}
 
-
-
-
-<div class="container d-flex" style="align-items: flex-start; gap: 30px; margin-top: 20px;">
-
-  <!-- Sección izquierda con imagen y botón -->
-  <div style="flex: 1; text-align: center;">
-    <img src="{% static 'tax.jpeg' %}" alt="Tax" style="width: 250px; margin-bottom: 20px;">
-    <h2>Invoices</h2>
-    <p>You have created {{ invoice_count }} invoices so far.</p>
-
-    <form method="post" action="{% url 'invoice_create' %}">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-primary">Create a new invoice</button>
-    </form>
-  </div>
-
-  <!-- Sección derecha con lista de facturas -->
-  <div style="flex: 1;">
-    <div class="card p-3">
-      <h4>Invoice List</h4>
-      {% if invoices %}
-        <ul class="list-group">
-          {% for invoice in invoices %}
-            <li class="list-group-item">
-              Invoice #{{ invoice.id }} - {{ invoice.created_at|date:"d M Y" }}
-            </li>
-          {% endfor %}
-        </ul>
-      {% else %}
-        <p>No invoices created yet.</p>
-      {% endif %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Header Section -->
+        <div class="col-12 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0 text-primary">Invoice Management System</h1>
+                <div class="bg-light rounded-pill px-3 py-1">
+                    <span class="fw-medium text-primary">{{ invoice_count }}</span>
+                    <span class="text-muted">invoices created</span>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
+    <div class="row g-4">
+        <!-- Left Column - Invoices Summary -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center p-4">
+                    <img src="{% static 'tax.jpeg' %}" alt="Tax" class="img-fluid mb-4" style="max-width: 250px;">
+                    <h3 class="h5 mb-2">Invoices</h3>
+                    <p class="text-muted mb-3">You have created <span class="fw-bold text-primary">{{ invoice_count }}</span> invoices so far.</p>
+                    <form method="post" action="{% url 'invoice_create' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 py-2">
+                            <i class="fas fa-plus me-2"></i>Create New Invoice
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Column - Favorite Customers -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Favorite Customers</h5>
+                    <i class="fas fa-users text-primary"></i>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-transparent"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" class="form-control" placeholder="Search customers..." id="customerSearch">
+                    </div>
+                    
+                    <div class="list-group list-group-flush" id="customerList">
+                        <!-- Customer list will be populated from backend -->
+                        <div class="text-center py-4">
+                            <i class="fas fa-user-friends display-5 text-muted mb-3"></i>
+                            <p class="text-muted">No favorite customers yet</p>
+                            <small class="text-muted">Customers you mark as favorite will appear here</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Invoice List -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Invoice List</h5>
+                    <i class="fas fa-receipt text-primary"></i>
+                </div>
+                <div class="card-body p-0">
+                    <div class="p-3 border-bottom">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" class="form-control" placeholder="Search invoices..." id="invoiceSearch">
+                        </div>
+                    </div>
+                    
+                    <div class="invoice-container" style="max-height: 400px; overflow-y: auto;">
+                        {% if invoices %}
+                        <div class="list-group list-group-flush" id="invoiceList">
+                            {% for invoice in invoices %}
+                            <div class="list-group-item border-0 py-3 invoice-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">Invoice #{{ invoice.id }}</h6>
+                                        <small class="text-muted">{{ invoice.created_at|date:"d M Y" }}</small>
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2"></i>View</a></li>
+                                            <li><a class="dropdown-item" href="#"><i class="fas fa-download me-2"></i>Download</a></li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-file-invoice display-5 text-muted mb-3"></i>
+                            <h6 class="text-muted">No invoices created yet</h6>
+                            <p class="text-muted small">Create your first invoice to get started</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Include Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    .card {
+        border: none;
+        border-radius: 0.75rem;
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .btn {
+        border-radius: 0.5rem;
+        font-weight: 500;
+    }
+    .form-control {
+        border-radius: 0.5rem;
+    }
+    .form-control:focus {
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    }
+    .list-group-item {
+        transition: background-color 0.2s;
+    }
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+    .dropdown-menu {
+        border-radius: 0.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<script>
+    // Simple search functionality for invoices
+    document.getElementById('invoiceSearch').addEventListener('keyup', function() {
+        const searchText = this.value.toLowerCase();
+        const invoiceItems = document.querySelectorAll('.invoice-item');
+        
+        invoiceItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(searchText)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+    
+    // Simple search functionality for customers
+    document.getElementById('customerSearch').addEventListener('keyup', function() {
+        // This would be implemented when customer data is available
+        console.log('Searching for:', this.value);
+    });
+</script>
+
 {% endblock %}
