@@ -1,4 +1,5 @@
 {% extends 'budgidesk_app/base.html' %}
+{% load static %}
 
 {% block content %}
 <style>
@@ -10,6 +11,8 @@
     --white: #ffffff;
     --gray-light: #f5f5f5;
     --gray-border: #e0e0e0;
+    --red: #e74c3c;
+    --amber: #f39c12;
   }
 
   header {
@@ -35,56 +38,222 @@
     font-weight: bold;
   }
 
-  h2 {
-    text-align: center;
-    margin: 2rem 0 1rem;
-    color: var(--blue-dark);
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    background: var(--white);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: calc(100vh - 80px);
+    position: fixed;
+    top: 90px;
+    left: 0;
+    overflow-y: auto;
   }
 
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-    padding: 0 2rem;
-    margin-bottom: 2rem;
-  }
-
-  .card-button {
+  .sidebar .card-button {
     background: var(--white);
     border: 1px solid var(--gray-border);
     border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 1rem;
     text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     transition: 0.3s;
+    width: 100%;
   }
 
-  .card-button:hover {
-    transform: translateY(-4px);
+  .sidebar .card-button:hover {
+    transform: translateX(4px);
     box-shadow: 0 6px 16px rgba(0,0,0,0.08);
   }
 
-  .card-button h3 {
-    font-size: 1.2rem;
-    color: var(--blue-mid);
-    margin-bottom: 1rem;
-  }
-
-  .card-button button {
+  .sidebar .card-button button {
     background-color: var(--green);
     border: none;
     border-radius: 6px;
-    padding: 0.5rem 1.2rem;
+    padding: 0.5rem 1rem;
     color: white;
     font-weight: bold;
     cursor: pointer;
+    width: 100%;
+  }
+
+  /* Apps Panel (derecho) */
+  .apps-panel {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 1000;
+  }
+
+  .apps-trigger {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(90deg, var(--blue-mid), var(--green));
+    color: white;
+    border-radius: 8px 0 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+  }
+
+  .apps-trigger:hover {
+    width: 45px;
+  }
+
+  .apps-content {
+    position: absolute;
+    top: 0;
+    right: -300px;
+    width: 200px;
+    background: var(--white);
+    padding: 1.5rem;
+    border-radius: 6px 0 0 6px;
+    box-shadow: -15px 0 15px rgba(0,0,0,0.1);
+    transition: right 0.3s ease;
+    height: auto;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .apps-panel:hover .apps-content {
+    right: 80px;
+  }
+
+  .apps-content h4 {
+    color: var(--blue-dark);
+    margin-top: 0;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  /* Estilos específicos para las burbujas en el panel derecho */
+  .apps-content .bubble-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    justify-items: center;
+  }
+
+  .apps-content .bubble-item {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    position: relative;
+  }
+
+  .apps-content .bubble-item:hover {
+    transform: scale(1.15);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  .apps-content .bubble-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+  }
+
+  .apps-content .bubble-item:hover .bubble-image {
+    opacity: 0.5;
+  }
+
+  .apps-content .bubble-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(64, 212, 102, 0.9), rgba(50, 78, 162, 0.9));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 50%;
+    text-align: center;
+  }
+
+  .apps-content .bubble-item:hover .bubble-overlay {
+    opacity: 1;
+  }
+
+  .apps-content .bubble-overlay h3 {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px;
+    line-height: 1.2;
+  }
+
+  /* Responsive para móviles */
+  @media (max-width: 768px) {
+    .apps-panel {
+      top: auto;
+      bottom: 0;
+      transform: none;
+      width: 100%;
+    }
+    
+    .apps-trigger {
+      width: 100%;
+      border-radius: 8px 8px 0 0;
+      height: 30px;
+    }
+    
+    .apps-content {
+      width: 100%;
+      right: 0;
+      bottom: -100%;
+      top: auto;
+      border-radius: 12px 12px 0 0;
+      max-height: 50vh;
+    }
+    
+    .apps-panel:hover .apps-content {
+      right: 0;
+      bottom: 30px;
+    }
+    
+    /* Ajustar las burbujas para móviles */
+    .apps-content .bubble-container {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+    
+    .apps-content .bubble-item {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
+  /* Main content */
+  .content {
+    margin-left: 240px;
+    padding: 2rem;
+    margin-top: 70px;
+  }
+
+  h2, h1 {
+    text-align: center;
+    color: var(--blue-dark);
   }
 
   .dashboard-charts {
     display: flex;
     flex-wrap: wrap;
-    gap: 4rem;
-    margin: -5rem;
+    gap: 2rem;
     justify-content: center;
   }
 
@@ -115,129 +284,945 @@
   .chart-box ul li {
     margin-bottom: 0.5rem;
   }
+
+  /* Tax calendar styles */
+  .tax-calendar-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    padding: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .calendar-nav {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .calendar-nav button {
+    background: var(--blue-mid);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+  }
+
+  .weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: var(--blue-dark);
+  }
+
+  .days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+  }
+
+  .day-cell {
+    min-height: 80px;
+    border: 1px solid var(--gray-border);
+    border-radius: 6px;
+    padding: 0.5rem;
+    position: relative;
+  }
+
+  .day-cell.empty {
+    background-color: var(--gray-light);
+    border: none;
+  }
+
+  .day-number {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+
+  .calendar-event {
+    font-size: 0.75rem;
+    padding: 0.25rem;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+  }
+
+  .event-vat {
+    background-color: rgba(64, 212, 102, 0.2);
+    border-left: 3px solid var(--green);
+  }
+
+  .event-payfile {
+    background-color: rgba(50, 78, 162, 0.2);
+    border-left: 3px solid var(--blue-dark);
+  }
+
+  .event-status {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+
+  .status-filed {
+    background-color: var(--green);
+  }
+
+  .status-pending {
+    background-color: var(--amber);
+  }
+
+  .status-overdue {
+    background-color: var(--red);
+  }
+
+  /* Event details drawer */
+  .event-drawer {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 12px rgba(0,0,0,0.15);
+    padding: 2rem;
+    overflow-y: auto;
+    transition: right 0.3s ease;
+    z-index: 1000;
+  }
+
+  .event-drawer.open {
+    right: 0;
+  }
+
+  .drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-border);
+  }
+
+  .close-drawer {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--blue-dark);
+  }
+
+  .drawer-content h3 {
+    color: var(--blue-dark);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .checklist-item input {
+    margin-right: 0.75rem;
+  }
+
+  .amount-estimation {
+    background-color: var(--gray-light);
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+  }
+
+  .drawer-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .btn-primary {
+    background-color: var(--blue-mid);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+  }
+
+  .btn-outline {
+    background-color: white;
+    color: var(--blue-mid);
+    border: 1px solid var(--blue-mid);
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+  }
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 999;
+  }
+
+  .overlay.active {
+    display: block;
+  }
+
+  /* Smart Reminders */
+  .reminders-section {
+    margin-top: 2rem;
+  }
+
+  .reminder-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .reminder-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    color: var(--blue-mid);
+  }
+
+  .reminder-content {
+    flex-grow: 1;
+  }
+
+  .reminder-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .reminder-date {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+  }
+
+  .priority-high {
+    border-left: 4px solid var(--red);
+  }
+
+  .priority-medium {
+    border-left: 4px solid var(--amber);
+  }
+
+  .priority-low {
+    border-left: 4px solid var(--green);
+  }
+
+  /* Tax Summary */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .summary-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--gray-light);
+    border-radius: 8px;
+  }
+
+  .summary-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--blue-dark);
+  }
+
+  .summary-label {
+    font-size: 0.875rem;
+    color: #64748b;
+  }
 </style>
 
-<div class="dashboard-grid">
-  <h2></h2>
-</div>
-
-
-<!-- Sección Visual: Charts & Deadlines -->
-<div class="dashboard-charts">
-  <div class="chart-box">
-    <h4>Monthly Income Overview</h4>
-    <canvas id="incomeChart"></canvas>
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="card-button">
+    <button onclick="location.href='{% url "invoice_create" %}'">Invoice</button>
   </div>
-  <div class="chart-box">
-    <h4>Budget vs Expenses</h4>
-    <canvas id="budgetChart"></canvas>
+  <div class="card-button">
+    <button onclick="location.href='{% url "dash_tax" %}'">Expenses</button>
   </div>
-  <div class="chart-box">
-    <h4>Upcoming Deadlines</h4>
-    <ul>
-      <li> Tax return — Nov 15</li>
-      <li> Invoice #1012 — overdue</li>
-      <li> Upload receipts — July 30</li>
-    </ul>
+  <div class="card-button">
+    <button onclick="location.href='{% url 'tax_report' %}'">Tax</button> 
+  </div>
+  <div class="card-button">
+    <button onclick="location.href='{% url "dash_pulse" %}'">Pulse</button>
+  </div>
+  <div class="card-button">
+    <button onclick="location.href='{% url "dash_doc" %}'">Docs (templates)</button>
+  </div>
+  <div class="card-button">
+    <button onclick="location.href='{% url "dash_track" %}'">Track (projects)</button>
   </div>
 </div>
 
-<canvas id="incomeChart" style="height:200px;"></canvas>
-<canvas id="budgetChart" style="height:200px;"></canvas>
+<!-- Apps Panel (derecho) que se activa con hover -->
+<div class="apps-panel">
+  <div class="apps-trigger">
+    <i class="fas fa-th"></i>
+  </div>
+  <div class="apps-content">
+   
+    <div class="bubble-container">
+      <div class="bubble-item">
+        <a href="{% url 'dash_buzz' %}">
+          <img src="{% static 'buzz.png' %}" alt="Buzz" class="bubble-image">
+          <div class="bubble-overlay">
+            <h3>Buzz</h3>
+          </div>
+        </a>
+      </div>
 
-<!-- Navegación -->
-<div class="dashboard-grid">
-  <div class="card-button">
-    <h3>Invoice</h3>
-    <button onclick="location.href='{% url "invoice_create" %}'">Go</button>
-  </div>
-  <div class="card-button">
-    <h3>Tax</h3>
-    <button onclick="location.href='{% url "dash_tax" %}'">Go</button>
-  </div>
-  <div class="card-button">
-    <h3>Flow</h3>
-    <button onclick="location.href='{% url "dash_flow" %}'">Go</button>
-  </div>
-    <div class="card-button">
-    <h3>Pulse</h3>
-    <button onclick="location.href='{% url "dash_pulse" %}'">Go</button>
-  </div>
-  <div class="card-button">
-    <h3>Docs</h3>
-    <button onclick="location.href='{% url "dash_doc" %}'">Go</button>
-  </div>
-  <div class="card-button">
-    <h3>Buzz</h3>
-    <button onclick="location.href='{% url "dash_buzz" %}'">Go</button>
-  </div>
-  <div class="card-button">
-    <h3>Track</h3>
-    <button onclick="location.href='{% url "dash_track" %}'">Go</button>
-  </div>
-  <div class="card-button">
-    <h3>Nest</h3>
-    <button onclick="location.href='{% url "dash_nest" %}'">Go</button>
-  </div>
-  <div class="card-button">
-    <h3>Budsi Whiz</h3>
-    <button onclick="location.href='{% url "dash_whiz" %}'">Go</button>
-  </div>
-  <div class="card-button">
-    <h3>Help Support</h3>
-    <button onclick="location.href='{% url "dash_help" %}'">Go</button>
+      <div class="bubble-item">
+        <a href="{% url 'dash_nest' %}">
+          <img src="{% static 'nest.png' %}" alt="Nest" class="bubble-image">
+          <div class="bubble-overlay">
+            <h3>Nest</h3>
+          </div>
+        </a>
+      </div>
+
+      <div class="bubble-item">
+        <a href="{% url 'dash_whiz' %}">
+          <img src="{% static 'whiz.png' %}" alt="Budsi Whiz" class="bubble-image">
+          <div class="bubble-overlay">
+            <h3>Budsi Whiz</h3>
+          </div>
+        </a>
+      </div>
+
+      <div class="bubble-item">
+        <a href="{% url 'dash_help' %}">
+          <img src="{% static 'help.png' %}" alt="Help Support" class="bubble-image">
+          <div class="bubble-overlay">
+            <h3>Help Support</h3>
+          </div>
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 
+<!-- Main content -->
+<div class="content">
+  
+  <!-- Visual Section: Charts & Tax Summary -->
+  <div class="dashboard-charts">
+    <div class="chart-box">
+      <h4>Monthly Income Overview</h4>
+      <canvas id="incomeChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h4>Budget vs Expenses</h4>
+      <canvas id="budgetChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h4>Tax Summary</h4>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-value">€4,582</div>
+          <div class="summary-label">VAT Liability</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-value">€12,907</div>
+          <div class="summary-label">Income Tax</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-value">€2,348</div>
+          <div class="summary-label">USC</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-value">€1,975</div>
+          <div class="summary-label">PRSI</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Tax Calendar Section -->
+  <div class="tax-calendar-container">
+    <h2>Tax Calendar</h2>
+    <div class="calendar-header">
+      <h3 id="current-month">July 2023</h3>
+      <div class="calendar-nav">
+        <button id="prev-month"><i class="fas fa-chevron-left"></i></button>
+        <button id="next-month"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
 
+    <div class="weekdays">
+      <div>Sun</div>
+      <div>Mon</div>
+      <div>Tue</div>
+      <div>Wed</div>
+      <div>Thu</div>
+      <div>Fri</div>
+      <div>Sat</div>
+    </div>
 
+    <div class="days-grid" id="calendar-days">
+      <!-- Days will be generated with JavaScript -->
+    </div>
+  </div>
+
+  <!-- Smart Reminders Section -->
+  <div class="reminders-section">
+    <h2>Smart Reminders</h2>
+    <div id="reminders-list">
+      <!-- Reminders will be generated with JavaScript -->
+    </div>
+  </div>
+</div>
+
+<!-- Event details drawer -->
+<div class="overlay" id="event-overlay"></div>
+<div class="event-drawer" id="event-drawer">
+  <div class="drawer-header">
+    <h2 id="event-title">Event Details</h2>
+    <button class="close-drawer" id="close-drawer">&times;</button>
+  </div>
+  <div class="drawer-content">
+    <div id="event-period"></div>
+    <div id="event-deadline"></div>
+    <div id="event-status"></div>
+
+    <h3>Checklist</h3>
+    <div id="event-checklist"></div>
+
+    <h3>Amount Estimation</h3>
+    <div class="amount-estimation" id="event-amount">
+      <!-- Amount estimation will be generated with JavaScript -->
+    </div>
+
+    <h3>Documents & Links</h3>
+    <div id="event-links"></div>
+
+    <h3>Action History</h3>
+    <div id="event-history"></div>
+
+    <div class="drawer-actions">
+      <button class="btn-primary" id="mark-filed">Mark as Filed</button>
+      <button class="btn-primary" id="mark-paid">Mark as Paid</button>
+      <button class="btn-outline" id="export-ical">Export to Calendar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Include Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const incomeCtx = document.getElementById('incomeChart').getContext('2d');
-  new Chart(incomeCtx, {
-    type: 'line',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-      datasets: [{
-        label: 'Income (€)',
-        data: [200, 500, 100, 800, 200, 0],
-        borderColor: '#40D466',
-        backgroundColor: 'rgba(64, 212, 102, 0.1)',
-        tension: 0.3
-      }]
+  // Sample data for tax events
+  const taxEvents = [
+    {
+      id: 1,
+      type: 'VAT',
+      periodStart: '2023-05-01',
+      periodEnd: '2023-06-30',
+      dueDate: '2023-07-23',
+      statusFiling: 'NOT_STARTED',
+      statusPayment: 'NOT_STARTED',
+      amountEstimate: 1250,
+      filingMethod: 'ROS_ONLINE'
     },
-    options: {
-      responsive: true,
-      
+    {
+      id: 2,
+      type: 'VAT',
+      periodStart: '2023-07-01',
+      periodEnd: '2023-08-31',
+      dueDate: '2023-09-23',
+      statusFiling: 'NOT_STARTED',
+      statusPayment: 'NOT_STARTED',
+      amountEstimate: 980,
+      filingMethod: 'ROS_ONLINE'
+    },
+    {
+      id: 3,
+      type: 'PAY_AND_FILE',
+      year: 2023,
+      dueDate: '2023-10-31',
+      statusFiling: 'NOT_STARTED',
+      statusPayment: 'NOT_STARTED',
+      amountEstimate: 12907,
+      filingMethod: 'ROS_ONLINE'
     }
+  ];
+
+  // Smart reminders
+  const smartReminders = [
+    {
+      id: 1,
+      eventId: 1,
+      message: "Prepare receipts and reconcile for May-Jun period",
+      dueDate: "2023-07-09",
+      priority: "medium",
+      completed: false
+    },
+    {
+      id: 2,
+      eventId: 1,
+      message: "Review estimation and attach support for VAT May-Jun",
+      dueDate: "2023-07-18",
+      priority: "high",
+      completed: false
+    },
+    {
+      id: 3,
+      eventId: 3,
+      message: "Start preparation for Pay & File 2023",
+      dueDate: "2023-08-01",
+      priority: "low",
+      completed: false
+    },
+    {
+      id: 4,
+      eventId: null,
+      message: "Tax return due on November 15",
+      dueDate: "2023-11-15",
+      priority: "high",
+      completed: false
+    },
+    {
+      id: 5,
+      eventId: null,
+      message: "Upload receipts by July 30",
+      dueDate: "2023-07-30",
+      priority: "medium",
+      completed: false
+    }
+  ];
+
+  // Global variables
+  let currentDate = new Date();
+  let currentMonth = currentDate.getMonth();
+  let currentYear = currentDate.getFullYear();
+  let selectedEvent = null;
+
+  // Month names
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  // Initialize calendar and charts
+  document.addEventListener('DOMContentLoaded', function() {
+    generateCalendar(currentMonth, currentYear);
+    updateMonthYear();
+    renderReminders();
+    setupEventListeners();
+    initCharts();
   });
 
-  const budgetCtx = document.getElementById('budgetChart').getContext('2d');
-  new Chart(budgetCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-      datasets: [
-        {
-          label: 'Budget (€)',
-          data: [100, 200, 100, 100, 100, 600],
-          backgroundColor: '#D3AF3F'
-        },
-        {
-          label: 'Expenses (€)',
-          data: [450, 300, 90, 450, 800, 550],
-          backgroundColor: '#7498D4'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      
+  // Set up event listeners
+  function setupEventListeners() {
+    document.getElementById('prev-month').addEventListener('click', () => {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      generateCalendar(currentMonth, currentYear);
+      updateMonthYear();
+    });
+
+    document.getElementById('next-month').addEventListener('click', () => {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      generateCalendar(currentMonth, currentYear);
+      updateMonthYear();
+    });
+
+    document.getElementById('close-drawer').addEventListener('click', closeEventDrawer);
+    document.getElementById('event-overlay').addEventListener('click', closeEventDrawer);
+    
+    // Mark as filed button
+    document.getElementById('mark-filed').addEventListener('click', () => {
+      if (selectedEvent) {
+        selectedEvent.statusFiling = 'FILED';
+        updateEventStatus();
+        closeEventDrawer();
+        generateCalendar(currentMonth, currentYear);
+        renderReminders();
+      }
+    });
+    
+    // Mark as paid button
+    document.getElementById('mark-paid').addEventListener('click', () => {
+      if (selectedEvent) {
+        selectedEvent.statusPayment = 'PAID';
+        updateEventStatus();
+        closeEventDrawer();
+        generateCalendar(currentMonth, currentYear);
+        renderReminders();
+      }
+    });
+    
+    // Export to calendar button
+    document.getElementById('export-ical').addEventListener('click', () => {
+      if (selectedEvent) {
+        exportToCalendar(selectedEvent);
+      }
+    });
+  }
+
+  // Update the month/year header
+  function updateMonthYear() {
+    document.getElementById('current-month').textContent = `${months[currentMonth]} ${currentYear}`;
+  }
+
+  // Generate the calendar
+  function generateCalendar(month, year) {
+    const daysGrid = document.getElementById('calendar-days');
+    daysGrid.innerHTML = '';
+
+    // First day of the month
+    const firstDay = new Date(year, month, 1);
+    // Last day of the month
+    const lastDay = new Date(year, month + 1, 0);
+    
+    // Day of the week of the first day (0 = Sunday, 1 = Monday, etc.)
+    const firstDayIndex = firstDay.getDay();
+    
+    // Days from previous month (to fill the first week)
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    
+    // Generate previous month's days
+    for (let i = firstDayIndex; i > 0; i--) {
+      const dayCell = document.createElement('div');
+      dayCell.classList.add('day-cell', 'empty');
+      dayCell.textContent = prevMonthLastDay - i + 1;
+      daysGrid.appendChild(dayCell);
     }
-  });
+    
+    // Generate current month's days
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      const dayCell = document.createElement('div');
+      dayCell.classList.add('day-cell');
+      
+      const dayNumber = document.createElement('div');
+      dayNumber.classList.add('day-number');
+      dayNumber.textContent = i;
+      dayCell.appendChild(dayNumber);
+      
+      // Check if there are events for this day
+      const currentDate = new Date(year, month, i);
+      const eventsForDay = getEventsForDate(currentDate);
+      
+      // Add events to the day
+      eventsForDay.forEach(event => {
+        const eventElement = document.createElement('div');
+        eventElement.classList.add('calendar-event', `event-${event.type.toLowerCase()}`);
+        eventElement.setAttribute('data-event-id', event.id);
+        
+        const statusElement = document.createElement('span');
+        statusElement.classList.add('event-status', getStatusClass(event));
+        eventElement.appendChild(statusElement);
+        
+        const eventText = document.createTextNode(`${event.type} ${event.periodStart ? `(${formatPeriod(event.periodStart, event.periodEnd)})` : `(${event.year})`}`);
+        eventElement.appendChild(eventText);
+        
+        eventElement.addEventListener('click', () => openEventDrawer(event));
+        dayCell.appendChild(eventElement);
+      });
+      
+      daysGrid.appendChild(dayCell);
+    }
+    
+    // Calculate remaining cells to complete the grid
+    const totalCells = 42; // 6 weeks * 7 days
+    const daysInCalendar = firstDayIndex + lastDay.getDate();
+    const remainingCells = totalCells - daysInCalendar;
+    
+    // Generate next month's days
+    for (let i = 1; i <= remainingCells; i++) {
+      const dayCell = document.createElement('div');
+      dayCell.classList.add('day-cell', 'empty');
+      dayCell.textContent = i;
+      daysGrid.appendChild(dayCell);
+    }
+  }
+
+  // Get events for a specific date
+  function getEventsForDate(date) {
+    return taxEvents.filter(event => {
+      const eventDate = new Date(event.dueDate);
+      return eventDate.getDate() === date.getDate() && 
+             eventDate.getMonth() === date.getMonth() && 
+             eventDate.getFullYear() === date.getFullYear();
+    });
+  }
+
+  // Get CSS class for status
+  function getStatusClass(event) {
+    const dueDate = new Date(event.dueDate);
+    const today = new Date();
+    
+    if (event.statusFiling === 'FILED' && event.statusPayment === 'PAID') {
+      return 'status-filed';
+    } else if (dueDate < today) {
+      return 'status-overdue';
+    } else {
+      return 'status-pending';
+    }
+  }
+
+  // Format period (e.g., Jan-Feb)
+  function formatPeriod(start, end) {
+    if (!start || !end) return '';
+    
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    
+    const startMonth = months[startDate.getMonth()].substring(0, 3);
+    const endMonth = months[endDate.getMonth()].substring(0, 3);
+    
+    return `${startMonth}-${endMonth}`;
+  }
+
+  // Open event drawer
+  function openEventDrawer(event) {
+    selectedEvent = event;
+    const drawer = document.getElementById('event-drawer');
+    const overlay = document.getElementById('event-overlay');
+    
+    // Fill event information
+    document.getElementById('event-title').textContent = `${event.type} ${event.periodStart ? `(${formatPeriod(event.periodStart, event.periodEnd)})` : `(${event.year})`}`;
+    
+    if (event.periodStart) {
+      document.getElementById('event-period').textContent = `Period: ${formatDate(event.periodStart)} to ${formatDate(event.periodEnd)}`;
+    } else {
+      document.getElementById('event-period').textContent = `Year: ${event.year}`;
+    }
+    
+    document.getElementById('event-deadline').textContent = `Deadline: ${formatDate(event.dueDate)}`;
+    document.getElementById('event-status').innerHTML = `Status: <span class="${getStatusClass(event)}">${getStatusText(event)}</span>`;
+    
+    // Generate checklist
+    const checklist = document.getElementById('event-checklist');
+    checklist.innerHTML = '';
+    
+    const eventReminders = smartReminders.filter(r => r.eventId === event.id);
+    eventReminders.forEach(reminder => {
+      const item = document.createElement('div');
+      item.classList.add('checklist-item');
+      
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = `reminder-${reminder.id}`;
+      checkbox.checked = reminder.completed;
+      checkbox.addEventListener('change', () => toggleReminder(reminder.id));
+      
+      const label = document.createElement('label');
+      label.htmlFor = `reminder-${reminder.id}`;
+      label.textContent = reminder.message;
+      
+      item.appendChild(checkbox);
+      item.appendChild(label);
+      checklist.appendChild(item);
+    });
+    
+    // Generate amount estimation
+    const amountElement = document.getElementById('event-amount');
+    amountElement.innerHTML = `
+      <p>Estimated amount: €${event.amountEstimate.toLocaleString()}</p>
+      <div style="background: #e0e0e0; border-radius: 4px; height: 20px; margin-top: 10px;">
+        <div style="background: ${getStatusClass(event) === 'status-filed' ? '#40D466' : '#4064D2'}; width: ${event.statusFiling === 'FILED' ? '100%' : '60%'}; height: 100%; border-radius: 4px;"></div>
+      </div>
+      ${event.statusFiling === 'FILED' ? '<p>Confirmed amount: €' + event.amountEstimate.toLocaleString() + '</p>' : ''}
+    `;
+    
+    // Generate links
+    const linksElement = document.getElementById('event-links');
+    linksElement.innerHTML = `
+      <p><a href="#" style="color: ${getComputedStyle(document.documentElement).getPropertyValue('--blue-mid')};"><i class="fas fa-external-link-alt"></i> ROS Online Portal</a></p>
+      <p><a href="#" style="color: ${getComputedStyle(document.documentElement).getPropertyValue('--blue-mid')};"><i class="fas fa-file-pdf"></i> Download VAT Form</a></p>
+    `;
+    
+    // Generate history
+    const historyElement = document.getElementById('event-history');
+    historyElement.innerHTML = `
+      <p>${new Date().toLocaleDateString()} - Event viewed</p>
+      ${event.statusFiling === 'FILED' ? `<p>${new Date(event.dueDate).toLocaleDateString()} - Filed</p>` : ''}
+      ${event.statusPayment === 'PAID' ? `<p>${new Date(event.dueDate).toLocaleDateString()} - Paid</p>` : ''}
+    `;
+    
+    // Show drawer and overlay
+    drawer.classList.add('open');
+    overlay.classList.add('active');
+  }
+
+  // Close event drawer
+  function closeEventDrawer() {
+    const drawer = document.getElementById('event-drawer');
+    const overlay = document.getElementById('event-overlay');
+    
+    drawer.classList.remove('open');
+    overlay.classList.remove('active');
+  }
+
+  // Format date (e.g., 23/07/2023)
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+  }
+
+  // Get status text
+  function getStatusText(event) {
+    if (event.statusFiling === 'FILED' && event.statusPayment === 'PAID') {
+      return 'Filed & Paid';
+    } else if (event.statusFiling === 'FILED') {
+      return 'Filed (Pending Payment)';
+    } else {
+      const dueDate = new Date(event.dueDate);
+      const today = new Date();
+      
+      if (dueDate < today) {
+        return 'Overdue';
+      } else {
+        return 'Pending';
+      }
+    }
+  }
+
+  // Toggle reminder status
+  function toggleReminder(reminderId) {
+    const reminder = smartReminders.find(r => r.id === reminderId);
+    if (reminder) {
+      reminder.completed = !reminder.completed;
+      renderReminders();
+    }
+  }
+
+  // Update event status
+  function updateEventStatus() {
+    // In a real application, you would update the backend here
+    console.log('Event status updated:', selectedEvent);
+  }
+
+  // Export to calendar
+  function exportToCalendar(event) {
+    // In a real application, this would generate an .ics file
+    alert(`Exporting ${event.type} event to calendar`);
+  }
+
+  // Render reminders
+  function renderReminders() {
+    const remindersList = document.getElementById('reminders-list');
+    remindersList.innerHTML = '';
+    
+    // Sort reminders by priority and date
+    const sortedReminders = [...smartReminders]
+      .filter(r => !r.completed)
+      .sort((a, b) => {
+        // First by priority (high first)
+        const priorityOrder = { high: 0, medium: 1, low: 2 };
+        if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+          return priorityOrder[a.priority] - priorityOrder[b.priority];
+        }
+        // Then by due date (closest first)
+        return new Date(a.dueDate) - new Date(b.dueDate);
+      });
+    
+    sortedReminders.forEach(reminder => {
+      const reminderCard = document.createElement('div');
+      reminderCard.classList.add('reminder-card', `priority-${reminder.priority}`);
+      
+      const icon = document.createElement('div');
+      icon.classList.add('reminder-icon');
+      icon.innerHTML = '<i class="fas fa-bell"></i>';
+      
+      const content = document.createElement('div');
+      content.classList.add('reminder-content');
+      content.innerHTML = `
+        <p>${reminder.message}</p>
+        <div class="reminder-date">Due: ${formatDate(reminder.dueDate)}</div>
+      `;
+      
+      const actions = document.createElement('div');
+      actions.classList.add('reminder-actions');
+      actions.innerHTML = `
+        <button class="btn-outline" style="padding: 0.25rem 0.5rem;" onclick="toggleReminder(${reminder.id})">
+          <i class="fas fa-check"></i> Mark Done
+        </button>
+        <button class="btn-outline" style="padding: 0.25rem 0.5rem;">
+          <i class="fas fa-calendar-plus"></i> Add to Calendar
+        </button>
+      `;
+      
+      reminderCard.appendChild(icon);
+      reminderCard.appendChild(content);
+      reminderCard.appendChild(actions);
+      
+      remindersList.appendChild(reminderCard);
+    });
+  }
+
+  // Initialize charts
+  function initCharts() {
+    const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+    new Chart(incomeCtx, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Income (€)',
+          data: [200, 500, 100, 800, 200, 0],
+      borderColor: '#40D466',
+      backgroundColor: 'rgba(64, 212, 102, 0.1)',
+      tension: 0.3
+    }]
+  },
+  options: { responsive: true }
+});
+
+const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+new Chart(budgetCtx, {
+  type: 'bar',
+  data: {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Budget (€)',
+        data: [100, 200, 100, 100, 100, 600],
+        backgroundColor: '#D3AF3F'
+      },
+      {
+        label: 'Expenses (€)',
+        data: [450, 300, 90, 450, 800, 550],
+        backgroundColor: '#7498D4'
+      }
+    ]
+  },
+  options: { responsive: true }
+});
+  }
 </script>
 
 {% endblock %}

@@ -4,6 +4,7 @@ from django.urls import path
 from django.contrib.auth.views import LogoutView
 from . import views
 
+
 urlpatterns = [
     # Home
     path("", views.intro_view, name="intro"),
@@ -57,6 +58,11 @@ urlpatterns = [
     # Stripe
     path("pago/", views.payment_page, name="payment_page"),
     path("crear-intento-pago/", views.create_payment_intent_view, name="create-payment-intent"),
+
+
+    # esto es para invoices de ventas 
+    path("invoices/create/", views.invoice_create, name="invoice_create"),
+    
 
     # Upload OCR + Preview
     path("invoice/upload/", views.invoice_upload_view, name="invoice_upload"),

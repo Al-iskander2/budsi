@@ -143,28 +143,39 @@
       <div class="panel">
         <h2>Client Information</h2>
         <div class="panel-body">
-          <form method="post">
+
+          {% if errors %}
+            <div class="alert alert-danger">
+              <ul class="mb-0">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+            </div>
+          {% endif %}
+
+          <form method="post" action="{% url 'invoice_create' %}">
             {% csrf_token %}
             <div class="row">
               <div>
                 <label for="client">Client / Supplier</label>
-                <input type="text" name="client" id="client" required>
+                <input type="text" name="client" id="client" required
+                      value="{{ form_data.client|default_if_none:'' }}">
               </div>
               <div>
                 <label for="date">Date</label>
-                <input type="date" name="date" id="date" required>
+                <input type="date" name="date" id="date" required
+                      value="{{ form_data.date|default_if_none:'' }}">
               </div>
               <div>
                 <label for="amount">Total (Gross)</label>
-                <input type="number" step="0.01" name="amount" id="amount" required>
+                <input type="number" step="0.01" name="amount" id="amount" required
+                      value="{{ form_data.amount|default_if_none:'' }}">
               </div>
               <div>
                 <label for="vat">VAT</label>
-                <input type="number" step="0.01" name="vat" id="vat">
+                <input type="number" step="0.01" name="vat" id="vat"
+                      value="{{ form_data.vat|default:'0' }}">
               </div>
               <div style="grid-column: 1 / -1">
                 <label for="description">Description</label>
-                <textarea name="description" id="description" rows="3"></textarea>
+                <textarea name="description" id="description" rows="3">{{ form_data.description }}</textarea>
               </div>
             </div>
 
@@ -174,31 +185,38 @@
               <button type="submit" class="btn btn-primary">Save Invoice</button>
             </div>
 
+            {% if messages %}
+              <div class="container mt-3">
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
             <!-- AFTER SAVE ACTIONS -->
             <div class="mt-4">
-              <button id="downloadBtn" class="btn btn-outline">Download Invoice</button>
-              <button id="showEmailBtn" class="btn btn-outline">Send via Email</button>
+              <button id="downloadBtn" class="btn btn-outline" type="button">Download Invoice</button>
+              <button id="showEmailBtn" class="btn btn-outline" type="button">Send via Email</button>
               <a href="{% url 'invoice_create' %}" class="btn btn-outline">Create Another Invoice</a>
             </div>
 
             <!-- EMAIL SECTION -->
             <div id="sendSection" style="display: none; margin-top: 20px;">
               <h4>Which email do you want to send it to?</h4>
-              <input type="email" id="emailInput" class="form-control mt-2" placeholder="Enter email" required>
+              <input type="email" id="emailInput" class="form-control mt-2" placeholder="Enter email">
               <button type="button" class="btn btn-primary mt-2" id="sendEmailBtn">Send Invoice</button>
             </div>
-          </div>
+
           </form>
+
         </div>
       </div>
 
     </div>
   </div>
-
-
-
-
-  
 
 <script>
   // VAT Check

@@ -1,0 +1,90 @@
+{% extends 'budgidesk_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Invoice #{{ invoice.id }}</h5>
+          <div>
+            {% if prev_invoice %}
+            <a href="{% url 'invoice_gallery' prev_invoice.id %}" class="btn btn-sm btn-outline-primary">
+              <i class="fas fa-arrow-left"></i> Previous
+            </a>
+            {% endif %}
+            {% if next_invoice %}
+            <a href="{% url 'invoice_gallery' next_invoice.id %}" class="btn btn-sm btn-outline-primary">
+              Next <i class="fas fa-arrow-right"></i>
+            </a>
+            {% endif %}
+            <a href="{% url 'download_invoice' invoice.id %}" class="btn btn-sm btn-primary">
+              <i class="fas fa-download"></i> Download
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="sticky-top" style="top: 20px;">
+                {% if invoice.original_file.name|lower|slice:"-4:" == ".pdf" %}
+                <iframe src="{{ invoice.original_file.url }}" width="100%" height="600" frameborder="0"></iframe>
+                {% else %}
+                <img src="{{ invoice.original_file.url }}" alt="Invoice image" class="img-fluid rounded shadow">
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="invoice-details">
+                <h6>Invoice Details</h6>
+                <table class="table table-sm">
+                  <tr>
+                    <th>Date:</th>
+                    <td>{{ invoice.date }}</td>
+                  </tr>
+                  <tr>
+                    <th>Client/Supplier:</th>
+                    <td>
+                      {% if invoice.client %}
+                        {{ invoice.client.name }}
+                      {% else %}
+                        {{ invoice.ocr_data.supplier|default:"Unknown" }}
+                      {% endif %}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Amount:</th>
+                    <td>€{{ invoice.amount }}</td>
+                  </tr>
+                  <tr>
+                    <th>VAT:</th>
+                    <td>€{{ invoice.vat }}</td>
+                  </tr>
+                  <tr>
+                    <th>Status:</th>
+                    <td>
+                      <span class="badge {% if invoice.is_confirmed %}bg-success{% else %}bg-warning{% endif %}">
+                        {% if invoice.is_confirmed %}Confirmed{% else %}Pending{% endif %}
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+                
+                <h6 class="mt-4">Extracted Data</h6>
+                <pre class="bg-light p-3 rounded">{{ invoice.ocr_data|pprint }}</pre>
+                
+                <div class="mt-4">
+                  <a href="{% url 'invoice_preview' invoice.id %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Invoice
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
