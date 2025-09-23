@@ -1,12 +1,7 @@
-
-
 {% extends 'budgidesk_app/base.html' %}
 {% block title %}Invoice Preview{% endblock %}
 {% load static %}
 {% block content %}
-
-
-
 
 <style>
   :root{
@@ -67,19 +62,19 @@
           <div class="row">
             <div>
               <label>Client / Supplier</label>
-              {{ form.client }}
+              {{ form.contact }}
             </div>
             <div>
               <label>Date</label>
               {{ form.date }}
             </div>
             <div>
-              <label>Total (Gross)</label>
-              {{ form.amount }}
+              <label>Subtotal</label>
+              {{ form.subtotal }}
             </div>
             <div>
               <label>VAT</label>
-              {{ form.vat }}
+              {{ form.vat_amount }}
             </div>
             <div style="grid-column:1/-1">
               <label>Description</label>
@@ -87,10 +82,9 @@
             </div>
           </div>
 
-          <div id="vat-warning" class="warn">VAT amount seems inconsistent with total.</div>
+          <div id="vat-warning" class="warn">VAT amount seems inconsistent with subtotal.</div>
 
           <div class="actions">
-          
             <button type="submit" name="confirm" class="btn btn-primary">Confirm & Save</button>
           </div>
           <p class="note">OCR data stored: {{ invoice.ocr_data|default:"{}" }}</p>
@@ -103,20 +97,19 @@
 <script>
   // VAT quick check
   (function(){
-    const amount = document.querySelector('[name="amount"]');
-    const vat = document.querySelector('[name="vat"]');
+    const subtotal = document.querySelector('[name="subtotal"]');
+    const vat = document.querySelector('[name="vat_amount"]');
     const warn = document.getElementById('vat-warning');
     function check(){
-      const a = parseFloat((amount && amount.value) || 0) || 0;
+      const s = parseFloat((subtotal && subtotal.value) || 0) || 0;
       const v = parseFloat((vat && vat.value) || 0) || 0;
-      if (v > 0 && a > 0 && v >= a) { warn.style.display='block'; }
+      if (v > 0 && s > 0 && v >= s) { warn.style.display='block'; }
       else { warn.style.display='none'; }
     }
-    if(amount) amount.addEventListener('input', check);
+    if(subtotal) subtotal.addEventListener('input', check);
     if(vat) vat.addEventListener('input', check);
     check();
   })();
 </script>
 
 {% endblock %}
-

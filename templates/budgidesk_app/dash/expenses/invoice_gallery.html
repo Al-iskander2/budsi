@@ -19,22 +19,33 @@
               Next <i class="fas fa-arrow-right"></i>
             </a>
             {% endif %}
-            <a href="{% url 'download_invoice' invoice.id %}" class="btn btn-sm btn-primary">
+            {% if invoice.original_file %}
+            <a href="{{ invoice.original_file.url }}" class="btn btn-sm btn-primary" download>
               <i class="fas fa-download"></i> Download
             </a>
+            {% endif %}
           </div>
         </div>
         <div class="card-body">
           <div class="row">
+            <!-- Columna izquierda: archivo original -->
             <div class="col-md-6">
               <div class="sticky-top" style="top: 20px;">
-                {% if invoice.original_file.name|lower|slice:"-4:" == ".pdf" %}
-                <iframe src="{{ invoice.original_file.url }}" width="100%" height="600" frameborder="0"></iframe>
+                {% if invoice.original_file %}
+                  {% if invoice.original_file.name|lower|slice:"-4:" == ".pdf" %}
+                  <iframe src="{{ invoice.original_file.url }}" width="100%" height="600" frameborder="0"></iframe>
+                  {% else %}
+                  <img src="{{ invoice.original_file.url }}" alt="Invoice image" class="img-fluid rounded shadow">
+                  {% endif %}
                 {% else %}
-                <img src="{{ invoice.original_file.url }}" alt="Invoice image" class="img-fluid rounded shadow">
+                  <div class="text-center p-5 bg-light">
+                    <i class="fas fa-file-invoice fa-3x text-muted"></i>
+                    <p class="mt-3">No file attached</p>
+                  </div>
                 {% endif %}
               </div>
             </div>
+            <!-- Columna derecha: detalles -->
             <div class="col-md-6">
               <div class="invoice-details">
                 <h6>Invoice Details</h6>
@@ -44,22 +55,30 @@
                     <td>{{ invoice.date }}</td>
                   </tr>
                   <tr>
+                    <th>Type:</th>
+                    <td>{{ invoice.get_invoice_type_display }}</td>
+                  </tr>
+                  <tr>
                     <th>Client/Supplier:</th>
                     <td>
-                      {% if invoice.client %}
-                        {{ invoice.client.name }}
+                      {% if invoice.contact %}
+                        {{ invoice.contact.name }}
                       {% else %}
                         {{ invoice.ocr_data.supplier|default:"Unknown" }}
                       {% endif %}
                     </td>
                   </tr>
                   <tr>
-                    <th>Amount:</th>
-                    <td>€{{ invoice.amount }}</td>
+                    <th>Subtotal:</th>
+                    <td>€{{ invoice.subtotal }}</td>
                   </tr>
                   <tr>
                     <th>VAT:</th>
-                    <td>€{{ invoice.vat }}</td>
+                    <td>€{{ invoice.vat_amount }}</td>
+                  </tr>
+                  <tr>
+                    <th>Total:</th>
+                    <td>€{{ invoice.total }}</td>
                   </tr>
                   <tr>
                     <th>Status:</th>
@@ -71,12 +90,17 @@
                   </tr>
                 </table>
                 
+                {% if invoice.ocr_data %}
                 <h6 class="mt-4">Extracted Data</h6>
                 <pre class="bg-light p-3 rounded">{{ invoice.ocr_data|pprint }}</pre>
+                {% endif %}
                 
                 <div class="mt-4">
                   <a href="{% url 'invoice_preview' invoice.id %}" class="btn btn-primary">
                     <i class="fas fa-edit"></i> Edit Invoice
+                  </a>
+                  <a href="{% url 'dash_tax' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
                   </a>
                 </div>
               </div>

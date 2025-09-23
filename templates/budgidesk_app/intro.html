@@ -10,13 +10,14 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     :root {
-      --green: #40d466;
-      --blue-dark: #324EA2;
-      --blue-mid: #4064D2;
-      --yellow: #D3AF3F;
-      --magenta: #EE51D4;
+      --primary-1: #4B49AC;
+      --primary-2: #98BDFF;
+      --supporting-1: #7DA0FA;
+      --supporting-2: #7978E9;
+      --supporting-3: #F3797E;
       --white: #FFFFFF;
       --text-dark: #111111;
+      --light-bg: #f8f9fa;
     }
 
     body {
@@ -29,7 +30,7 @@
     header {
       padding: 2rem 0;
       text-align: center;
-      background-color: var(--green);
+      background-color: var(--supporting-3);
       color: var(--white);
     }
 
@@ -41,16 +42,16 @@
     section {
       padding: 60px 20px;
       border-bottom: 1px solid #eee;
-      background-color: #fefefe;
+      background-color: var(--white);
     }
 
     h1, h2 {
       text-align: center;
       margin-bottom: 1rem;
-      color: var(--blue-dark);
+      color: var(--primary-1);
     }
     h3 {
-      color: var(--magenta)
+      color: var(--supporting-3)
     }
 
     p {
@@ -66,9 +67,8 @@
       line-height: 1.6;
       max-width: 800px;
       margin: 0 auto 1rem auto;
-      text-align: left; /* o justify si prefieres también */
+      text-align: left;
     }
-
 
     ul {
       padding-left: 0;
@@ -77,7 +77,7 @@
 
     ul li::before {
       content: "✔ ";
-      color: var(--green);
+      color: var(--supporting-1);
       font-weight: bold;
     }
 
@@ -92,7 +92,7 @@
     button {
       padding: 0.8rem 1.5rem;
       font-size: 1rem;
-      background-color: var(--blue-mid);
+      background-color: var(--primary-1);
       color: white;
       border: none;
       border-radius: 6px;
@@ -101,11 +101,11 @@
     }
 
     button:hover {
-      background-color: var(--blue-dark);
+      background-color: var(--supporting-2);
     }
 
     footer {
-      background: var(--blue-dark);
+      background: var(--primary-1);
       color: var(--white);
       padding: 40px 20px;
       text-align: center;
@@ -113,16 +113,16 @@
 
     footer h3 {
       margin-bottom: 1rem;
-      color: var(--yellow);
+      color: var(--primary-2);
     }
 
     footer h4 {
       margin-top: 2rem;
-      color: var(--green);
+      color: var(--supporting-1);
     }
 
     footer a {
-      color: var(--magenta);
+      color: var(--primary-2);
       text-decoration: none;
       margin: 0 10px;
     }
@@ -140,13 +140,12 @@
 
 <div id="intro-welcome" style="text-align:center; padding: 120px 40px;">
   <h1 class="intro-text">Welcome</h1>
-  <h3 class="intro-text">“Your smarter, lighter, Budsi-er desk.”
-</h3>
+  <h3 class="intro-text">"Your smarter, lighter, Budsi-er desk."</h3>
 </div>
 
 
  <!-- Sección: Hero Visual Figma -->
-<section style="background-color: #eaeaea; padding: 60px 20px;">
+<section style="background-color: var(--light-bg); padding: 60px 20px;">
   <div class="container">
     <div class="row align-items-center">
       
@@ -158,32 +157,31 @@
       <!-- Dos bloques dentro de una columna -->
       <div class="col-md-6 d-flex flex-column gap-4">
      
-
         <!-- Empower box -->
-        <div class="text-white" style="background-color: #01BFIF; padding: 2rem; border-radius: 12px; border: 3px solid #40D466;">
-          <p style="font-size: 1.2rem; color: #324EA2;">
+        <div class="text-white" style="background-color: var(--supporting-1); padding: 2rem; border-radius: 12px; border: 3px solid var(--primary-2);">
+          <p style="font-size: 1.2rem; color: var(--primary-1);">
             Hey you!<br><br>
             Welcome to BudsiDesk — your business BFF, not just another boring tool!
             <br><br>
             <i>"Running your business just got easier — your all-in-one desk for doing what you do best."</i>
           </p>
           <button onclick="location.href='/register/'"
-            style="background-color: #4064D2; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
+            style="background-color: var(--primary-1); color: white; padding: 10px 20px; border: none; border-radius: 6px;">
             Learn More
           </button>
         </div>
 
         <!-- BudsiDesk box -->
-        <div class="text-white" style="background-color:#40d466; padding: 2rem; border-radius: 12px; border: 3px solid #40D466;">
-          <h2 style="color: #FFFFFF; font-weight: bold;">BudsiDesk</h2>
-          <p style="font-size: 1.2rem; color: #324EA2;">
+        <div class="text-white" style="background-color: var(--supporting-1); padding: 2rem; border-radius: 12px; border: 3px solid var(--primary-2);">
+          <h2 style="color: var(--white); font-weight: bold;">BudsiDesk</h2>
+          <p style="font-size: 1.2rem; color: var(--primary-1);">
             Your desk, your flow, your way.<br><br>
-            We’ve got you! Get safe and convenient tax help today.<br>
-            Let’s start!
+            We've got you! Get safe and convenient tax help today.<br>
+            Let's start!
           </p>
          
           <button onclick="location.href='/register/'"
-            style="background-color: #4064D2; color: white; padding: 10px 20px; border: none; border-radius: 6px;">
+            style="background-color: var(--primary-1); color: white; padding: 10px 20px; border: none; border-radius: 6px;">
             Create your account
           </button>
         </div>
@@ -198,7 +196,7 @@
   <header>
     <img src="{% static 'logo3.png' %}" alt="BudsiDesk Logo">
     <h1 id="headline">Pay your taxes like magic.</h1>
-    <p>We take care of the numbers — so you don’t have to.</p>
+    <p>We take care of the numbers — so you don't have to.</p>
     <div class="center-btns">
       <button onclick="location.href='/register/'">Create Account</button>
       <button onclick="location.href='/login/'">Log in</button>
@@ -210,9 +208,8 @@
     <h2>What is BudsiDesk?</h2>
     <p>
       BudsiDesk is a smart digital assistant built for solo bosses.
-      We make it easy to manage your invoices, taxes, budgets, time tracking, and essential business docs — all in one friendly, organised platform. You don’t need to be an accountant or tech-savvy.
+      We make it easy to manage your invoices, taxes, budgets, time tracking, and essential business docs — all in one friendly, organised platform. You don't need to be an accountant or tech-savvy.
       Just plug in your info and let BudsiDesk do the hard stuff — so you can focus on doing what you love.
-
     </p>
   </section>
 
@@ -220,10 +217,10 @@
   <section>
     <h2>How does it work?</h2>
     <ul>
-        <p>Create your account
-        <p>Enter basic info — step by step
-        <p>Check your dashboard
-        <p>Pay only what you owe
+        <li>Create your account</li>
+        <li>Enter basic info — step by step</li>
+        <li>Check your dashboard</li>
+        <li>Pay only what you owe</li>
     </ul>
     <p>No jargon. No guesswork. Just clear steps and peace of mind.</p>
   </section>
@@ -238,17 +235,16 @@
         <h2 class="text-center">Why BudsiDesk?</h2>
         <ul style="font-size: 1.1rem; text-align: justify; padding-left: 1.2rem;">
           <li>All-in-One & Easy: Invoicing, tax estimates, budgets, time logs — no more switching between 10 apps and spreadsheets.</li>
-          <li>IMade for Solo Pros: Built specifically for self-employed creatives, contractors, and side hustlers.</li>
+          <li>Made for Solo Pros: Built specifically for self-employed creatives, contractors, and side hustlers.</li>
           <li>Friendly & Flexible: No jargon. No pressure. Just intuitive tools that make sense from day one.</li>
-          <li>Stress Less, Work Smarter: Know what you’ve earned, what you’re owed, and what you’ll owe in tax — all at a glance.
-          </li>
+          <li>Stress Less, Work Smarter: Know what you've earned, what you're owed, and what you'll owe in tax — all at a glance.</li>
           <li>Templates That Work for You: Contracts, quotes, NDAs, and more — just fill, click, send.</li>
         </ul>
-
+      </div>
 
       <!-- Columna de la imagen del pulpo -->
       <div class="col-md-6 text-center">
-        <img src="{% static 'pulpo.PNG' %}" alt="Pulpo illustration"
+        <img src="{% static 'tax.jpg' %}" alt="Pulpo illustration"
              style="max-width: 100%; height: auto; border-radius: 12px;">
       </div>
 
@@ -261,20 +257,21 @@
   <section>
     <h2>Our Promise</h2>
     <p>At BudsiDesk, we believe freelancers and solo business deserve tools that work as hard as they do.
-        We promise to:
-          <p>Keep it simple — No confusing dashboards, no accounting degree required.
-          <p>Respect your time — Fast setup, clean tools, real results.
-          <p>Make business less boring — Friendly design, helpful reminders, and zero spreadsheet stress.
-          <p>Grow with you — Whether you're just starting or scaling up, BudsiDesk evolves with your journey.
-          <p>Put you first — Built for real people, not corporate suits. Your feedback shapes everything we do.
-    </p>
+        We promise to:</p>
+    <ul>
+        <li>Keep it simple — No confusing dashboards, no accounting degree required.</li>
+        <li>Respect your time — Fast setup, clean tools, real results.</li>
+        <li>Make business less boring — Friendly design, helpful reminders, and zero spreadsheet stress.</li>
+        <li>Grow with you — Whether you're just starting or scaling up, BudsiDesk evolves with your journey.</li>
+        <li>Put you first — Built for real people, not corporate suits. Your feedback shapes everything we do.</li>
+    </ul>
     <div class="center-btns">
       <button onclick="location.href='/register/'">Create Account</button>
       <button onclick="alert('Coming soon')">Try Demo</button>
     </div>
   </section>
 
-  <!-- Sección: Movile -->
+  <!-- Sección: Mobile -->
   <section style="padding: 80px 20px; text-align: center;">
     <h2 style="font-size: 2rem; margin-bottom: 1rem;">
       Next on mobile platforms
@@ -337,10 +334,6 @@
     }, 5000);
   });
 </script>
-
-
-
-
 
 </body>
 </html>

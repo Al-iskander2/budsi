@@ -1,0 +1,86 @@
+<!-- ======== BLOQUE 2: List of Purchase Invoices CORREGIDO ======== -->
+<div class="purchase-invoices-section">
+  <div class="invoices-header">
+    <h2><i class="fas fa-file-invoice"></i> Purchase Invoices</h2>
+    <div class="invoices-controls">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Search invoices..." id="invoiceSearch">
+      </div>
+      <div class="filter-btn">
+        <i class="fas fa-filter"></i>
+        Filter
+      </div>
+    </div>
+  </div>
+
+  <div class="invoices-table-container">
+    {% if invoices %}
+    <table class="invoices-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Date</th>
+          <th>Client/Supplier</th>
+          <th>Subtotal</th>
+          <th>VAT</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for invoice in invoices %}
+        <tr>
+          <td>#{{ invoice.id }}</td>
+          <td>{{ invoice.date|date:"d M Y" }}</td>
+          <td>
+            {% if invoice.contact %}
+              {{ invoice.contact.name }}
+            {% else %}
+              {{ invoice.ocr_data.supplier|default:"Unknown" }}
+            {% endif %}
+          </td>
+          <td>€{{ invoice.subtotal }}</td>
+          <td>€{{ invoice.vat_amount }}</td>
+          <td>
+            <span class="invoice-status {% if invoice.is_confirmed %}status-paid{% else %}status-pending{% endif %}">
+              {% if invoice.is_confirmed %}Confirmed{% else %}Pending{% endif %}
+            </span>
+          </td>
+          <td>
+            <div class="invoice-actions">
+              <a href="{% url 'invoice_preview' invoice.id %}" class="action-btn" title="View">
+                <i class="fas fa-eye"></i>
+              </a>
+              <a href="#" class="action-btn download-btn" data-invoice-id="{{ invoice.id }}" title="Download">
+                <i class="fas fa-download"></i>
+              </a>
+              <a href="#" class="action-btn delete-btn" data-invoice-id="{{ invoice.id }}" title="Delete">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="table-footer">
+      <div>Showing {{ invoices|length }} invoices</div>
+      <div class="pagination">
+        <button class="pagination-btn active">1</button>
+        <button class="pagination-btn">2</button>
+        <button class="pagination-btn">3</button>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="fas fa-file-invoice"></i>
+      <p>No invoices found</p>
+      <a href="{% url 'invoice_upload' %}" class="btn-improved btn-improved-primary">
+        <i class="fas fa-plus"></i> Upload Your First Invoice
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>

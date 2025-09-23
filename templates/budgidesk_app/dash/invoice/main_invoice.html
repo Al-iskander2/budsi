@@ -1,0 +1,123 @@
+{% extends 'budgidesk_app/base.html' %}
+{% load static %}
+{% block content %}
+
+<div style="width: 100%; padding: 2rem; box-sizing: border-box;">
+  <div style="display: flex; flex-wrap: wrap; margin-bottom: 2rem;">
+    <!-- Header Section -->
+    <div style="width: 100%; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h1 style="margin: 0; font-size: 1.75rem; color: #4B49AC;">Invoice & Credit Hub</h1>
+        <div style="background-color: #f8f9fa; border-radius: 9999px; padding: 0.25rem 1rem;">
+          <span style="font-weight: 500; color: #4B49AC;">{{ invoice_count }}</span>
+          <span style="color: #6c757d;">invoices created</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+    <!-- Left Column - Invoices Summary -->
+    <div style="flex: 1 1 30%; min-width: 280px;">
+      <div style="background: white; border-radius: 0.5rem; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); height: 100%;">
+        <div style="text-align: center; padding: 2rem;">
+          <img src="{% static 'tax.jpg' %}" alt="Tax" style="max-width: 250px; margin-bottom: 1rem;">
+          <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Invoices</h3>
+          <p style="color: #6c757d;">You have created <span style="font-weight: 700; color: #4B49AC;">{{ invoice_count }}</span> invoices so far.</p>
+          <form method="post" action="{% url 'invoice_create' %}" style="margin-top: 1rem;">
+            {% csrf_token %}
+            <button type="submit" style="background-color: #4B49AC; color: white; border: none; padding: 0.5rem 1rem; border-radius: 9999px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
+              <i class="fas fa-plus"></i>Create New Invoice
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle Column - Favorite Customers -->
+    <div style="flex: 1 1 30%; min-width: 280px;">
+      <div style="background: white; border-radius: 0.5rem; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); height: 100%;">
+        <div style="padding: 1rem; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
+          <h5 style="margin: 0;">Favorite Customers</h5>
+          <i class="fas fa-users" style="color: #4B49AC;"></i>
+        </div>
+        <div style="padding: 1rem;">
+          <div style="display: flex; align-items: center; margin-bottom: 1rem; border: 1px solid #ced4da; border-radius: 0.25rem; overflow: hidden;">
+            <span style="padding: 0.5rem; background: transparent;"><i class="fas fa-search" style="color: #6c757d;"></i></span>
+            <input type="text" id="customerSearch" placeholder="Search customers..." style="flex: 1; padding: 0.5rem; border: none; outline: none;">
+          </div>
+          <div id="customerList" style="border-top: 1px solid #e9ecef; padding-top: 1rem; text-align: center; color: #6c757d;">
+            <i class="fas fa-user-friends" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+            <p>No favorite customers yet</p>
+            <small>Customers you mark as favorite will appear here</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Invoice List -->
+    <div style="flex: 1 1 30%; min-width: 280px;">
+      <div style="background: white; border-radius: 0.5rem; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); height: 100%;">
+        <div style="padding: 1rem; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
+          <h5 style="margin: 0;">Invoice List</h5>
+          <i class="fas fa-receipt" style="color: #4B49AC;"></i>
+        </div>
+        <div style="padding: 1rem 0;">
+          <div style="padding: 1rem; border-bottom: 1px solid #dee2e6;">
+            <div style="display: flex; align-items: center; border: 1px solid #ced4da; border-radius: 0.25rem; overflow: hidden;">
+              <span style="padding: 0.5rem;"><i class="fas fa-search" style="color: #6c757d;"></i></span>
+              <input type="text" id="invoiceSearch" placeholder="Search invoices..." style="flex: 1; padding: 0.5rem; border: none; outline: none;">
+            </div>
+          </div>
+          <div style="max-height: 400px; overflow-y: auto; padding: 1rem;">
+            {% if invoices %}
+              <div id="invoiceList">
+                {% for invoice in invoices %}
+                  <div style="padding: 1rem; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                      <h6 style="margin: 0;">Invoice #{{ invoice.id }}</h6>
+                      <small style="color: #6c757d;">{{ invoice.date|date:"d M Y" }}</small>
+                      <p style="margin: 0; font-size: 0.9rem; color: #4B49AC;">
+                        {{ invoice.contact.name }} — {{ invoice.total }} {{ invoice.currency }}
+                      </p>
+                    </div>
+                    <div>
+                      <button style="background: none; border: 1px solid #6c757d; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">
+                        <i class="fas fa-ellipsis-h"></i>
+                      </button>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div style="text-align: center; padding: 2rem; color: #6c757d;">
+                <i class="fas fa-file-invoice" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                <h6>No invoices created yet</h6>
+                <p style="font-size: 0.875rem;">Create your first invoice to get started</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+  document.getElementById('invoiceSearch').addEventListener('keyup', function() {
+    const searchText = this.value.toLowerCase();
+    const invoiceItems = document.querySelectorAll('#invoiceList > div');
+    invoiceItems.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      item.style.display = text.includes(searchText) ? 'flex' : 'none';
+    });
+  });
+
+  document.getElementById('customerSearch').addEventListener('keyup', function() {
+    console.log('Searching for:', this.value);
+  });
+</script>
+
+{% endblock %}

@@ -1,16 +1,26 @@
-# budgidesk_app/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
-from .models import Invoice, Client
+from budsi_database.models import Invoice, Contact
 
 CustomUser = get_user_model()
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
-        fields = ('email',)  # ← solo email
+        fields = ('email',)  # Esto está bien para el modelo, pero necesitamos agregar campos de contraseña
 
+    # AGREGAR CAMPOS DE CONTRASEÑA EXPLÍCITAMENTE
+    password1 = forms.CharField(
+        label="Password",
+        strip=False,
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+    )
+    password2 = forms.CharField(
+        label="Password confirmation",
+        widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
+        strip=False,
+    )
 
     def clean_email(self):
         email = self.cleaned_data['email']
@@ -28,7 +38,7 @@ class CustomUserCreationForm(UserCreationForm):
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
-        fields = ["client", "date", "amount", "vat", "description"]
+        fields = ["contact", "date", "subtotal", "vat_amount", "description"]
         widgets = {
             "date": forms.DateInput(attrs={"type": "date"}),
             "description": forms.Textarea(attrs={"rows": 3}),
@@ -37,7 +47,5 @@ class InvoiceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
-        # limitar clientes al usuario actual
         if user is not None:
-            self.fields["client"].queryset = Client.objects.filter(user=user)
-
+            self.fields["contact"].queryset = Contact.objects.filter(user=user)

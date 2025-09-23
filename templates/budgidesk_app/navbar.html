@@ -1,54 +1,89 @@
-{% load static %}
+<header style="
+    position: relative;
+    background: linear-gradient(to right, #98BDFF, #F3797E);
+    height: 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem;
+    overflow: hidden;
+    z-index: 10;
+">
+  <!-- Izquierda: Logo y slogan -->
+  <div style="
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+  ">
+    {% if user.is_authenticated %}
+      <a href="{% url 'dashboard' %}" style="
+          display: flex;
+          align-items: center;
+          text-decoration: none;
+      ">
+    {% else %}
+      <a href="{% url 'intro' %}" style="
+          display: flex;
+          align-items: center;
+          text-decoration: none;
+      ">
+    {% endif %}
+        <h1 style="
+            margin: 0;
+            font-family: 'Arial Black', sans-serif;
+            color: #6445ff;
+        ">Budsi</h1>
+        <h1 style="
+            margin: 0;
+            font-family: 'Arial Black', sans-serif;
+            color: #3a5afa;
+        ">Desk</h1>
+      </a>
+      <span style="
+          margin-left: 1rem;
+          color: white;
+          font-size: 0.9rem;
+      ">Your desk, your flow, your way.</span>
+  </div>
 
-<!-- Barra superior con pulpo centrado detrás -->
-<header class="px-4 d-flex justify-content-between align-items-center overflow-hidden"
-        style="position: relative;
-               background: linear-gradient(to right, #40D466, #7498D4);
-               height: 80px;">
-
-    <!-- Imagen del pulpo centrada detrás -->
-    <img src="{% static 'pulpo.PNG' %}" alt="Pulpo"
-         style="position: absolute;
-                top: -85%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                height: 1000px;
-                opacity: 0.8;
-                z-index: 0;
-                pointer-events: none;">
-
-    <!-- Logo y frase con lógica condicional -->
-    <div class="d-flex align-items-center" style="z-index: 1;">
-        {% if user.is_authenticated %}
-            <a href="{% url 'dashboard' %}" class="text-decoration-none d-flex align-items-center">
-        {% else %}
-            <a href="{% url 'intro' %}" class="text-decoration-none d-flex align-items-center">
-        {% endif %}
-            <h1 class="m-0" style="font-family: 'Arial Black', sans-serif; color: #6445ff;">
-                Budsi
-            </h1>
-            <h1 class="m-0" style="font-family: 'Arial Black', sans-serif; color: #3a5afa;">
-                Desk
-            </h1>
-        </a>
-        <span class="ms-3 text-white">Your desk, your flow, your way.</span>
-    </div>
-
-    <!-- Área de autenticación -->
-    <div style="z-index: 1;">
-        {% if user.is_authenticated %}
-            <span class="text-white me-3">Welcome, {{ request.user.email }}</span>
-            <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-light">Logout</button>
-            </form>
-        {% else %}
-          {% if request.path != '/login/' and request.path != '/register/' %}
-              <a href="{% url 'login' %}" class="btn btn-light">
-                  <span style="color: #D3AF3F;">Log in</span>
-              </a>
-          {% endif %}
-        {% endif %}
-        
-    </div>
+  <!-- Derecha: Autenticación -->
+  <div style="
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+  ">
+    {% if user.is_authenticated %}
+      <span style="
+          color: white;
+          font-size: 0.9rem;
+      ">Welcome, {{ request.user.email }}</span>
+      <form method="post" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" style="
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        " onmouseover="this.style.background='white'; this.style.color='#7978E9';"
+           onmouseout="this.style.background='transparent'; this.style.color='white';">
+          Logout
+        </button>
+      </form>
+    {% else %}
+      {% if request.path != '/login/' and request.path != '/register/' %}
+        <a href="{% url 'login' %}" style="
+            background: white;
+            color: #7978E9;
+            text-decoration: none;
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        ">Log in</a>
+      {% endif %}
+    {% endif %}
+  </div>
 </header>

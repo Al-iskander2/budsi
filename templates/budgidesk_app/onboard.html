@@ -2,9 +2,21 @@
 
 {% block content %}
   <style>
+    :root {
+      --primary-1: #4B49AC;
+      --primary-2: #98BDFF;
+      --supporting-1: #7DA0FA;
+      --supporting-2: #7978E9;
+      --supporting-3: #F3797E;
+      --white: #ffffff;
+      --gray-light: #f5f5f5;
+      --gray-border: #e0e0e0;
+      --amber: #f39c12;
+    }
+    
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f5f6fa;
+      background: var(--gray-light);
       margin: 0;
       padding: 2rem;
       text-align: center;
@@ -14,13 +26,13 @@
       width: 90%;
       max-width: 600px;
       margin: auto;
-      background: #fff;
+      background: var(--white);
       padding: 2rem;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
     header h2 {
-      color: #324EA2;
+      color: var(--primary-1);
       font-size: 1.8rem;
       margin-bottom: .3rem;
     }
@@ -41,7 +53,7 @@
       transition: background .3s;
     }
     .circle.active {
-      background: #324EA2;
+      background: var(--primary-1);
     }
     .step {
       display: none;
@@ -67,19 +79,19 @@
     input, select {
       padding: .8rem;
       font-size: 1rem;
-      border: 1px solid #ccc;
+      border: 1px solid var(--gray-border);
       border-radius: 6px;
       transition: border-color .3s, box-shadow .3s;
     }
     input:focus, select:focus {
-      border-color: #324EA2;
-      box-shadow: 0 0 6px rgba(50,78,162,0.3);
+      border-color: var(--primary-1);
+      box-shadow: 0 0 6px rgba(75, 73, 172, 0.3);
       outline: none;
     }
     button {
       padding: 1rem;
-      background: #324EA2;
-      color: #fff;
+      background: var(--primary-1);
+      color: var(--white);
       font-size: 1rem;
       border: none;
       border-radius: 6px;
@@ -87,10 +99,10 @@
       transition: background .3s;
     }
     button:hover {
-      background: #22367e;
+      background: var(--supporting-2);
     }
     .error {
-      color: red;
+      color: var(--supporting-3);
       font-size: 0.9rem;
       margin-top: -0.8rem;
       margin-bottom: 0.8rem;
@@ -102,7 +114,7 @@
     <header>
       <h2 id="mainHeader">Hey there!</h2>
       <p id="subHeader">
-        We’ll ask you a few simple things to build your smart dashboard—skip anything you’re not ready for!
+        We'll ask you a few simple things to build your smart dashboard—skip anything you're not ready for!
       </p>
       <p id="progress">Step 1 of 7</p>
       <div class="progress-bar">
@@ -122,19 +134,18 @@
       <!-- Paso 1 -->
       <div class="step active" id="step1">
         <div class="step-content">
-          <p>Let’s get you set up with BudsiDesk in just a few steps.</p>
-          <button type="button" onclick="nextStep(1)">Let’s Begin</button>
+          <p>Let's get you set up with BudsiDesk in just a few steps.</p>
+          <button type="button" onclick="nextStep(1)">Let's Begin</button>
         </div>
       </div>
 
       <!-- Paso 2 -->
       <div class="step" id="step2">
         <div class="step-content">
-          <label for="full_name">What’s your name?</label>
-          <input type="text" id="full_name" name="full_name" required>
+          <label for="contact_full_name">What's your name?</label>
+          <input type="text" id="contact_full_name" name="contact_full_name" required>
 
-          <label for="email">Email we can reach you at?</label>
-          <input type="email" id="email" name="email" required>
+          <!-- ❌ Eliminado el campo email -->
 
           <label for="phone">Got a phone number? (optional)</label>
           <input type="tel" id="phone" name="phone">
@@ -290,8 +301,8 @@
       <!-- Paso 7: submit -->
       <div class="step" id="step7">
         <div class="step-content">
-          <h2>You’re ready to rock your Solo Finances.</h2>
-          <p>We’ll take it from here.</p>
+          <h2>You're ready to rock your Solo Finances.</h2>
+          <p>We'll take it from here.</p>
           <button type="submit">View Your Dashboard</button>
         </div>
       </div>
@@ -304,12 +315,12 @@
     const circles = document.querySelectorAll('.circle');
     const headers = [
       { title: 'Hey there!', sub: '' },
-      { title: 'Who’s behind the biz?', sub: '' },
+      { title: 'Who\'s behind the biz?', sub: '' },
       { title: 'Your Solo Venture', sub: '' },
-      { title: 'Let’s talk money', sub: '' },
+      { title: 'Let\'s talk money', sub: '' },
       { title: 'Tax stuff (we keep it safe)', sub: '' },
       { title: 'Getting Paid', sub: '' },
-      { title: 'That’s it!', sub: 'We’ll take it from here.' }
+      { title: 'That\'s it!', sub: 'We\'ll take it from here.' }
     ];
 
     document.getElementById('vat_registered').addEventListener('change', e => {
@@ -337,9 +348,8 @@
     }
 
     function validateStep2() {
-      const name = document.getElementById('full_name').value;
-      const email = document.getElementById('email').value;
-      if (!name || !email) return alert('Please fill in required fields.');
+      const name = document.getElementById('contact_full_name').value;
+      if (!name) return alert('Please fill in your name.');
       nextStep(2);
     }
 
@@ -379,4 +389,3 @@
     document.addEventListener("DOMContentLoaded", () => showStep(1));
   </script>
 {% endblock %}
-

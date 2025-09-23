@@ -3,26 +3,116 @@
 <html>
 <head>
   <title>Reporte Fiscal</title>
-  <style>
-    /* (tus estilos tal cual) */
-    :root{--primary:#2c3e50;--secondary:#3498db;--success:#27ae60;--danger:#e74c3c;--light:#f8f9fa;--dark:#343a40}
-    body{font-family:Arial,sans-serif;max-width:1200px;margin:0 auto;padding:20px;background:#f5f7fa;color:#333}
-    .header{text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid var(--secondary)}
-    .header h1{color:var(--primary);margin-bottom:10px}
-    .back-btn{display:inline-block;background:var(--secondary);color:#fff;padding:10px 20px;border-radius:4px;text-decoration:none;margin-top:20px}
-    .back-btn:hover{background:#2980b9}
-    .section{margin-bottom:30px;background:#fff;padding:25px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
-    .section h2{color:var(--primary);border-bottom:2px solid var(--light);padding-bottom:10px;margin-top:0}
-    table{width:100%;border-collapse:collapse;margin-bottom:20px}
-    th,td{padding:12px 15px;text-align:left;border-bottom:1px solid #ddd}
-    th{background:#2c3e50;color:#fff;font-weight:bold}
-    tr:hover{background:#f9f9f9}
-    .excel-style{font-family:Arial;background:#f8f9fa}
-    .excel-style td{border:1px solid #ddd}
-    .excel-style .total-row{font-weight:bold;background:#e6e6e6}
-    .excel-style .formula{font-style:italic;color:#0070c0}
-    .excel-style .note{font-size:.9em;color:#666}
-    .section-title{font-weight:bold;font-size:1.2em;margin-bottom:15px;color:var(--primary);border-bottom:2px solid var(--secondary);padding-bottom:5px}
+   <style>
+    :root {
+      --primary: #4B49AC;
+      --secondary: #98BDFF;
+      --support-1: #7DAOFA;
+      --support-2: #7978E9;
+      --contrast: #F3797E;
+      --light: #f8f9fa;
+      --dark: #343a40;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f7fa;
+      color: #333;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--secondary);
+    }
+
+    .header h1 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      background: var(--support-2);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-top: 20px;
+    }
+    .back-btn:hover {
+      background: var(--primary);
+    }
+
+    .section {
+      margin-bottom: 30px;
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+    }
+
+    .section h2 {
+      color: var(--primary);
+      border-bottom: 2px solid var(--light);
+      padding-bottom: 10px;
+      margin-top: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: var(--primary);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    tr:hover {
+      background: #f9f9f9;
+    }
+
+    .excel-style {
+      font-family: Arial;
+      background: #f8f9fa;
+    }
+    .excel-style td {
+      border: 1px solid #ddd;
+    }
+    .excel-style .total-row {
+      font-weight: bold;
+      background: var(--secondary);
+    }
+    .excel-style .formula {
+      font-style: italic;
+      color: var(--support-1);
+    }
+    .excel-style .note {
+      font-size: .9em;
+      color: #666;
+    }
+
+    .section-title {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: var(--primary);
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 5px;
+    }
   </style>
 </head>
 <body>

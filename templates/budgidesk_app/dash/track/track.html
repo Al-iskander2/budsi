@@ -1,11 +1,207 @@
 {% extends 'budgidesk_app/base.html' %}
+{% load static %}
+
 {% block content %}
-  <div class="container">
-    <h1> What you can do?</h1>
+<style>
+  :root {
+    --primary-1: #4B49AC;
+    --primary-2: #98BDFF;
+    --supporting-1: #7DA0FA;
+    --supporting-2: #7978E9;
+    --supporting-3: #F3797E;
+    --white: #ffffff;
+    --gray-light: #f5f5f5;
+    --gray-border: #e0e0e0;
+    --amber: #f39c12;
+  }
+
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+
+  .calendar-sidebar {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    padding: 1.25rem;
+    border-top: 4px solid var(--supporting-2);
+  }
+
+  /* Estilos del calendario */
+  .calendar-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+  }
+  .calendar-nav { display: flex; gap: .5rem; }
+  .calendar-nav button {
+    background: var(--primary-1); color: white; border: none; border-radius: 6px;
+    width: 32px; height: 32px; display: grid; place-items: center; cursor: pointer;
+  }
+  .calendar-nav button:hover { background: var(--supporting-2); }
+
+  .weekdays {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    text-align: center; font-weight: 700; margin-bottom: .5rem; color: var(--primary-1); font-size: .8rem;
+  }
+  .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: .25rem; }
+
+  .day-cell {
+    height: 34px; display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; font-size: .9rem; cursor: pointer; transition: .15s;
+  }
+  .day-cell:hover { background: var(--primary-2); color: #fff; }
+  .day-cell.today { background: var(--primary-1); color: #fff; font-weight: 700; }
+  .day-cell.other-month { color: #c7c7c7; }
+  .day-cell.has-event { position: relative; }
+  .day-cell.has-event::after {
+    content:''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+    width: 5px; height: 5px; border-radius: 50%; background: var(--supporting-3);
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary {
+    background-color: var(--primary-1);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--supporting-2);
+  }
+
+  .btn-secondary {
+    background-color: var(--gray-light);
+    color: var(--primary-1);
+    border: 1px solid var(--primary-1);
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--primary-2);
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      grid-template-columns: 1fr;
+    }
+    
+    .calendar-sidebar {
+      order: -1;
+    }
+  }
+</style>
+
+<div class="container">
+  <div class="main-content">
+    <h1>What you can do?</h1>
     <p>ready for: </p>
     <a href="" class="btn btn-primary">Time Logs</a>
     <a href="" class="btn btn-secondary">Project Tracking</a>
-    <a href="" class="btn btn-secondary">Productivity </a>
-
+    <a href="" class="btn btn-secondary">Productivity</a>
   </div>
+
+  <div class="calendar-sidebar">
+    <div class="calendar-header">
+      <h3 id="current-month">July 2023</h3>
+      <div class="calendar-nav">
+        <button id="prev-month" aria-label="Previous month"><i class="fas fa-chevron-left"></i></button>
+        <button id="next-month" aria-label="Next month"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+
+    <div class="weekdays">
+      <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+    </div>
+    <div class="days-grid" id="calendar-days"></div>
+  </div>
+</div>
+
+<!-- Iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+  /* ====== CALENDARIO ====== */
+  let currentDate = new Date();
+  let currentMonth = currentDate.getMonth();
+  let currentYear = currentDate.getFullYear();
+
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    generateCalendar(currentMonth, currentYear);
+    updateMonthYear();
+    setupCalendarEventListeners();
+  });
+
+  function setupCalendarEventListeners() {
+    document.getElementById('prev-month').addEventListener('click', () => {
+      currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+      generateCalendar(currentMonth, currentYear); updateMonthYear();
+    });
+    document.getElementById('next-month').addEventListener('click', () => {
+      currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+      generateCalendar(currentMonth, currentYear); updateMonthYear();
+    });
+  }
+
+  function updateMonthYear() {
+    document.getElementById('current-month').textContent = `${months[currentMonth]} ${currentYear}`;
+  }
+
+  function generateCalendar(month, year) {
+    const daysGrid = document.getElementById('calendar-days');
+    daysGrid.innerHTML = '';
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay  = new Date(year, month + 1, 0);
+    const firstDayIndex = firstDay.getDay();
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    const today = new Date();
+
+    // Días previos
+    for (let i = firstDayIndex; i > 0; i--) {
+      const d = document.createElement('div');
+      d.className = 'day-cell other-month';
+      d.textContent = prevMonthLastDay - i + 1;
+      daysGrid.appendChild(d);
+    }
+
+    // Días del mes
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      const d = document.createElement('div');
+      d.className = 'day-cell';
+      if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+        d.classList.add('today');
+      }
+      d.textContent = i;
+      daysGrid.appendChild(d);
+    }
+
+    // Días siguientes hasta completar 6 filas
+    const totalCells = 42;
+    const used = firstDayIndex + lastDay.getDate();
+    for (let i = 1; i <= totalCells - used; i++) {
+      const d = document.createElement('div');
+      d.className = 'day-cell other-month';
+      d.textContent = i;
+      daysGrid.appendChild(d);
+    }
+  }
+</script>
 {% endblock %}

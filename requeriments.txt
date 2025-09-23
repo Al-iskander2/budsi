@@ -1,8 +1,9 @@
-Django>=5.2,<6.0
-reportlab>=3.6
-pdfrw>=0.4
-gunicorn>=21.2.0          # Solo si vas a desplegar con WSGI (como en Heroku o Render)
-psycopg2-binary>=2.9.9    # Si vas a usar PostgreSQL (no necesario con SQLite)
-Pillow>=10.3.0            # Para manejar archivos de imagen como logos
+Django==5.2.7
+reportlab==3.6.13
+pdfrw==0.4
+gunicorn==21.2.0
+psycopg2-binary==2.9.9
+Pillow==10.3.0
+stripe==8.0.0
 
 stripe
