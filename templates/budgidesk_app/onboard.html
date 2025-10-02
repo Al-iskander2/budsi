@@ -108,6 +108,10 @@
       margin-bottom: 0.8rem;
       text-align: left;
     }
+    .optional {
+      color: #666;
+      font-style: italic;
+    }
   </style>
 
   <div class="container">
@@ -142,15 +146,13 @@
       <!-- Paso 2 -->
       <div class="step" id="step2">
         <div class="step-content">
-          <label for="contact_full_name">What's your name?</label>
+          <label for="contact_full_name">What's your name? *</label>
           <input type="text" id="contact_full_name" name="contact_full_name" required>
 
-          <!-- ❌ Eliminado el campo email -->
-
-          <label for="phone">Got a phone number? (optional)</label>
+          <label for="phone">Got a phone number? <span class="optional">(optional)</span></label>
           <input type="tel" id="phone" name="phone">
 
-          <label for="logo">Add your logo</label>
+          <label for="logo">Add your logo <span class="optional">(optional)</span></label>
           <input type="file" id="logo" name="logo" accept="image/png, image/jpeg">
 
           <button type="button" onclick="validateStep2()">Next</button>
@@ -160,127 +162,129 @@
       <!-- Paso 3 -->
       <div class="step" id="step3">
         <div class="step-content">
-          <label for="business_name">Business name (or just your name!)</label>
+          <label for="business_name">Business name (or just your name!) *</label>
           <input type="text" id="business_name" name="business_name" required>
 
-          <label for="profession">What do you do best?</label>
+          <label for="profession">What do you do best? *</label>
           <select id="profession" name="profession" required>
-            <option>Creative & Digital</option>
-            <option>Business & Finance</option>
-            <option>Tech & Development</option>
-            <option>Language & Communication</option>
-            <option>Education & Coaching</option>
-            <option>Trades & Skilled Work</option>
-            <option>Health & Wellness</option>
-            <option>Lifestyle & Events</option>
-            <option>Retail & Craft</option>
-            <option>Other</option>
+            <option value="">Select your profession...</option>
+            <option value="Creative & Digital">Creative & Digital</option>
+            <option value="Business & Finance">Business & Finance</option>
+            <option value="Tech & Development">Tech & Development</option>
+            <option value="Language & Communication">Language & Communication</option>
+            <option value="Education & Coaching">Education & Coaching</option>
+            <option value="Trades & Skilled Work">Trades & Skilled Work</option>
+            <option value="Health & Wellness">Health & Wellness</option>
+            <option value="Lifestyle & Events">Lifestyle & Events</option>
+            <option value="Retail & Craft">Retail & Craft</option>
+            <option value="Other">Other</option>
           </select>
 
-          <label for="sector">What sector do you mostly work in?</label>
+          <label for="sector">What sector do you mostly work in? *</label>
           <select id="sector" name="sector" required>
-            <option value="">Select...</option>
-            <option>Graphic Design</option>
-            <option>Web Design</option>
-            <option>Content Writing</option>
-            <option>Copywriting</option>
-            <option>Video Editing</option>
-            <option>Photography</option>
-            <option>Social Media Management</option>
-            <option>Digital Marketing</option>
-            <option>Branding Consultant</option>
-            <option>Virtual Assistant</option>
-            <option>Project Management</option>
-            <option>Data Entry</option>
-            <option>Web Development</option>
-            <option>Software Development</option>
-            <option>App Development</option>
-            <option>Cybersecurity</option>
-            <option>Translator</option>
-            <option>Editor</option>
-            <option>Voiceover Artist</option>
-            <option>Language Tutor</option>
-            <option>Online Tutor</option>
-            <option>Career Coach</option>
-            <option>Life Coach</option>
-            <option>Workshop Facilitator</option>
-            <option>E-learning Creator</option>
-            <option>Electrician</option>
-            <option>Plumber</option>
-            <option>Carpenter</option>
-            <option>Handyman</option>
-            <option>Mechanic</option>
-            <option>Cleaner</option>
-            <option>Personal Trainer</option>
-            <option>Yoga Instructor</option>
-            <option>Massage Therapist</option>
-            <option>Nutritionist</option>
-            <option>Wellness Coach</option>
-            <option>Chef / Caterer</option>
-            <option>Event Planner</option>
-            <option>Wedding Photographer</option>
-            <option>DJ / Entertainer</option>
-            <option>Florist</option>
-            <option>E-commerce Seller</option>
-            <option>Etsy Shop Owner</option>
-            <option>Craftsperson / Maker</option>
-            <option>Jewellery Designer</option>
-            <option>Fashion Designer</option>
-            <option>Other</option>
-            <option>Retail & Craft</option>
+            <option value="">Select your sector...</option>
+            <option value="Graphic Design">Graphic Design</option>
+            <option value="Web Design">Web Design</option>
+            <option value="Content Writing">Content Writing</option>
+            <option value="Copywriting">Copywriting</option>
+            <option value="Video Editing">Video Editing</option>
+            <option value="Photography">Photography</option>
+            <option value="Social Media Management">Social Media Management</option>
+            <option value="Digital Marketing">Digital Marketing</option>
+            <option value="Branding Consultant">Branding Consultant</option>
+            <option value="Virtual Assistant">Virtual Assistant</option>
+            <option value="Project Management">Project Management</option>
+            <option value="Data Entry">Data Entry</option>
+            <option value="Web Development">Web Development</option>
+            <option value="Software Development">Software Development</option>
+            <option value="App Development">App Development</option>
+            <option value="Cybersecurity">Cybersecurity</option>
+            <option value="Translator">Translator</option>
+            <option value="Editor">Editor</option>
+            <option value="Voiceover Artist">Voiceover Artist</option>
+            <option value="Language Tutor">Language Tutor</option>
+            <option value="Online Tutor">Online Tutor</option>
+            <option value="Career Coach">Career Coach</option>
+            <option value="Life Coach">Life Coach</option>
+            <option value="Workshop Facilitator">Workshop Facilitator</option>
+            <option value="E-learning Creator">E-learning Creator</option>
+            <option value="Electrician">Electrician</option>
+            <option value="Plumber">Plumber</option>
+            <option value="Carpenter">Carpenter</option>
+            <option value="Handyman">Handyman</option>
+            <option value="Mechanic">Mechanic</option>
+            <option value="Cleaner">Cleaner</option>
+            <option value="Personal Trainer">Personal Trainer</option>
+            <option value="Yoga Instructor">Yoga Instructor</option>
+            <option value="Massage Therapist">Massage Therapist</option>
+            <option value="Nutritionist">Nutritionist</option>
+            <option value="Wellness Coach">Wellness Coach</option>
+            <option value="Chef / Caterer">Chef / Caterer</option>
+            <option value="Event Planner">Event Planner</option>
+            <option value="Wedding Photographer">Wedding Photographer</option>
+            <option value="DJ / Entertainer">DJ / Entertainer</option>
+            <option value="Florist">Florist</option>
+            <option value="E-commerce Seller">E-commerce Seller</option>
+            <option value="Etsy Shop Owner">Etsy Shop Owner</option>
+            <option value="Craftsperson / Maker">Craftsperson / Maker</option>
+            <option value="Jewellery Designer">Jewellery Designer</option>
+            <option value="Fashion Designer">Fashion Designer</option>
+            <option value="Other">Other</option>
           </select>
 
-          <button type="button" onclick="nextStep(3)">Next</button>
+          <button type="button" onclick="validateStep3()">Next</button>
         </div>
       </div>
 
       <!-- Paso 4 -->
       <div class="step" id="step4">
         <div class="step-content">
-          <label for="currency">Preferred currency</label>
+          <label for="currency">Preferred currency *</label>
           <select id="currency" name="currency" required>
-            <option value="">Select...</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
-            <option value="USD">USD</option>
+            <option value="">Select currency...</option>
+            <option value="EUR">EUR (Euro)</option>
+            <option value="GBP">GBP (British Pound)</option>
+            <option value="USD">USD (US Dollar)</option>
           </select>
 
-          <label>Want us to set up invoice defaults for you?</label>
+          <label>Want us to set up invoice defaults for you? *</label>
           <select id="invoice_defaults" name="invoice_defaults" required>
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
+            <option value="">Select an option...</option>
+            <option value="1">Yes, please!</option>
+            <option value="0">No, I'll set them up later</option>
           </select>
 
-          <label for="payment_terms">Payment terms (e.g., 7 days)</label>
-          <input type="text" id="payment_terms" name="payment_terms">
+          <label for="payment_terms">Payment terms <span class="optional">(e.g., 7 days, Net 30)</span></label>
+          <input type="text" id="payment_terms" name="payment_terms" placeholder="e.g., 7 days">
 
-          <label for="late_notice">Late payment notice (optional)</label>
-          <input type="text" id="late_notice" name="late_notice">
+          <label for="late_notice">Late payment notice <span class="optional">(optional)</span></label>
+          <input type="text" id="late_notice" name="late_notice" placeholder="e.g., Reminder after 30 days">
 
-          <label for="payment_methods">Preferred payment methods</label>
-          <input type="text" id="payment_methods" name="payment_methods">
+          <label for="payment_methods">Preferred payment methods <span class="optional">(optional)</span></label>
+          <input type="text" id="payment_methods" name="payment_methods" placeholder="e.g., Bank transfer, Stripe">
 
-          <button type="button" onclick="nextStep(4)">Next</button>
+          <button type="button" onclick="validateStep4()">Next</button>
         </div>
       </div>
 
       <!-- Paso 5 -->
       <div class="step" id="step5">
         <div class="step-content">
-          <label for="vat_registered">Are you VAT registered?</label>
+          <label for="vat_registered">Are you VAT registered? *</label>
           <select id="vat_registered" name="vat_registered" required>
-            <option value="no">No</option>
-            <option value="yes">Yes</option>
+            <option value="">Select an option...</option>
+            <option value="0">No</option>
+            <option value="1">Yes</option>
           </select>
 
           <div id="vat_section" style="display:none">
-            <label for="vat_number">VAT number</label>
-            <input type="text" id="vat_number" name="vat_number">
+            <label for="vat_number">VAT number *</label>
+            <input type="text" id="vat_number" name="vat_number" placeholder="e.g., 1234567X">
             <div id="vat_error" class="error"></div>
           </div>
 
-          <label for="pps_number">PPS number (optional)</label>
-          <input type="text" id="pps_number" name="pps_number">
+          <label for="pps_number">PPS number <span class="optional">(optional)</span></label>
+          <input type="text" id="pps_number" name="pps_number" placeholder="e.g., 1234567X">
           <div id="pps_error" class="error"></div>
 
           <button type="button" onclick="validateStep5()">Next</button>
@@ -290,9 +294,12 @@
       <!-- Paso 6 -->
       <div class="step" id="step6">
         <div class="step-content">
-          <label for="iban">Add a bank account (IBAN)</label>
-          <input type="text" id="iban" name="iban" required>
+          <label for="iban">Bank account (IBAN) *</label>
+          <input type="text" id="iban" name="iban" required placeholder="IE29AIBK93115212345678">
           <div id="iban_error" class="error"></div>
+          <p style="font-size: 0.9rem; color: #666; text-align: left; margin-top: -0.5rem;">
+            Format: IE followed by 22 characters (e.g., IE29AIBK93115212345678)
+          </p>
 
           <button type="button" onclick="validateStep6()">Next</button>
         </div>
@@ -301,8 +308,8 @@
       <!-- Paso 7: submit -->
       <div class="step" id="step7">
         <div class="step-content">
-          <h2>You're ready to rock your Solo Finances.</h2>
-          <p>We'll take it from here.</p>
+          <h2>You're ready to rock your Solo Finances!</h2>
+          <p>We'll take it from here and set up your smart dashboard.</p>
           <button type="submit">View Your Dashboard</button>
         </div>
       </div>
@@ -314,17 +321,27 @@
     const totalSteps = 7;
     const circles = document.querySelectorAll('.circle');
     const headers = [
-      { title: 'Hey there!', sub: '' },
-      { title: 'Who\'s behind the biz?', sub: '' },
-      { title: 'Your Solo Venture', sub: '' },
-      { title: 'Let\'s talk money', sub: '' },
-      { title: 'Tax stuff (we keep it safe)', sub: '' },
-      { title: 'Getting Paid', sub: '' },
+      { title: 'Hey there!', sub: 'Welcome to BudsiDesk' },
+      { title: 'Who\'s behind the biz?', sub: 'Tell us about yourself' },
+      { title: 'Your Solo Venture', sub: 'Business details' },
+      { title: 'Let\'s talk money', sub: 'Payment preferences' },
+      { title: 'Tax stuff (we keep it safe)', sub: 'Fiscal information' },
+      { title: 'Getting Paid', sub: 'Bank account details' },
       { title: 'That\'s it!', sub: 'We\'ll take it from here.' }
     ];
 
-    document.getElementById('vat_registered').addEventListener('change', e => {
-      document.getElementById('vat_section').style.display = e.target.value === 'yes' ? 'block' : 'none';
+    // Inicializar eventos
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById('vat_registered').addEventListener('change', function(e) {
+        document.getElementById('vat_section').style.display = e.target.value === '1' ? 'block' : 'none';
+        if (e.target.value === '1') {
+          document.getElementById('vat_number').required = true;
+        } else {
+          document.getElementById('vat_number').required = false;
+        }
+      });
+      
+      showStep(1);
     });
 
     function showStep(i) {
@@ -348,44 +365,86 @@
     }
 
     function validateStep2() {
-      const name = document.getElementById('contact_full_name').value;
-      if (!name) return alert('Please fill in your name.');
+      const name = document.getElementById('contact_full_name').value.trim();
+      if (!name) {
+        alert('Please fill in your name.');
+        return;
+      }
       nextStep(2);
+    }
+
+    function validateStep3() {
+      const businessName = document.getElementById('business_name').value.trim();
+      const profession = document.getElementById('profession').value;
+      const sector = document.getElementById('sector').value;
+      
+      if (!businessName || !profession || !sector) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+      nextStep(3);
+    }
+
+    function validateStep4() {
+      const currency = document.getElementById('currency').value;
+      const invoiceDefaults = document.getElementById('invoice_defaults').value;
+      
+      if (!currency || invoiceDefaults === '') {
+        alert('Please fill in all required fields.');
+        return;
+      }
+      nextStep(4);
     }
 
     function validateStep5() {
       let valid = true;
-      const vatReq = document.getElementById('vat_registered').value === 'yes';
-      const vat    = document.getElementById('vat_number').value.trim();
-      const pps    = document.getElementById('pps_number').value.trim();
+      const vatRegistered = document.getElementById('vat_registered').value;
+      const vatNumber = document.getElementById('vat_number').value.trim();
+      const ppsNumber = document.getElementById('pps_number').value.trim();
 
-      if (vatReq && !/^\d{7}[A-Za-z]{1,2}$/.test(vat)) {
-        document.getElementById('vat_error').textContent = 'Invalid VAT number.';
-        valid = false;
+      // Validar VAT si está registrado
+      if (vatRegistered === '1') {
+        if (!vatNumber) {
+          document.getElementById('vat_error').textContent = 'VAT number is required.';
+          valid = false;
+        } else if (!/^\d{7}[A-Za-z]{1,2}$/.test(vatNumber)) {
+          document.getElementById('vat_error').textContent = 'Invalid VAT number format (e.g., 1234567X).';
+          valid = false;
+        } else {
+          document.getElementById('vat_error').textContent = '';
+        }
       } else {
         document.getElementById('vat_error').textContent = '';
       }
 
-      if (pps && !/^\d{7}[A-Za-z]{1,2}$/.test(pps)) {
-        document.getElementById('pps_error').textContent = 'Invalid PPS number.';
+      // Validar PPS si se proporciona
+      if (ppsNumber && !/^\d{7}[A-Za-z]{1,2}$/.test(ppsNumber)) {
+        document.getElementById('pps_error').textContent = 'Invalid PPS number format (e.g., 1234567X).';
         valid = false;
       } else {
         document.getElementById('pps_error').textContent = '';
+      }
+
+      if (vatRegistered === '') {
+        alert('Please select if you are VAT registered or not.');
+        valid = false;
       }
 
       if (valid) nextStep(5);
     }
 
     function validateStep6() {
-      const iban = document.getElementById('iban').value.trim();
-      if (!/^IE\d{2}[A-Za-z0-9]{18}$/.test(iban)) {
-        document.getElementById('iban_error').textContent = 'Invalid IBAN format.';
+      const iban = document.getElementById('iban').value.trim().toUpperCase();
+      document.getElementById('iban').value = iban; // Mostrar en mayúsculas
+      
+      // Validación básica de IBAN (formato IE + 22 caracteres alfanuméricos)
+      if (!/^IE\d{2}[A-Z0-9]{18}$/.test(iban)) {
+        document.getElementById('iban_error').textContent = 'Please enter a valid Irish IBAN (IE followed by 22 characters).';
+        return;
       } else {
         document.getElementById('iban_error').textContent = '';
         nextStep(6);
       }
     }
-
-    document.addEventListener("DOMContentLoaded", () => showStep(1));
   </script>
 {% endblock %}

@@ -1,42 +1,652 @@
 {% extends "budgidesk_app/base.html" %}
 {% load static %}
 
-{% block title %}Legal Templates{% endblock %}
-
 {% block content %}
+<style>
+    :root {
+        --primary-1: #4B49AC;
+        --primary-2: #98BDFF;
+        --supporting-1: #7DA0FA;
+        --supporting-2: #7978E9;
+        --supporting-3: #F3797E;
+        --white: #ffffff;
+        --gray-light: #f5f5f5;
+        --gray-border: #e0e0e0;
+        --amber: #f39c12;
+    }
 
-  <div class="container">
-    <h1>Contracts & Legal Agreements</h1>
-    <p>Ready for:</p>
-    <a href="" class="btn" style="background-color:#7978E9; color:#fff;">Project Scoping & Work Agreements</a>
-    <a href="" class="btn" style="background-color:#7978E9; color:#fff;">Time & Task Tracking</a>
-  </div>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-  <div class="container mt-5">
-    <h2 class="mb-4">Download Your Legal Documents</h2>
-    <ul class="list-group">
-        <li class="list-group-item">
-            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download>📄 Service Agreements & NDAs</a>
-        </li>
-        <li class="list-group-item">
-            <a href="{% static 'legal_templates_pdf/Invoicing.pdf' %}" download>📄 Invoice Template</a>
-        </li>
-        <li class="list-group-item">
-            <a href="{% static 'legal_templates_pdf/UserInfo.pdf' %}" download>📄 User Info Form</a>
-        </li>
-    </ul>
-  </div>
+    /* Contenedor principal para sidebar + contenido */
+    .dashboard-container {
+        display: flex;
+        min-height: calc(100vh - 80px);
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
 
-<div class="container mt-5">
-    <h3 class="mb-4">Client Contract / Service Agreement</h3>
-    <h3 class="mb-4">Project Proposal / Quotation</h3>
-    <h3 class="mb-4">Timesheet - Work Log</h3>
-    <h3 class="mb-4">Non-Disclosure Agreement (NDA)</h3>
-    <h3 class="mb-4">Statement Of Work (SOW)</h3>
+    /* Sidebar */
+    .sidebar {
+        width: 200px;
+        background: var(--white);
+        color: var(--primary-1);
+        padding: 20px;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--gray-border);
+    }
+
+    .logo i {
+        font-size: 24px;
+        margin-right: 10px;
+        color: var(--primary-1);
+    }
+
+    .logo h1 {
+        font-size: 22px;
+        font-weight: 600;
+    }
+
+    .menu-title {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--primary-1);
+        margin: 20px 0 10px;
+        letter-spacing: 1px;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: var(--primary-1);
+    }
+
+    .menu-item:hover {
+        background-color: rgba(75, 73, 172, 0.1);
+    }
+
+    .menu-item.active {
+        background-color: var(--primary-1);
+        color: white;
+    }
+
+    .menu-item i {
+        margin-right: 12px;
+        font-size: 18px;
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        padding: 30px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        max-width: calc(100vw - 200px);
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .header h2 {
+        font-size: 24px;
+        color: var(--primary-1);
+        font-weight: 600;
+    }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+        background: white;
+        border-radius: 20px;
+        padding: 8px 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-bar input {
+        border: none;
+        outline: none;
+        padding: 5px 10px;
+        font-size: 16px;
+        width: 250px;
+        max-width: 100%;
+    }
+
+    .search-bar i {
+        color: #7f8c8d;
+    }
+
+    .user-profile {
+        display: flex;
+        align-items: center;
+    }
+
+    .user-profile img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 10px;
+        border: 2px solid var(--supporting-1);
+    }
+
+    /* Cards Grid para Legal Templates */
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        width: 100%;
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-top: 4px solid var(--supporting-1);
+        max-width: 100%;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header {
+        padding: 20px;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .card-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary-1);
+        margin-bottom: 5px;
+    }
+
+    .card-subtitle {
+        font-size: 14px;
+        color: #7f8c8d;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .card-content {
+        color: #34495e;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    /* Estilos específicos para Legal Templates */
+    .legal-hero {
+        background: linear-gradient(135deg, var(--primary-1) 0%, var(--supporting-2) 100%);
+        color: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .legal-hero h1 {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .legal-hero p {
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.9;
+    }
+
+    .btn-primary-custom {
+        background-color: var(--white);
+        border: none;
+        color: var(--primary-1);
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin: 0 0.5rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: var(--gray-light);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .document-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .document-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-border);
+        transition: background-color 0.2s;
+    }
+
+    .document-item:hover {
+        background-color: var(--gray-light);
+    }
+
+    .document-item:last-child {
+        border-bottom: none;
+    }
+
+    .document-icon {
+        width: 40px;
+        height: 40px;
+        background-color: var(--supporting-1);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .document-info {
+        flex: 1;
+    }
+
+    .document-name {
+        font-weight: 600;
+        color: var(--primary-1);
+        margin-bottom: 0.25rem;
+    }
+
+    .document-desc {
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+    .download-btn {
+        background-color: var(--supporting-2);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .download-btn:hover {
+        background-color: var(--primary-1);
+    }
+
+    .template-category {
+        margin-bottom: 2rem;
+    }
+
+    .category-title {
+        font-size: 1.5rem;
+        color: var(--primary-1);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--gray-border);
+    }
+
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .template-item {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-left: 4px solid var(--supporting-2);
+    }
+
+    .template-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .template-name {
+        font-weight: 600;
+        color: var(--primary-1);
+        margin-bottom: 0.5rem;
+    }
+
+    .template-desc {
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+    /* Floating apps widget */
+    .apps-panel {
+        position: fixed;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        z-index: 1000;
+    }
+    .apps-trigger {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(90deg, var(--primary-1), var(--supporting-2));
+        color: white;
+        border-radius: 8px 0 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s ease;
+    }
+    .apps-trigger:hover {
+        width: 45px;
+    }
+    .apps-content {
+        position: absolute;
+        top: 0;
+        right: -300px;
+        width: 200px;
+        background: var(--white);
+        padding: 1.5rem;
+        border-radius: 6px 0 0 6px;
+        box-shadow: -15px 0 15px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        border-left: 3px solid var(--supporting-3);
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+    .apps-panel:hover .apps-content {
+        right: 80px;
+    }
+    .apps-content h4 {
+        color: var(--primary-1);
+        margin-top: 0;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    .link-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    .app-link {
+        padding: 0.8rem;
+        text-decoration: none;
+        color: var(--primary-1);
+        font-weight: 500;
+        transition: all 0.2s;
+        border-radius: 6px;
+        text-align: center;
+    }
+    .app-link:hover {
+        background-color: var(--gray-light);
+        color: var(--supporting-2);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .sidebar {
+            width: 80px;
+            padding: 15px 10px;
+        }
+        
+        .logo h1, .menu-title, .menu-item span {
+            display: none;
+        }
+        
+        .logo {
+            justify-content: center;
+        }
+        
+        .menu-item {
+            justify-content: center;
+            padding: 15px 10px;
+        }
+        
+        .menu-item i {
+            margin-right: 0;
+            font-size: 20px;
+        }
+        
+        .search-bar input {
+            width: 150px;
+        }
+
+        .cards-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+
+        .main-content {
+            max-width: calc(100vw - 80px);
+        }
+
+        .template-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            flex-direction: column;
+        }
+        
+        .sidebar {
+            width: 100%;
+            height: auto;
+            padding: 10px;
+        }
+        
+        .logo {
+            margin-bottom: 15px;
+            justify-content: flex-start;
+        }
+        
+        .logo h1 {
+            display: block;
+            font-size: 18px;
+        }
+        
+        .menu-items {
+            display: flex;
+            overflow-x: auto;
+            gap: 5px;
+        }
+        
+        .menu-title {
+            display: none;
+        }
+        
+        .menu-item {
+            padding: 10px 15px;
+            white-space: nowrap;
+        }
+        
+        .menu-item span {
+            display: block;
+            font-size: 12px;
+        }
+        
+        .menu-item i {
+            display: none;
+        }
+
+        .header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .cards-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .main-content {
+            max-width: 100vw;
+            padding: 15px;
+        }
+
+        .legal-hero {
+            padding: 1.5rem;
+        }
+
+        .legal-hero h1 {
+            font-size: 1.8rem;
+        }
+
+        .btn-primary-custom {
+            display: block;
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+
+        .template-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- Contenedor principal -->
+<div class="dashboard-container">
     
-    </ul>
-  </div>
 
+    <!-- Main Content -->
+    <main class="main-content">
+        
 
+        <!-- Hero Section -->
+       
+
+        <!-- Downloadable Documents -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Documents</h3>
+                <p class="card-subtitle">Ready-to-use templates for your business needs</p>
+            </div>
+            <div class="card-body">
+                <ul class="document-list">
+                    <li class="document-item">
+                        <div class="document-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="document-info">
+                            <div class="document-name">Service Agreements & NDAs</div>
+                            <div class="document-desc">Complete legal documents to protect your services</div>
+                        </div>
+                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
+                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Preview</a>
+                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                    </li>
+                    <li class="document-item">
+                        <div class="document-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <div class="document-info">
+                            <div class="document-name">Invoice Template</div>
+                            <div class="document-desc">Professional invoices ready to customize</div>
+                        </div>
+                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
+                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Preview</a>
+                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                    </li>
+                    <li class="document-item">
+                        <div class="document-icon">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <div class="document-info">
+                            <div class="document-name">User Info Form</div>
+                            <div class="document-desc">Collect client information in an organized way</div>
+                        </div>
+                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
+                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Preview</a>
+                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Template Catalog -->
+        <div class="template-category">
+            <h3 class="category-title">Complete Template Catalog</h3>
+            <div class="template-grid">
+                <div class="template-item">
+                    <div class="template-name">Client Contract / Service Agreement</div>
+                    <div class="template-desc">Define terms, conditions and responsibilities</div>
+                </div>
+                <div class="template-item">
+                    <div class="template-name">Project Proposal / Quotation</div>
+                    <div class="template-desc">Present professional proposals to clients</div>
+                </div>
+                <div class="template-item">
+                    <div class="template-name">Timesheet - Work Log</div>
+                    <div class="template-desc">Record and control your project time</div>
+                </div>
+                <div class="template-item">
+                    <div class="template-name">Non-Disclosure Agreement (NDA)</div>
+                    <div class="template-desc">Protect your confidential information</div>
+                </div>
+                <div class="template-item">
+                    <div class="template-name">Statement Of Work (SOW)</div>
+                    <div class="template-desc">Detail objectives, deliverables and timelines</div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Floating apps widget -->
+<div class="apps-panel">
+    <div class="apps-trigger">
+        <i class="fas fa-th"></i>
+    </div>
+    <div class="apps-content">
+        <h4>Apps</h4>
+        <div class="link-list">
+            <a href="{% url 'dash_whiz' %}" class="app-link">Budsi Whiz</a>
+            <a href="{% url 'dash_help' %}" class="app-link">Help Support</a>
+        </div>
+    </div>
+</div>
+
+<!-- Include Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 {% endblock %}

@@ -24,12 +24,13 @@ urlpatterns = [
     path("onboarding/", views.onboarding_view, name="onboarding"),
 
     # ... (el resto de tus URLs permanecen igual)
-    path("invoice/create/", views.invoice_create, name="invoice_create"),
+    
     path("invoice/list/", views.invoice_list_view, name="invoice_list"),
     path("invoice/generate/", views.create_invoice_pdf_view, name="generate_invoice"),
     path("invoice/upload/", views.invoice_upload_view, name="invoice_upload"),
     path("invoices/<int:invoice_id>/preview/", views.invoice_preview_view, name="invoice_preview"),
-    path("invoices/create/", views.invoice_create, name="invoice_create_sale"),
+    path("invoices/", views.main_invoice_view, name="main_invoice"),
+    path("invoices/create/", views.invoice_create, name="invoice_create"),
     path("tax/report/", views.budsi_tax_report, name="tax_report"),
     path("budsi/report/", views.budsi_tax_report, name="budsi_tax_report"),
     path("account/settings/", views.account_settings_view, name="account_settings"),
@@ -49,6 +50,8 @@ urlpatterns = [
     path("dash/whiz/", views.whiz_view, name="dash_whiz"),
     path("dash/help/", views.help_view, name="dash_help"),
     path("invoices/gallery/<int:invoice_id>/", views.invoice_gallery_view, name="invoice_gallery"),
+
+    
 ]
 
 # Para servir archivos estáticos y media en desarrollo

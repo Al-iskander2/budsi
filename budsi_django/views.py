@@ -74,29 +74,55 @@ def register_view(request):
 def dashboard_view(request):
     return render(request, "budgidesk_app/dashboard.html")
 
+@login_required
+def main_invoice_view(request):
+    try:
+        profile = FiscalProfile.objects.get(user=request.user)
+    except FiscalProfile.DoesNotExist:
+        return redirect('onboarding')
+
+    invoices = Invoice.objects.filter(user=request.user, invoice_type="sale").order_by('-date')
+    return render(request, "budgidesk_app/dash/invoice/main_invoice.html", {
+        'invoice_count': profile.invoice_count,
+        'invoices': invoices
+    })
+
 
 @login_required
 def onboarding_view(request):
     if request.method == "POST":
-        FiscalProfile.objects.create(
-            user=request.user,
-            contact_full_name=request.POST.get("contact_full_name"),
-            phone=request.POST.get("phone"),
-            logo=request.FILES.get("logo"),
-            business_name=request.POST.get("business_name"),
-            profession=request.POST.get("profession"),
-            sector=request.POST.get("sector"),
-            currency=request.POST.get("currency"),
-            invoice_defaults=request.POST.get("invoice_defaults"),
-            payment_terms=request.POST.get("payment_terms"),
-            late_notice=request.POST.get("late_notice"),
-            payment_methods=request.POST.get("payment_methods"),
-            vat_registered=(request.POST.get("vat_registered") == "yes"),
-            vat_number=request.POST.get("vat_number", ''),
-            pps_number=request.POST.get("pps_number", ''),
-            iban=request.POST.get("iban", ''),
-        )
-        return redirect("dashboard")
+        # 🔹 Convertir strings a booleanos
+        invoice_defaults = request.POST.get("invoice_defaults", "").lower() in ["true", "yes", "1"]
+        vat_registered = request.POST.get("vat_registered", "").lower() in ["true", "yes", "1"]
+
+        # 🔹 Solo guardar VAT number si está registrado
+        vat_number = request.POST.get("vat_number", "").strip() if vat_registered else ""
+
+        try:
+            FiscalProfile.objects.create(
+                user=request.user,
+                contact_full_name=request.POST.get("contact_full_name"),
+                phone=request.POST.get("phone"),
+                logo=request.FILES.get("logo"),  # puede ser None
+                business_name=request.POST.get("business_name"),
+                profession=request.POST.get("profession"),
+                sector=request.POST.get("sector"),
+                currency=request.POST.get("currency"),
+                invoice_defaults=invoice_defaults,   #  ahora boolean
+                payment_terms=request.POST.get("payment_terms"),
+                late_notice=request.POST.get("late_notice"),
+                payment_methods=request.POST.get("payment_methods"),
+                vat_registered=vat_registered,       #  ahora boolean
+                vat_number=vat_number,
+                pps_number=request.POST.get("pps_number"),
+                iban=request.POST.get("iban"),
+            )
+            return redirect("dashboard")
+
+        except Exception as e:
+            print(f"Error in onboarding: {e}")
+            return render(request, "budgidesk_app/onboard.html", {"error": str(e)})
+
     return render(request, "budgidesk_app/onboard.html")
 
 
@@ -130,8 +156,9 @@ def invoice_create(request):
 
         if errors:
             messages.error(request, " ".join(errors))
-            return render(request, "budgidesk_app/dash/invoice/invoice_created.html", {
-                "errors": errors, "form_data": request.POST
+            return render(request, "budgidesk_app/dash/invoice/main_invoice.html", {
+                "errors": errors,
+                "form_data": request.POST
             })
 
         try:
@@ -156,7 +183,7 @@ def invoice_create(request):
                 profile.invoice_count += 1
                 profile.save()
             messages.success(request, "Invoice saved successfully!")
-            return redirect("invoice_create")
+            return redirect("main_invoice")
         except FiscalProfile.DoesNotExist:
             return redirect("onboarding")
 
@@ -166,9 +193,9 @@ def invoice_create(request):
         return redirect('onboarding')
 
     invoices = Invoice.objects.filter(user=request.user, invoice_type="sale").order_by('-date')
-    return render(request, "budgidesk_app/dash/invoice/invoice_create.html", {
-        'invoice_count': profile.invoice_count,
-        'invoices': invoices
+    return render(request, "budgidesk_app/dash/invoice/main_invoice.html", {
+    'invoice_count': profile.invoice_count,
+    'invoices': invoices
     })
 
 
@@ -534,3 +561,4 @@ def invoice_list_view(request):
         "budgidesk_app/dash/expenses/invoice_list.html",
         {"invoices": invoices},
     )
+

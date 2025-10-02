@@ -1,23 +1,288 @@
 {% extends 'budgidesk_app/base.html' %}
-{% block title %}Login{% endblock %}
+{% load static %}
+
+{% block title %}Login - Budgidesk{% endblock %}
 
 {% block content %}
-<h2>Login</h2>
+<style>
+    :root {
+        --primary-1: #4B49AC;
+        --primary-2: #98BDFF;
+        --supporting-1: #7DA0FA;
+        --supporting-2: #7978E9;
+        --supporting-3: #F3797E;
+        --white: #ffffff;
+        --gray-light: #f5f5f5;
+        --gray-border: #e0e0e0;
+        --amber: #f39c12;
+    }
 
-{% if error %}
-  <p style="color: red;">{{ error }}</p>
-{% endif %}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-<form method="post">
-  {% csrf_token %}
-  <label>Email:
-    <input type="email" name="email" required autocomplete="email">
-  </label><br>
-  <label>Password:
-    <input type="password" name="password" required autocomplete="current-password">
-  </label><br>
-  <button type="submit">Log in</button>
-</form>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--primary-1) 0%, var(--supporting-2) 100%);
+        padding: 2rem;
+    }
 
-<p>Don't have an account? <a href="{% url 'register' %}">Create one here</a></p>
+    .login-card {
+        background: var(--white);
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        padding: 3rem;
+        max-width: 450px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-1) 0%, var(--supporting-2) 100%);
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .login-header h2 {
+        font-size: 2.2rem;
+        color: var(--primary-1);
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .login-header p {
+        color: #64748b;
+        font-size: 1rem;
+    }
+
+    .login-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .logo-circle {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, var(--primary-1) 0%, var(--supporting-2) 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--primary-1);
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.9rem 1rem;
+        border: 1px solid var(--gray-border);
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background-color: var(--white);
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--supporting-2);
+        box-shadow: 0 0 0 3px rgba(121, 120, 233, 0.1);
+    }
+
+    .form-input::placeholder {
+        color: #a0a0a0;
+    }
+
+    .error-message {
+        background-color: rgba(243, 121, 126, 0.1);
+        color: var(--supporting-3);
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--supporting-3);
+        font-size: 0.9rem;
+    }
+
+    .btn-login {
+        width: 100%;
+        background: linear-gradient(135deg, var(--primary-1) 0%, var(--supporting-2) 100%);
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 0.5rem;
+        box-shadow: 0 4px 10px rgba(75, 73, 172, 0.3);
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(75, 73, 172, 0.4);
+    }
+
+    .btn-login:active {
+        transform: translateY(0);
+    }
+
+    .login-footer {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--gray-border);
+    }
+
+    .login-footer p {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .register-link {
+        color: var(--supporting-2);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+    .register-link:hover {
+        color: var(--primary-1);
+        text-decoration: underline;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 2.5rem;
+        background: none;
+        border: none;
+        color: #64748b;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .login-container {
+            padding: 1rem;
+        }
+        
+        .login-card {
+            padding: 2rem 1.5rem;
+        }
+        
+        .login-header h2 {
+            font-size: 1.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .login-card {
+            padding: 1.5rem 1rem;
+        }
+        
+        .login-header h2 {
+            font-size: 1.6rem;
+        }
+        
+        .form-input {
+            padding: 0.8rem;
+        }
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-logo">
+            <div class="logo-circle">B</div>
+        </div>
+        
+        <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p></p>
+        </div>
+
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email" required autocomplete="email">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
+                <button type="button" class="password-toggle" id="togglePassword">Show</button>
+            </div>
+            
+            <button type="submit" class="btn-login">Log In</button>
+        </form>
+        
+        <div class="login-footer">
+            <p>Don't have an account? <a href="{% url 'register' %}" class="register-link">Create one here</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.textContent = type === 'password' ? 'Show' : 'Hide';
+    });
+
+    // Add focus effects to inputs
+    const inputs = document.querySelectorAll('.form-input');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.classList.remove('focused');
+        });
+    });
+</script>
+
 {% endblock %}

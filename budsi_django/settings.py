@@ -18,12 +18,18 @@ print("POSTGRES_HOST:", os.getenv("POSTGRES_HOST"))
 print("POSTGRES_PORT:", os.getenv("POSTGRES_PORT"))
 print("============================")
 
-# SECURITY
+# SECURITY - CAMBIOS IMPORTANTES
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "your-secret-key")
-DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "*").split(",")
+DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"  # False por defecto para producción
 
-# APPS
+# ALLOWED_HOSTS para Render - CAMBIO IMPORTANTE
+ALLOWED_HOSTS = []
+RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])  # Para desarrollo local
+
+# APPS (sin cambios)
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -37,8 +43,10 @@ INSTALLED_APPS = [
     "budsi_django",
 ]
 
+# MIDDLEWARE - AÑADIR WHITENOISE
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # ¡AÑADIR ESTA LÍNEA!
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -49,6 +57,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "budsi_django.urls"
 
+# TEMPLATES - AÑADIR MEDIA CONTEXT PROCESSOR
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -60,19 +69,19 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.media",  # ¡AÑADIR ESTA LÍNEA!
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = "budsi_django.wsgi.application"
-ASGI_APPLICATION = "budsi_django.asgi.application"
 
-# VARIABLES API / Secrets
+# VARIABLES API / Secrets (sin cambios)
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY", "")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 
-# DATABASE
+# DATABASE (sin cambios)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -84,7 +93,7 @@ DATABASES = {
     }
 }
 
-# AUTH
+# AUTH (sin cambios)
 AUTH_USER_MODEL = "budsi_database.User"
 AUTHENTICATION_BACKENDS = [
     "budsi_django.backends.EmailBackend",
@@ -98,23 +107,26 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# INTERNACIONALIZACIÓN
+# INTERNACIONALIZACIÓN (sin cambios)
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Europe/Dublin"
 USE_I18N = True
 USE_TZ = True
 
-# STATIC & MEDIA
+# STATIC & MEDIA - AÑADIR WHITENOISE STORAGE
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# AÑADIR ESTA CONFIGURACIÓN PARA WHITENOISE
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Configuración de autenticación
-LOGIN_URL = 'login'  # Nombre de la URL de login
-LOGIN_REDIRECT_URL = 'dashboard'  # A dónde redirigir después del login
-LOGOUT_REDIRECT_URL = 'login'  # A dónde redirigir después del logout
+# Configuración de autenticación (sin cambios)
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

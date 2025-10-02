@@ -1,8 +1,11 @@
+{% extends 'budgidesk_app/base.html' %}
 {% load static %}
+
+{% block content %}
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Reporte Fiscal</title>
+  <title>Tax Report</title>
    <style>
     :root {
       --primary: #4B49AC;
@@ -117,20 +120,20 @@
 </head>
 <body>
   <div class="header">
-    <h1>📊 Reporte Fiscal (Formato Excel)</h1>
-    <a href="{% url 'dashboard' %}" class="back-btn">Volver a TAX</a>
+    <h1>Tax Report </h1>
+    
   </div>
 
-  <!-- Facturas Emitidas -->
+  <!-- Issued Invoices -->
   <div class="section">
-    <div class="section-title">Facturas Emitidas</div>
+    <div class="section-title">Sales</div>
     <table class="excel-style">
       <thead>
         <tr>
-          <th>Factura</th>
-          <th>Subtotal (Neto)</th>
-          <th>VAT 23%</th>
-          <th>Total (Bruto)</th>
+          <th>Invoice</th>
+          <th>Subtotal (Net)</th>
+          <th>VAT</th> <!--En algun momento se puede aplicar el Vat que se está aplicando trallendolo como una variables -->
+          <th>Total (Gross)</th>
         </tr>
       </thead>
       <tbody>
@@ -142,10 +145,10 @@
           <td>€{{ r.total }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="4"><em>No hay facturas emitidas.</em></td></tr>
+        <tr><td colspan="4"><em>No issued invoices.</em></td></tr>
         {% endfor %}
         <tr class="total-row">
-          <td>Totales</td>
+          <td>Totals</td>
           <td class="formula">€{{ tax_data.income.gross }}</td>
           <td class="formula">€{{ tax_data.vat.collected }}</td>
           <td class="formula">€{{ tax_data.income.gross|add:tax_data.vat.collected }}</td>
@@ -154,16 +157,16 @@
     </table>
   </div>
 
-  <!-- Facturas de Gasto -->
+  <!-- Expense Invoices -->
   <div class="section">
-    <div class="section-title">Facturas de Gasto</div>
+    <div class="section-title">Purchases</div>
     <table class="excel-style">
       <thead>
         <tr>
-          <th>Factura</th>
-          <th>Subtotal (Neto)</th>
-          <th>VAT 23%</th>
-          <th>Total (Bruto)</th>
+          <th>Invoice</th>
+          <th>Subtotal (Net)</th>
+          <th>VAT</th> <!--En algun momento se puede aplicar el Vat que se está aplicando trallendolo como una variables -->
+          <th>Total (Gross)</th>
         </tr>
       </thead>
       <tbody>
@@ -175,10 +178,10 @@
           <td>€{{ r.total }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="4"><em>No hay facturas de gasto.</em></td></tr>
+        <tr><td colspan="4"><em>No expense invoices.</em></td></tr>
         {% endfor %}
         <tr class="total-row">
-          <td>Totales</td>
+          <td>Totals</td>
           <td class="formula">€{{ tax_data.income.expenses }}</td>
           <td class="formula">€{{ tax_data.vat.paid }}</td>
           <td class="formula">€{{ tax_data.income.expenses|add:tax_data.vat.paid }}</td>
@@ -187,9 +190,9 @@
     </table>
   </div>
 
-  <!-- Resumen VAT -->
+  <!-- VAT Summary -->
   <div class="section">
-    <div class="section-title">Resumen VAT</div>
+    <div class="section-title">VAT Summary</div>
     <table class="excel-style">
       <tr><td>Tax collected</td><td class="formula">€{{ tax_data.vat.collected }}</td></tr>
       <tr><td>Tax paid</td><td class="formula">€{{ tax_data.vat.paid }}</td></tr>
@@ -198,9 +201,9 @@
     </table>
   </div>
 
-  <!-- Resumen Fiscal -->
+  <!-- Tax Summary -->
   <div class="section">
-    <div class="section-title">Resumen Fiscal</div>
+    <div class="section-title">Tax Summary</div>
     <table class="excel-style">
       <thead>
         <tr>
@@ -223,23 +226,23 @@
     </table>
   </div>
 
-  <!-- Detalle Income Tax -->
+  <!-- Income Tax Detail -->
   <div class="section">
     <div class="section-title">1. Income Tax</div>
     <table class="excel-style">
       <thead>
-        <tr><th>Tramo</th><th>Base</th><th>Tasa</th><th>Impuesto</th></tr>
+        <tr><th>Band</th><th>Base</th><th>Rate</th><th>Tax</th></tr>
       </thead>
       <tbody>
         <tr>
-          <td>Primer tramo</td>
+          <td>First band</td>
           <td>€44,000</td>
           <td>20%</td>
           <td class="formula">€{{ first_band_tax }}</td>
         </tr>
         {% if show_excess %}
         <tr>
-          <td>Exceso</td>
+          <td>Excess</td>
           <td class="formula">€{{ excess_amount }}</td>
           <td>40%</td>
           <td class="formula">€{{ excess_tax }}</td>
@@ -261,17 +264,17 @@
     </table>
   </div>
 
-  <!-- Detalle USC -->
+  <!-- USC Detail -->
   <div class="section">
     <div class="section-title">2. USC - Universal Social Charge</div>
     <table class="excel-style">
       <thead>
-        <tr><th>Tramo</th><th>Desde</th><th>Hasta</th><th>Tasa</th><th>Monto</th><th>Impuesto</th></tr>
+        <tr><th>Band</th><th>From</th><th>To</th><th>Rate</th><th>Amount</th><th>Tax</th></tr>
       </thead>
       <tbody>
         {% for band in tax_data.usc.breakdown %}
         <tr>
-          <td>Tramo {{ forloop.counter }}</td>
+          <td>Band {{ forloop.counter }}</td>
           <td>{{ band.band|slice:":-1"|cut:"€"|cut:" " }}</td>
           <td>{{ band.band|slice:"-999:"|cut:"€"|cut:" " }}</td>
           <td>{{ band.rate }}</td>
@@ -279,7 +282,7 @@
           <td class="formula">€{{ band.tax }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="6"><em>Sin tramos USC.</em></td></tr>
+        <tr><td colspan="6"><em>No USC bands.</em></td></tr>
         {% endfor %}
         <tr class="total-row">
           <td colspan="5">Total USC</td>
@@ -291,9 +294,9 @@
 
   <!-- PRSI -->
   <div class="section">
-    <div class="section-title">3. PRSI (Clase S)</div>
+    <div class="section-title">3. PRSI (Class S)</div>
     <table class="excel-style">
-      <thead><tr><th>Base</th><th>Tasa</th><th>Impuesto</th></tr></thead>
+      <thead><tr><th>Base</th><th>Rate</th><th>Tax</th></tr></thead>
       <tbody>
         <tr>
           <td class="formula">€{{ tax_data.income.taxable }}</td>
@@ -305,3 +308,6 @@
   </div>
 </body>
 </html>
+
+
+{% endblock %}

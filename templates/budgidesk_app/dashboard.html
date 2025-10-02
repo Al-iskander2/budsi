@@ -22,11 +22,13 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    body {
+    /* NUEVO: Contenedor principal para sidebar + contenido */
+    .dashboard-container {
         display: flex;
-        min-height: 100vh;
-        background-color: #f5f7fa;
-        color: #333;
+        min-height: calc(100vh - 80px); /* Resta la altura del header */
+        width: 100%;
+        max-width: 100vw;
+        overflow-x: hidden; /* Previene scroll horizontal */
     }
 
     /* Sidebar */
@@ -37,6 +39,7 @@
         padding: 20px;
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
         overflow-y: auto;
+        flex-shrink: 0; /* Evita que se encoja */
     }
 
     .logo {
@@ -92,11 +95,13 @@
         font-size: 18px;
     }
 
-    /* Main Content */
+    /* Main Content - CORREGIDO */
     .main-content {
         flex: 1;
         padding: 30px;
         overflow-y: auto;
+        overflow-x: hidden; /* Importante: previene scroll horizontal */
+        max-width: calc(100vw - 200px); /* Limita el ancho máximo */
     }
 
     .header {
@@ -104,6 +109,8 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 30px;
+        flex-wrap: wrap; /* Para responsive */
+        gap: 15px;
     }
 
     .header h2 {
@@ -127,6 +134,7 @@
         padding: 5px 10px;
         font-size: 16px;
         width: 250px;
+        max-width: 100%; /* Para responsive */
     }
 
     .search-bar i {
@@ -147,11 +155,12 @@
         border: 2px solid var(--supporting-1);
     }
 
-    /* Cards Grid */
+    /* Cards Grid - CORREGIDO */
     .cards-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 25px;
+        width: 100%;
     }
 
     .card {
@@ -161,6 +170,7 @@
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border-top: 4px solid var(--supporting-1);
+        max-width: 100%; /* Asegura que no sobresalga */
     }
 
     .card:hover {
@@ -412,95 +422,6 @@
         text-align: center;
     }
 
-    /* Responsive */
-    @media (max-width: 992px) {
-        .sidebar {
-            width: 80px;
-            padding: 15px 10px;
-        }
-        
-        .logo h1, .menu-title, .menu-item span {
-            display: none;
-        }
-        
-        .logo {
-            justify-content: center;
-        }
-        
-        .menu-item {
-            justify-content: center;
-            padding: 15px 10px;
-        }
-        
-        .menu-item i {
-            margin-right: 0;
-            font-size: 20px;
-        }
-        
-        .search-bar input {
-            width: 150px;
-        }
-
-        .cards-grid {
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        }
-    }
-
-    @media (max-width: 768px) {
-        body {
-            flex-direction: column;
-        }
-        
-        .sidebar {
-            width: 100%;
-            height: auto;
-            padding: 10px;
-        }
-        
-        .logo {
-            margin-bottom: 15px;
-            justify-content: flex-start;
-        }
-        
-        .logo h1 {
-            display: block;
-            font-size: 18px;
-        }
-        
-        .menu-items {
-            display: flex;
-            overflow-x: auto;
-            gap: 5px;
-        }
-        
-        .menu-title {
-            display: none;
-        }
-        
-        .menu-item {
-            padding: 10px 15px;
-        }
-        
-        .menu-item span {
-            display: block;
-            font-size: 12px;
-        }
-        
-        .menu-item i {
-            display: none;
-        }
-
-        .header {
-            flex-direction: column;
-            gap: 15px;
-            align-items: flex-start;
-        }
-
-        .cards-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
     /* === Floating apps widget === */
     .apps-panel {
         position: fixed;
@@ -566,153 +487,245 @@
         background-color: var(--gray-light);
         color: var(--supporting-2);
     }
+
+    /* Responsive - CORREGIDO */
+    @media (max-width: 992px) {
+        .sidebar {
+            width: 80px;
+            padding: 15px 10px;
+        }
+        
+        .logo h1, .menu-title, .menu-item span {
+            display: none;
+        }
+        
+        .logo {
+            justify-content: center;
+        }
+        
+        .menu-item {
+            justify-content: center;
+            padding: 15px 10px;
+        }
+        
+        .menu-item i {
+            margin-right: 0;
+            font-size: 20px;
+        }
+        
+        .search-bar input {
+            width: 150px;
+        }
+
+        .cards-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+
+        .main-content {
+            max-width: calc(100vw - 80px); /* Ajusta al sidebar reducido */
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            flex-direction: column;
+        }
+        
+        .sidebar {
+            width: 100%;
+            height: auto;
+            padding: 10px;
+        }
+        
+        .logo {
+            margin-bottom: 15px;
+            justify-content: flex-start;
+        }
+        
+        .logo h1 {
+            display: block;
+            font-size: 18px;
+        }
+        
+        .menu-items {
+            display: flex;
+            overflow-x: auto;
+            gap: 5px;
+        }
+        
+        .menu-title {
+            display: none;
+        }
+        
+        .menu-item {
+            padding: 10px 15px;
+            white-space: nowrap;
+        }
+        
+        .menu-item span {
+            display: block;
+            font-size: 12px;
+        }
+        
+        .menu-item i {
+            display: none;
+        }
+
+        .header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .cards-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .main-content {
+            max-width: 100vw; /* Ocupa todo el ancho en móvil */
+            padding: 15px;
+        }
+    }
 </style>
 
-<!-- Sidebar -->
-<aside class="sidebar">
-    <div class="logo">
-        <h1>Dashboard</h1>
-    </div>
-    <a href="{% url 'invoice_create_sale' %}" class="menu-item">
-        <span>Invoices / Credit Notes</span>
-    </a>
-    <a href="{% url 'dash_tax' %}" class="menu-item">
-        <span>Expenses</span>
-    </a>
-    <a href="{% url 'tax_report' %}" class="menu-item">
-        <span>Tax</span>
-    </a>
-    <a href="{% url 'dash_pulse' %}" class="menu-item">
-        <span>Pulse</span>
-    </a>
-    <a href="{% url 'legal_templates' %}" class="menu-item">
-        <span>Docs (templates)</span>
-    </a>
-    <a href="{% url 'dash_track' %}" class="menu-item">
-        <span>Track (projects)</span>
-    </a>
-</aside>
-
-<!-- Main Content -->
-<main class="main-content">
-    <div class="header">
-        <h2>Welcome back, {{ request.user.email }}</h2>
-        <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" placeholder="Search...">
+<!-- NUEVA ESTRUCTURA: Contenedor principal -->
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>Dashboard</h1>
         </div>
-        <div class="user-profile">
-            <img src="{% static 'budgidesk_app/img/default-avatar.png' %}" alt="User">
-            <span>{{ request.user.email }}</span>
-        </div>
-    </div>
+        <a href="{% url 'main_invoice' %}" class="menu-item">
+            <span>Invoices<br>Credit Notes</span>
+        </a>
+        <a href="{% url 'dash_tax' %}" class="menu-item">
+            <span>Expenses</span>
+        </a>
+        <a href="{% url 'tax_report' %}" class="menu-item">
+            <span>Tax</span>
+        </a>
+        <a href="{% url 'dash_pulse' %}" class="menu-item">
+            <span>Pulse</span>
+        </a>
+        <a href="{% url 'legal_templates' %}" class="menu-item">
+            <span>Docs </span>
+        </a>
+        <a href="{% url 'dash_track' %}" class="menu-item">
+            <span>Track </span>
+        </a>
+    </aside>
 
-    <div class="cards-grid">
-        <!-- Monthly Income Overview -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Monthly Income Overview</h3>
-            </div>
-            <div class="card-body">
-                <canvas id="incomeChart"></canvas>
-            </div>
-        </div>
+    <!-- Main Content -->
+    <main class="main-content">
+      
 
-        <!-- Revenue vs Expenses -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Revenue vs Expenses</h3>
+        <div class="cards-grid">
+            <!-- Monthly Income Overview -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Monthly Income Overview</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="incomeChart"></canvas>
+                </div>
             </div>
-            <div class="card-body">
-                <canvas id="budgetChart"></canvas>
-            </div>
-        </div>
 
-        <!-- Buzz (Reminders) -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Buzz</h3>
+            <!-- Revenue vs Expenses -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Revenue vs Expenses</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="budgetChart"></canvas>
+                </div>
             </div>
-            <div class="card-body">
-                <ul class="reminders-list" id="reminders-list"></ul>
-            </div>
-        </div>
 
-        <!-- Tax Summary -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Tax Summary</h3>
+            <!-- Buzz (Reminders) -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Buzz</h3>
+                </div>
+                <div class="card-body">
+                    <ul class="reminders-list" id="reminders-list"></ul>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="summary-grid">
-                    <div class="summary-item">
-                        <div class="summary-value">€4,582</div>
-                        <div class="summary-label">VAT Liability</div>
+
+            <!-- Tax Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Tax Summary</h3>
+                </div>
+                <div class="card-body">
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-value">€4,582</div>
+                            <div class="summary-label">VAT Liability</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">€12,907</div>
+                            <div class="summary-label">Income Tax</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">€2,348</div>
+                            <div class="summary-label">USC</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value">€1,975</div>
+                            <div class="summary-label">PRSI</div>
+                        </div>
                     </div>
-                    <div class="summary-item">
-                        <div class="summary-value">€12,907</div>
-                        <div class="summary-label">Income Tax</div>
+                </div>
+            </div>
+
+            <!-- Spending Wheel -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Spending Wheel</h3>
+                </div>
+                <div class="card-body">
+                    <div class="spending-container">
+                        <canvas id="spendingWheelChart"></canvas>
                     </div>
-                    <div class="summary-item">
-                        <div class="summary-value">€2,348</div>
-                        <div class="summary-label">USC</div>
+                    <div class="spending-legend" id="spendingLegend"></div>
+                </div>
+            </div>
+
+            <!-- Uptrend -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Performance Uptrend</h3>
+                </div>
+                <div class="card-body">
+                    <div class="comparison-card">
+                        <div class="comparison-item">
+                            <div class="comparison-year">2024</div>
+                            <div class="comparison-value">€32.5k</div>
+                        </div>
+                        <div class="comparison-item">
+                            <div class="comparison-year">2023</div>
+                            <div class="comparison-value">€41.2k</div>
+                        </div>
                     </div>
-                    <div class="summary-item">
-                        <div class="summary-value">€1,975</div>
-                        <div class="summary-label">PRSI</div>
+
+                    <div class="card-subtitle-center">
+                        Annual invoice summary comparison - current year vs previous year (gross sales)
+                    </div>
+
+                    <div class="growth-section">
+                        <div class="growth-item">
+                            <div class="growth-value">78%</div>
+                            <div class="growth-label">Growth</div>
+                        </div>
+                        <div class="growth-item">
+                            <div class="growth-value">62%</div>
+                            <div class="growth-label">Company Growth</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Spending Wheel -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Spending Wheel</h3>
-            </div>
-            <div class="card-body">
-                <div class="spending-container">
-                    <canvas id="spendingWheelChart"></canvas>
-                </div>
-                <div class="spending-legend" id="spendingLegend"></div>
-            </div>
-        </div>
-
-        <!-- Uptrend -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Performance Uptrend</h3>
-            </div>
-            <div class="card-body">
-                <div class="comparison-card">
-                    <div class="comparison-item">
-                        <div class="comparison-year">2024</div>
-                        <div class="comparison-value">€32.5k</div>
-                    </div>
-                    <div class="comparison-item">
-                        <div class="comparison-year">2023</div>
-                        <div class="comparison-value">€41.2k</div>
-                    </div>
-                </div>
-
-                <div class="card-subtitle-center">
-                    Annual invoice summary comparison - current year vs previous year (gross sales)
-                </div>
-
-                <div class="growth-section">
-                    <div class="growth-item">
-                        <div class="growth-value">78%</div>
-                        <div class="growth-label">Growth</div>
-                    </div>
-                    <div class="growth-item">
-                        <div class="growth-value">62%</div>
-                        <div class="growth-label">Company Growth</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</main>
+    </main>
+</div>
 
 <!-- Floating apps widget -->
 <div class="apps-panel">
@@ -722,8 +735,7 @@
     <div class="apps-content">
         <h4>Apps</h4>
         <div class="link-list">
-            <a href="{% url 'dash_tax' %}" class="app-link">Expenses</a>
-            <a href="{% url 'tax_report' %}" class="app-link">Tax Report</a>
+            <a href="{% url 'dash_whiz' %}" class="app-link">Budsi Whiz</a>
             <a href="{% url 'dash_help' %}" class="app-link">Help Support</a>
         </div>
     </div>

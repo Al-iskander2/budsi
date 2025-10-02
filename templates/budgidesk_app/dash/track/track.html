@@ -13,19 +13,25 @@
     --gray-light: #f5f5f5;
     --gray-border: #e0e0e0;
     --amber: #f39c12;
+    --green: #10b981;
+    --red: #ef4444;
+    --purple: #8b5cf6;
   }
 
-  .container {
+  /* Layout simplificado */
+  .dashboard-container {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr 350px;
     gap: 2rem;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 20px;
   }
 
   .main-content {
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
   }
 
   .calendar-sidebar {
@@ -34,51 +40,62 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     padding: 1.25rem;
     border-top: 4px solid var(--supporting-2);
+    height: fit-content;
+    position: sticky;
+    top: 20px;
   }
 
-  /* Estilos del calendario */
-  .calendar-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+  /* Header simplificado */
+  .tracker-header {
+    background-color: white;
+    border-bottom: 1px solid var(--gray-border);
+    padding: 1.5rem 0;
+    margin-bottom: 1rem;
   }
-  .calendar-nav { display: flex; gap: .5rem; }
-  .calendar-nav button {
-    background: var(--primary-1); color: white; border: none; border-radius: 6px;
-    width: 32px; height: 32px; display: grid; place-items: center; cursor: pointer;
-  }
-  .calendar-nav button:hover { background: var(--supporting-2); }
 
-  .weekdays {
-    display: grid; grid-template-columns: repeat(7, 1fr);
-    text-align: center; font-weight: 700; margin-bottom: .5rem; color: var(--primary-1); font-size: .8rem;
+  .header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
-  .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: .25rem; }
 
-  .day-cell {
-    height: 34px; display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; font-size: .9rem; cursor: pointer; transition: .15s;
+  .header-title h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-1);
+    margin: 0;
   }
-  .day-cell:hover { background: var(--primary-2); color: #fff; }
-  .day-cell.today { background: var(--primary-1); color: #fff; font-weight: 700; }
-  .day-cell.other-month { color: #c7c7c7; }
-  .day-cell.has-event { position: relative; }
-  .day-cell.has-event::after {
-    content:''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
-    width: 5px; height: 5px; border-radius: 50%; background: var(--supporting-3);
+
+  .header-title p {
+    color: var(--primary-2);
+    margin: 0;
+  }
+
+  .header-buttons {
+    display: flex;
+    gap: 0.75rem;
   }
 
   .btn {
-    display: inline-block;
-    padding: 10px 20px;
-    margin: 5px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-size: 0.875rem;
   }
 
   .btn-primary {
     background-color: var(--primary-1);
     color: white;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
   }
 
   .btn-primary:hover {
@@ -88,7 +105,7 @@
   .btn-secondary {
     background-color: var(--gray-light);
     color: var(--primary-1);
-    border: 1px solid var(--primary-1);
+    border: 1px solid var(--gray-border);
   }
 
   .btn-secondary:hover {
@@ -96,85 +113,1030 @@
     color: white;
   }
 
-  @media (max-width: 768px) {
-    .container {
+  /* Stats simplificadas */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .stat-card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid var(--gray-border);
+    text-align: center;
+  }
+
+  .stat-icon {
+    padding: 0.75rem;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+
+  .stat-icon.blue { background-color: #dbeafe; color: var(--primary-1); }
+  .stat-icon.green { background-color: #d1fae5; color: var(--green); }
+  .stat-icon.red { background-color: #fee2e2; color: var(--red); }
+  .stat-icon.purple { background-color: #ede9fe; color: var(--purple); }
+
+  .stat-info p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--primary-2);
+  }
+
+  .stat-info h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-1);
+  }
+
+  /* Top project simplificado */
+  .top-project {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid var(--gray-border);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--amber);
+  }
+
+  .top-project-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .top-project-icon {
+    background-color: #fef3c7;
+    color: var(--amber);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    margin-right: 1rem;
+  }
+
+  .top-project-title {
+    font-weight: 600;
+    color: var(--primary-1);
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  /* Tabs simplificadas */
+  .tabs-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .tabs {
+    display: flex;
+    background-color: var(--gray-light);
+    padding: 0.25rem;
+    border-radius: 0.5rem;
+  }
+
+  .tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    color: var(--primary-2);
+  }
+
+  .tab.active {
+    background-color: white;
+    color: var(--primary-1);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  /* Projects grid simplificada */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .project-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid var(--gray-border);
+    padding: 1.5rem;
+    transition: box-shadow 0.2s;
+    position: relative;
+  }
+
+  .project-card:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .project-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .project-color {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+  }
+
+  .project-name {
+    font-weight: 600;
+    color: var(--primary-1);
+    margin: 0;
+  }
+
+  .project-stage {
+    font-size: 0.875rem;
+    color: var(--primary-2);
+    margin: 0;
+  }
+
+  .progress-section {
+    margin-bottom: 1rem;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 0.5rem;
+    background-color: var(--gray-light);
+    border-radius: 0.25rem;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 0.25rem;
+  }
+
+  .project-dates {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--primary-2);
+    margin-bottom: 1rem;
+  }
+
+  .dates-icon {
+    margin-right: 0.5rem;
+  }
+
+  .financial-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--gray-light);
+    border-radius: 0.5rem;
+  }
+
+  .financial-item {
+    text-align: center;
+  }
+
+  .financial-label {
+    font-size: 0.75rem;
+    color: var(--primary-2);
+    margin-bottom: 0.25rem;
+  }
+
+  .financial-value {
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  .value-spent { color: var(--red); }
+  .value-earned { color: var(--green); }
+  .value-profit { 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 0;
+    grid-column: 1 / -1;
+  }
+
+  .empty-icon {
+    width: 6rem;
+    height: 6rem;
+    background-color: var(--gray-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: var(--primary-2);
+  }
+
+  /* Calendar simplificado */
+  .calendar-header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 1rem;
+  }
+  
+  .calendar-nav { 
+    display: flex; 
+    gap: .5rem; 
+  }
+  
+  .calendar-nav button {
+    background: var(--primary-1); 
+    color: white; 
+    border: none; 
+    border-radius: 6px;
+    width: 32px; 
+    height: 32px; 
+    display: grid; 
+    place-items: center; 
+    cursor: pointer;
+  }
+  
+  .calendar-nav button:hover { 
+    background: var(--supporting-2); 
+  }
+
+  .weekdays {
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center; 
+    font-weight: 700; 
+    margin-bottom: .5rem; 
+    color: var(--primary-1); 
+    font-size: .8rem;
+  }
+  
+  .days-grid { 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: .25rem; 
+    margin-bottom: 1rem;
+  }
+
+  .day-cell {
+    height: 34px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    border-radius: 50%; 
+    font-size: .9rem; 
+    cursor: pointer; 
+    transition: .15s;
+    position: relative;
+  }
+  
+  .day-cell:hover { 
+    background: var(--primary-2); 
+    color: #fff; 
+  }
+  
+  .day-cell.today { 
+    background: var(--primary-1); 
+    color: #fff; 
+    font-weight: 700; 
+  }
+  
+  .day-cell.other-month { 
+    color: #c7c7c7; 
+  }
+  
+  .day-cell.has-event { 
+    position: relative; 
+  }
+  
+  .day-cell.has-event::after {
+    content:''; 
+    position: absolute; 
+    bottom: 3px; 
+    left: 50%; 
+    transform: translateX(-50%);
+    width: 5px; 
+    height: 5px; 
+    border-radius: 50%; 
+    background: var(--supporting-3);
+  }
+
+  .calendar-events {
+    margin-top: 1rem;
+    border-top: 1px solid var(--gray-border);
+    padding-top: 1rem;
+  }
+
+  .calendar-event {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    background-color: var(--gray-light);
+  }
+
+  .calendar-event.start {
+    border-left: 3px solid var(--green);
+  }
+
+  .calendar-event.end {
+    border-left: 3px solid var(--red);
+  }
+
+  .calendar-event.milestone {
+    border-left: 3px solid var(--amber);
+  }
+
+  /* Estilos para colores en el calendario */
+  .day-cell.has-start-date {
+    background-color: var(--green);
+    color: white;
+  }
+
+  .day-cell.has-end-date {
+    background-color: var(--red);
+    color: white;
+  }
+
+  .day-cell.has-attention-date {
+    background-color: var(--amber);
+    color: white;
+  }
+
+  /* Modal simplificado */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-1);
+    margin: 0;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--primary-2);
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--primary-1);
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--gray-border);
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--primary-1);
+    box-shadow: 0 0 0 3px rgba(75, 73, 172, 0.1);
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  /* Dropdown menu para acciones de proyecto */
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: white;
+    min-width: 120px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .dropdown-content button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--primary-1);
+    transition: background-color 0.2s;
+  }
+
+  .dropdown-content button:hover {
+    background-color: var(--gray-light);
+  }
+
+  .dropdown-content button.delete {
+    color: var(--red);
+  }
+
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .dashboard-container {
       grid-template-columns: 1fr;
+      gap: 1.5rem;
     }
     
     .calendar-sidebar {
       order: -1;
+      position: static;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .header-content {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .projects-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tabs-container {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .modal-content {
+      width: 95%;
+      margin: 1rem;
     }
   }
 </style>
 
-<div class="container">
-  <div class="main-content">
-    <h1>What you can do?</h1>
-    <p>ready for: </p>
-    <a href="" class="btn btn-primary">Time Logs</a>
-    <a href="" class="btn btn-secondary">Project Tracking</a>
-    <a href="" class="btn btn-secondary">Productivity</a>
+<div class="project-tracker">
+  <!-- Header -->
+  <div class="tracker-header">
+    <div class="header-content">
+      <div class="header-title">
+        <h1>Project Tracker</h1>
+        <p>Manage and monitor your projects</p>
+      </div>
+      <div class="header-buttons">
+        
+        <button class="btn btn-primary" id="new-project-btn">
+          <i class="fas fa-plus" style="margin-right: 0.5rem;"></i>
+          Create New Project
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div class="calendar-sidebar">
-    <div class="calendar-header">
-      <h3 id="current-month">July 2023</h3>
-      <div class="calendar-nav">
-        <button id="prev-month" aria-label="Previous month"><i class="fas fa-chevron-left"></i></button>
-        <button id="next-month" aria-label="Next month"><i class="fas fa-chevron-right"></i></button>
+  <!-- Main Content -->
+  <div class="dashboard-container">
+    <div class="main-content">
+      <!-- Stats Overview -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="stat-info">
+            <p>Active Projects</p>
+            <h3 id="active-projects-count">0</h3>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="stat-info">
+            <p>Total Revenue</p>
+            <h3 id="total-earned">$0</h3>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon red">
+            <i class="fas fa-money-bill-wave"></i>
+          </div>
+          <div class="stat-info">
+            <p>Total Spent</p>
+            <h3 id="total-spent">$0</h3>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <i class="fas fa-piggy-bank"></i>
+          </div>
+          <div class="stat-info">
+            <p>All Projects Total</p>
+            <h3 id="total-profit">$0</h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab active" data-tab="active">Active (<span id="active-count">0</span>)</button>
+          <button class="tab" data-tab="completed">Completed (<span id="completed-count">0</span>)</button>
+        </div>
+        <button class="btn btn-secondary">
+          <i class="fas fa-filter" style="margin-right: 0.5rem;"></i>
+          Filters
+        </button>
+      </div>
+
+      <!-- Projects Grid -->
+      <div class="projects-grid" id="projects-container">
+        <!-- Projects will be loaded here dynamically -->
+      </div>
+
+      <!-- Most Profitable Project -->
+      <div class="top-project">
+        <div class="top-project-header">
+          <div class="top-project-icon">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <h3 class="top-project-title">Most Profitable Project is: </h3>
+        </div>
+        <div class="top-project-details">
+          <h4 id="top-project-name"></h4>
+        </div>
       </div>
     </div>
 
-    <div class="weekdays">
-      <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+    <!-- Calendar Sidebar -->
+    <div class="calendar-sidebar">
+      <div class="calendar-header">
+        <h3 id="current-month">July 2023</h3>
+        <div class="calendar-nav">
+          <button id="prev-month" aria-label="Previous month"><i class="fas fa-chevron-left"></i></button>
+          <button id="next-month" aria-label="Next month"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="weekdays">
+        <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+      </div>
+      <div class="days-grid" id="calendar-days"></div>
+      
+      <div class="calendar-events" id="calendar-events">
+        <h4>Today's Project Events</h4>
+        <!-- Events will be populated here -->
+      </div>
     </div>
-    <div class="days-grid" id="calendar-days"></div>
   </div>
 </div>
 
-<!-- Iconos -->
+<!-- Modal for creating new project -->
+<div class="modal" id="project-modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title">Create New Project</h1>
+      <button class="close-btn" id="close-modal">&times;</button>
+    </div>
+    <form id="project-form">
+      <div class="form-group">
+        <label for="project-name" class="form-label">Project Name</label>
+        <input type="text" id="project-name" class="form-input" placeholder="Enter project name" required>
+      </div>
+      <div class="form-group">
+        <label for="start-date" class="form-label">Start Date</label>
+        <input type="date" id="start-date" class="form-input" required>
+      </div>
+      <div class="form-group">
+        <label for="end-date" class="form-label">End Date</label>
+        <input type="date" id="end-date" class="form-input" required>
+      </div>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Project</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script>
-  /* ====== CALENDARIO ====== */
+  // Function to get projects from localStorage
+  function getProjects() {
+    const projectsJSON = localStorage.getItem('projects');
+    if (projectsJSON) {
+      return JSON.parse(projectsJSON);
+    }
+    // If no data in localStorage, use sample data
+    return [
+      {
+        id: 1,
+        name: "E-commerce Platform",
+        status: "In Progress",
+        progress: 65,
+        startDate: "2024-01-15",
+        endDate: "2024-06-30",
+        totalBudget: 50000,
+        spent: 32500,
+        earned: 28000,
+        color: "blue",
+        stage: "Development",
+        milestones: [
+          { date: "2024-02-15", title: "Design Phase Completed" },
+          { date: "2024-04-20", title: "Development Phase Completed" }
+        ]
+      },
+      {
+        id: 2,
+        name: "Mobile Delivery App",
+        status: "In Progress",
+        progress: 40,
+        startDate: "2024-02-01",
+        endDate: "2024-08-15",
+        totalBudget: 35000,
+        spent: 14000,
+        earned: 8500,
+        color: "green",
+        stage: "Design",
+        milestones: [
+          { date: "2024-03-10", title: "UI/UX Design Completed" },
+          { date: "2024-05-15", title: "Beta Testing" }
+        ]
+      },
+      {
+        id: 3,
+        name: "CRM System",
+        status: "Completed",
+        progress: 100,
+        startDate: "2023-10-01",
+        endDate: "2024-03-15",
+        totalBudget: 25000,
+        spent: 23500,
+        earned: 30000,
+        color: "purple",
+        stage: "Completed",
+        milestones: [
+          { date: "2023-12-15", title: "Core Features Completed" },
+          { date: "2024-02-20", title: "Client Testing Completed" }
+        ]
+      }
+    ];
+  }
+
+  // Function to save projects to localStorage
+  function saveProjects(projects) {
+    localStorage.setItem('projects', JSON.stringify(projects));
+  }
+
+  // Initialize projects
+  let projects = getProjects();
+
+  // Function to format currency
+  function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2
+    }).format(amount);
+  }
+
+  // Function to calculate the most profitable project
+  function calculateTopProject() {
+    let topProject = null;
+    let maxProfit = -Infinity;
+
+    projects.forEach(project => {
+      const profit = project.earned - project.spent;
+      if (profit > maxProfit) {
+        maxProfit = profit;
+        topProject = project;
+      }
+    });
+
+    return topProject;
+  }
+
+  // Function to display the most profitable project
+  function displayTopProject() {
+    const topProject = calculateTopProject();
+    if (topProject) {
+      document.getElementById('top-project-name').textContent = topProject.name;
+    } else {
+      document.getElementById('top-project-name').textContent = 'No projects available';
+    }
+  }
+
+  // Function to update statistics
+  function updateStats() {
+    const activeProjects = projects.filter(p => p.status === "In Progress");
+    const completedProjects = projects.filter(p => p.status === "Completed");
+    
+    const totalEarned = projects.reduce((acc, p) => acc + p.earned, 0);
+    const totalSpent = projects.reduce((acc, p) => acc + p.spent, 0);
+    const totalProfit = totalEarned - totalSpent;
+
+    document.getElementById('active-projects-count').textContent = activeProjects.length;
+    document.getElementById('total-earned').textContent = formatCurrency(totalEarned);
+    document.getElementById('total-spent').textContent = formatCurrency(totalSpent);
+    document.getElementById('total-profit').textContent = formatCurrency(totalProfit);
+    document.getElementById('active-count').textContent = activeProjects.length;
+    document.getElementById('completed-count').textContent = completedProjects.length;
+  }
+
+  // Function to create a project card
+  function createProjectCard(project) {
+    const profit = project.earned - project.spent;
+    const profitPercentage = project.spent > 0 ? ((profit / project.spent) * 100).toFixed(1) : '0.0';
+    const afterReveniu = profit * 0.8; // Assuming 20% fee to Reveniu
+    
+    const card = document.createElement('div');
+    card.className = 'project-card';
+    card.setAttribute('data-project-id', project.id);
+    
+    card.innerHTML = `
+      <div class="project-header">
+        <div class="project-info">
+          <div class="project-color" style="background-color: var(--${project.color})"></div>
+          <div>
+            <h3 class="project-name">${project.name}</h3>
+            <p class="project-stage">${project.stage}</p>
+          </div>
+        </div>
+        <div class="dropdown">
+          <button class="action-btn"><i class="fas fa-ellipsis-h"></i></button>
+          <div class="dropdown-content">
+            <button class="edit-project" data-project-id="${project.id}">Edit</button>
+            <button class="delete-project delete" data-project-id="${project.id}">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-info">
+          <span>Progress</span>
+          <span>${project.progress}%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${project.progress}%; background-color: var(--${project.color})"></div>
+        </div>
+      </div>
+
+      <div class="project-dates">
+        <i class="fas fa-calendar-alt dates-icon"></i>
+        <span>${new Date(project.startDate).toLocaleDateString('en-US')} - ${new Date(project.endDate).toLocaleDateString('en-US')}</span>
+      </div>
+
+      <div class="financial-summary">
+        <div class="financial-item">
+          <p class="financial-label">Paid to Reveniu</p>
+          <p class="financial-value value-spent">${formatCurrency(project.spent)}</p>
+        </div>
+        <div class="financial-item">
+          <p class="financial-label">Project Earnings</p>
+          <p class="financial-value value-earned">${formatCurrency(project.earned)}</p>
+        </div>
+        <div class="financial-item">
+          <p class="financial-label">Your Profit</p>
+          <div class="financial-value value-profit">
+            <i class="fas ${profit >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
+            <span>${formatCurrency(afterReveniu)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    return card;
+  }
+
+  // Function to delete a project
+  function deleteProject(projectId) {
+    if (confirm('Are you sure you want to delete this project?')) {
+      projects = projects.filter(p => p.id !== parseInt(projectId));
+      saveProjects(projects);
+      updateStats();
+      displayTopProject();
+      displayProjects('active');
+      generateCalendar(currentMonth, currentYear);
+    }
+  }
+
+  // Function to display projects based on active tab
+  function displayProjects(tab) {
+    const container = document.getElementById('projects-container');
+    container.innerHTML = '';
+    
+    const filteredProjects = projects.filter(p => 
+      tab === 'active' ? p.status === "In Progress" : p.status === "Completed"
+    );
+    
+    if (filteredProjects.length === 0) {
+      const emptyState = document.createElement('div');
+      emptyState.className = 'empty-state';
+      emptyState.innerHTML = `
+        <div class="empty-icon">
+          <i class="fas fa-plus"></i>
+        </div>
+        <h3>No ${tab === 'active' ? 'active projects' : 'completed projects'}</h3>
+        <p>${tab === 'active' 
+          ? 'Create your first project to start tracking expenses and income' 
+          : 'Completed projects will appear here'}</p>
+        ${tab === 'active' ? 
+          '<button class="btn btn-primary" style="margin-top: 1rem;" id="empty-create-btn"><i class="fas fa-plus" style="margin-right: 0.5rem;"></i>Create First Project</button>' : ''}
+      `;
+      container.appendChild(emptyState);
+      
+      // Add event listener to the empty state button
+      if (tab === 'active') {
+        document.getElementById('empty-create-btn').addEventListener('click', openModal);
+      }
+    } else {
+      filteredProjects.forEach(project => {
+        const card = createProjectCard(project);
+        container.appendChild(card);
+        
+        // Add event listener to delete button
+        const deleteBtn = card.querySelector('.delete-project');
+        deleteBtn.addEventListener('click', function() {
+          deleteProject(this.getAttribute('data-project-id'));
+        });
+      });
+    }
+  }
+
+  // Function to update calendar with project events
+  function updateCalendarWithEvents(month, year) {
+    const eventsContainer = document.getElementById('calendar-events');
+    eventsContainer.innerHTML = '<h4>Project Events for ' + months[month] + ' ' + year + '</h4>';
+    
+    // Filter events for the current month
+    const monthEvents = [];
+    
+    projects.forEach(project => {
+      // Add project start date
+      const startDate = new Date(project.startDate);
+      if (startDate.getMonth() === month && startDate.getFullYear() === year) {
+        monthEvents.push({
+          date: project.startDate,
+          type: 'start',
+          project: project.name,
+          title: `${project.name} Started`
+        });
+      }
+      
+      // Add project end date
+      const endDate = new Date(project.endDate);
+      if (endDate.getMonth() === month && endDate.getFullYear() === year) {
+        monthEvents.push({
+          date: project.endDate,
+          type: 'end',
+          project: project.name,
+          title: `${project.name} Completed`
+        });
+      }
+      
+      // Add project milestones
+      if (project.milestones) {
+        project.milestones.forEach(milestone => {
+          const milestoneDate = new Date(milestone.date);
+          if (milestoneDate.getMonth() === month && milestoneDate.getFullYear() === year) {
+            monthEvents.push({
+              date: milestone.date,
+              type: 'milestone',
+              project: project.name,
+              title: milestone.title
+            });
+          }
+        });
+      }
+    });
+    
+    // Sort events by date
+    monthEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    // Display events
+    if (monthEvents.length === 0) {
+      eventsContainer.innerHTML += '<p>No project events this month</p>';
+    } else {
+      monthEvents.forEach(event => {
+        const eventElement = document.createElement('div');
+        eventElement.className = `calendar-event ${event.type}`;
+        eventElement.innerHTML = `
+          <strong>${new Date(event.date).toLocaleDateString('en-US')}</strong>: ${event.title}
+        `;
+        eventsContainer.appendChild(eventElement);
+      });
+    }
+  }
+
+  // Calendar functionality
   let currentDate = new Date();
   let currentMonth = currentDate.getMonth();
   let currentYear = currentDate.getFullYear();
 
-  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-
-  document.addEventListener('DOMContentLoaded', () => {
-    generateCalendar(currentMonth, currentYear);
-    updateMonthYear();
-    setupCalendarEventListeners();
-  });
-
-  function setupCalendarEventListeners() {
-    document.getElementById('prev-month').addEventListener('click', () => {
-      currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-      generateCalendar(currentMonth, currentYear); updateMonthYear();
-    });
-    document.getElementById('next-month').addEventListener('click', () => {
-      currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-      generateCalendar(currentMonth, currentYear); updateMonthYear();
-    });
-  }
-
-  function updateMonthYear() {
-    document.getElementById('current-month').textContent = `${months[currentMonth]} ${currentYear}`;
-  }
+  const months = ["January", "February", "March", "April", "May", "June", 
+                 "July", "August", "September", "October", "November", "December"];
 
   function generateCalendar(month, year) {
     const daysGrid = document.getElementById('calendar-days');
     daysGrid.innerHTML = '';
 
     const firstDay = new Date(year, month, 1);
-    const lastDay  = new Date(year, month + 1, 0);
+    const lastDay = new Date(year, month + 1, 0);
     const firstDayIndex = firstDay.getDay();
     const prevMonthLastDay = new Date(year, month, 0).getDate();
     const today = new Date();
 
-    // Días previos
+    // Previous month days
     for (let i = firstDayIndex; i > 0; i--) {
       const d = document.createElement('div');
       d.className = 'day-cell other-month';
@@ -182,26 +1144,201 @@
       daysGrid.appendChild(d);
     }
 
-    // Días del mes
+    // Current month days
     for (let i = 1; i <= lastDay.getDate(); i++) {
       const d = document.createElement('div');
       d.className = 'day-cell';
+      
+      // Check if today
       if (i === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
         d.classList.add('today');
       }
+      
+      // Check if has project events
+      const currentDateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+      
+      // Check for start dates (green)
+      const hasStartDate = projects.some(project => project.startDate === currentDateStr);
+      if (hasStartDate) {
+        d.classList.add('has-start-date');
+      }
+      
+      // Check for end dates (red)
+      const hasEndDate = projects.some(project => project.endDate === currentDateStr);
+      if (hasEndDate) {
+        d.classList.add('has-end-date');
+      }
+      
+      // Check for attention dates (yellow) - 3 days before end date
+      const hasAttentionDate = projects.some(project => {
+        const endDate = new Date(project.endDate);
+        const attentionDate = new Date(endDate);
+        attentionDate.setDate(endDate.getDate() - 3);
+        const attentionDateStr = attentionDate.toISOString().split('T')[0];
+        return attentionDateStr === currentDateStr;
+      });
+      
+      if (hasAttentionDate) {
+        d.classList.add('has-attention-date');
+      }
+      
+      // Check for milestones
+      const hasMilestone = projects.some(project => {
+        if (project.milestones) {
+          return project.milestones.some(milestone => milestone.date === currentDateStr);
+        }
+        return false;
+      });
+      
+      if (hasMilestone) {
+        d.classList.add('has-event');
+      }
+      
       d.textContent = i;
       daysGrid.appendChild(d);
     }
 
-    // Días siguientes hasta completar 6 filas
-    const totalCells = 42;
-    const used = firstDayIndex + lastDay.getDate();
-    for (let i = 1; i <= totalCells - used; i++) {
+    // Next month days to complete the grid
+    const totalCells = 42; // 6 rows x 7 days
+    const usedCells = firstDayIndex + lastDay.getDate();
+    for (let i = 1; i <= totalCells - usedCells; i++) {
       const d = document.createElement('div');
       d.className = 'day-cell other-month';
       d.textContent = i;
       daysGrid.appendChild(d);
     }
+    
+    // Update events for the current month
+    updateCalendarWithEvents(month, year);
   }
+
+  function updateMonthYear() {
+    document.getElementById('current-month').textContent = `${months[currentMonth]} ${currentYear}`;
+  }
+
+  // Modal functionality
+  const modal = document.getElementById('project-modal');
+  const newProjectBtn = document.getElementById('new-project-btn');
+  const closeModalBtn = document.getElementById('close-modal');
+  const cancelBtn = document.getElementById('cancel-btn');
+  const projectForm = document.getElementById('project-form');
+
+  function openModal() {
+    modal.style.display = 'flex';
+    // Set today as default for start date
+    document.getElementById('start-date').valueAsDate = new Date();
+    // Set 30 days from today as default for end date
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 30);
+    document.getElementById('end-date').valueAsDate = endDate;
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+    projectForm.reset();
+  }
+
+  // Function to add a new project
+  function addNewProject(projectData) {
+    const newId = projects.length > 0 ? Math.max(...projects.map(p => p.id)) + 1 : 1;
+    
+    const newProject = {
+      id: newId,
+      name: projectData.name,
+      status: "In Progress",
+      progress: 0,
+      startDate: projectData.startDate,
+      endDate: projectData.endDate,
+      totalBudget: 0, // eliminado el budget dinámico
+      spent: 0,
+      earned: 0,
+      color: "blue",
+      stage: "Planning",
+      milestones: []
+    };
+    
+    projects.push(newProject);
+    saveProjects(projects);
+    updateStats();
+    displayTopProject();
+    displayProjects('active');
+    generateCalendar(currentMonth, currentYear);
+    closeModal();
+  }
+
+  // Initialize everything when DOM is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Project Tracker
+    updateStats();
+    displayTopProject();
+    displayProjects('active');
+    
+    // Handle tab changes
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        displayProjects(this.getAttribute('data-tab'));
+      });
+    });
+
+    // Initialize calendar
+    document.getElementById('prev-month').addEventListener('click', () => {
+      currentMonth--; 
+      if (currentMonth < 0) { 
+        currentMonth = 11; 
+        currentYear--; 
+      }
+      generateCalendar(currentMonth, currentYear); 
+      updateMonthYear();
+    });
+    
+    document.getElementById('next-month').addEventListener('click', () => {
+      currentMonth++; 
+      if (currentMonth > 11) { 
+        currentMonth = 0; 
+        currentYear++; 
+      }
+      generateCalendar(currentMonth, currentYear); 
+      updateMonthYear();
+    });
+
+    // Initialize modal
+    newProjectBtn.addEventListener('click', openModal);
+    closeModalBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    
+    // Handle form submission
+    projectForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const projectName = document.getElementById('project-name').value;
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+      
+      // Validate dates
+      if (new Date(startDate) >= new Date(endDate)) {
+        alert('End date must be after start date');
+        return;
+      }
+      
+      addNewProject({
+        name: projectName,
+        startDate: startDate,
+        endDate: endDate
+      });
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Generate initial calendar
+    generateCalendar(currentMonth, currentYear);
+    updateMonthYear();
+  });
 </script>
 {% endblock %}
