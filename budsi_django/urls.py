@@ -50,6 +50,9 @@ urlpatterns = [
     path("dash/whiz/", views.whiz_view, name="dash_whiz"),
     path("dash/help/", views.help_view, name="dash_help"),
     path("invoices/gallery/<int:invoice_id>/", views.invoice_gallery_view, name="invoice_gallery"),
+    # Proyectos
+    path('projects/create/', create_project_view, name='create_project_view'),
+    path('projects/<int:project_id>/toggle-status/', toggle_project_status, name='toggle_project_status'),
 
     
 ]
