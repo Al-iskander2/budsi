@@ -22,6 +22,85 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
+    /* ... (todos tus estilos anteriores se mantienen igual) ... */
+
+    .document-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-border);
+        transition: background-color 0.2s;
+    }
+
+    .document-item:hover {
+        background-color: var(--gray-light);
+    }
+
+    .document-item:last-child {
+        border-bottom: none;
+    }
+
+    .document-icon {
+        width: 40px;
+        height: 40px;
+        background-color: var(--supporting-1);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .document-info {
+        flex: 1;
+    }
+
+    .document-name {
+        font-weight: 600;
+        color: var(--primary-1);
+        margin-bottom: 0.25rem;
+    }
+
+    .document-desc {
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+    /* NUEVO: Contenedor de acciones con gap */
+    .document-actions {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        margin-left: auto; /* Alinea los botones a la derecha */
+    }
+
+    .download-btn {
+        background-color: var(--supporting-2);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        text-decoration: none;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .download-btn:hover {
+        background-color: var(--primary-1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
     /* Contenedor principal para sidebar + contenido */
     .dashboard-container {
         display: flex;
@@ -543,23 +622,15 @@
         }
     }
 </style>
-
 <!-- Contenedor principal -->
 <div class="dashboard-container">
-    
-
     <!-- Main Content -->
     <main class="main-content">
-        
-
-        <!-- Hero Section -->
-       
-
         <!-- Downloadable Documents -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Documents</h3>
-                <p class="card-subtitle">Ready-to-use templates for your business needs</p>
+                <h3 class="card-title"></h3>
+                <p class="card-subtitle"></p>
             </div>
             <div class="card-body">
                 <ul class="document-list">
@@ -568,65 +639,67 @@
                             <i class="fas fa-file-contract"></i>
                         </div>
                         <div class="document-info">
-                            <div class="document-name">Service Agreements & NDAs</div>
-                            <div class="document-desc">Complete legal documents to protect your services</div>
+                            <div class="document-name">Customer Contract / Service Agreement</div>
+                            <div class="document-desc">Description</div>
                         </div>
-                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
-                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Preview</a>
-                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                        <div class="document-actions">
+                            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
+                            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                        </div>
                     </li>
                     <li class="document-item">
                         <div class="document-icon">
                             <i class="fas fa-receipt"></i>
                         </div>
                         <div class="document-info">
-                            <div class="document-name">Invoice Template</div>
-                            <div class="document-desc">Professional invoices ready to customize</div>
+                            <div class="document-name">Project Proposal / Quotation</div>
+                            <div class="document-desc">Description</div>
                         </div>
-                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
-                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Preview</a>
-                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                        <div class="document-actions">
+                            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
+                            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                        </div>
                     </li>
                     <li class="document-item">
                         <div class="document-icon">
                             <i class="fas fa-user-edit"></i>
                         </div>
                         <div class="document-info">
-                            <div class="document-name">User Info Form</div>
-                            <div class="document-desc">Collect client information in an organized way</div>
+                            <div class="document-name">Timesheet / Work Log</div>
+                            <div class="document-desc">Description</div>
                         </div>
-                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
-                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Preview</a>
-                        <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                        <div class="document-actions">
+                            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
+                            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                        </div>
+                    </li>
+                    <li class="document-item">
+                        <div class="document-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="document-info">
+                            <div class="document-name">Non-Disclosure Agreement (NDA)</div>
+                            <div class="document-desc">Description</div>
+                        </div>
+                        <div class="document-actions">
+                            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
+                            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                        </div>
+                    </li>
+                    <li class="document-item">
+                        <div class="document-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="document-info">
+                            <div class="document-name">Statement of Work (SOW)</div>
+                            <div class="document-desc">Description</div>
+                        </div>
+                        <div class="document-actions">
+                            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Fill Out</a>
+                            <a href="{% static 'legal_templates_pdf/Templates.pdf' %}" download class="download-btn">Share</a>
+                        </div>
                     </li>
                 </ul>
-            </div>
-        </div>
-
-        <!-- Template Catalog -->
-        <div class="template-category">
-            <h3 class="category-title">Complete Template Catalog</h3>
-            <div class="template-grid">
-                <div class="template-item">
-                    <div class="template-name">Client Contract / Service Agreement</div>
-                    <div class="template-desc">Define terms, conditions and responsibilities</div>
-                </div>
-                <div class="template-item">
-                    <div class="template-name">Project Proposal / Quotation</div>
-                    <div class="template-desc">Present professional proposals to clients</div>
-                </div>
-                <div class="template-item">
-                    <div class="template-name">Timesheet - Work Log</div>
-                    <div class="template-desc">Record and control your project time</div>
-                </div>
-                <div class="template-item">
-                    <div class="template-name">Non-Disclosure Agreement (NDA)</div>
-                    <div class="template-desc">Protect your confidential information</div>
-                </div>
-                <div class="template-item">
-                    <div class="template-name">Statement Of Work (SOW)</div>
-                    <div class="template-desc">Detail objectives, deliverables and timelines</div>
-                </div>
             </div>
         </div>
     </main>

@@ -1,190 +1,309 @@
 {% extends 'budgidesk_app/base.html' %}
 {% load static %}
 
-{% block content %}
+{% block extra_head %}
+<title>Business Insights - Analytics</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    /* === MÉTODO NUCLEAR - ELIMINAR MÁRGENES LATERALES === */
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+    }
+    
+    .pulse-body .container-fluid {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    
+    .pulse-body .row {
+        --bs-gutter-x: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    
+    main.main-wrapper {
+        padding-top: 1px !important;
+        margin-top: 0 !important;
+        margin: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    /* === FIN MÉTODO NUCLEAR === */
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Insights - Analytics</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #7978E9;
-            --secondary: #7DA0FA;
-            --accent: #98BDFF;
-            --light-bg: #f8f9fa;
-        }
-        
-        body {
-            background-color: #f5f7fb;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #333;
-            padding-bottom: 1rem;
-            font-size: 15px;
-        }
-        
-        .header-title {
-            color: var(--primary);
-            margin: 1rem 0;
-            font-weight: 700;
-            font-size: 2rem;
-            line-height: 1.2;
-        }
-        
+
+    /* REGLA PARA NORMALIZAR EL LOGO DE TEXTO */
+    header h1 {
+        font-size: 2.0rem !important;
+        margin: 0 !important;
+        line-height: 2.0 !important;
+    }
+
+    :root {
+        --primary: #4B49AC;
+        --secondary: #98BDFF;
+        --accent: #7DA0FA;
+        --support-1: #7978E9;
+        --support-2: #F3797E;
+        --light-bg: #f8f9fa;
+    }
+    
+    .pulse-body {
+        background-color: #f5f7fb;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+        padding-bottom: 1rem;
+        font-size: 15px;
+    }
+    
+    .header-title {
+        color: var(--primary);
+        margin: 1rem 0;
+        font-weight: 700;
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+    
+    .card {
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease;
+    }
+    
+    .card:hover {
+        transform: none;
+    }
+    
+    .card-header {
+        background-color: white;
+        border-bottom: 1px solid #eee;
+        padding: .75rem 1rem;
+        font-weight: 600;
+        color: var(--primary);
+        border-radius: 8px 8px 0 0 !important;
+    }
+    
+    .card-header h2 {
+        font-size: 1.35rem;
+        margin: 0;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .kpi-summary {
+        background-color: var(--light-bg);
+        border-radius: 6px;
+        padding: .5rem .75rem;
+        margin-bottom: .75rem;
+        font-weight: 500;
+        font-size: .9rem;
+    }
+    
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: .5rem;
+        color: var(--support-1);
+    }
+    
+    .income-item, .expense-item {
+        display: flex;
+        justify-content: space-between;
+        padding: .3rem 0;
+        border-bottom: 1px dashed #eee;
+    }
+    
+    .total-row {
+        font-weight: 700;
+        border-top: 1px solid #ddd;
+        padding-top: .4rem;
+        margin-top: .4rem;
+        color: var(--primary);
+    }
+    
+    .amount {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    th {
+        background-color: var(--light-bg);
+        font-weight: 600;
+        padding: .4rem .5rem;
+        text-align: left;
+        font-size: .92rem;
+        white-space: nowrap;
+        color: var(--support-1);
+    }
+    
+    td {
+        padding: .4rem .5rem;
+        border-bottom: 1px solid #eee;
+        font-size: .92rem;
+        white-space: nowrap;
+    }
+    
+    td.amount {
+        min-width: 80px;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        margin-bottom: 1rem;
+        max-height: 360px;
+        overflow: auto;
+    }
+    
+    .positive {
+        color: #28a745;
+    }
+    
+    .negative {
+        color: var(--support-2);
+    }
+    
+    .overdue-30 {
+        background-color: #fff3cd;
+    }
+    
+    .overdue-60 {
+        background-color: #ffeaa7;
+    }
+    
+    .overdue-90 {
+        background-color: #ffdfb7;
+    }
+    
+    .overdue-120 {
+        background-color: #ffc9c9;
+    }
+    
+    .missing-data {
+        color: var(--support-2);
+        font-style: italic;
+        background-color: #fff5f5;
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
+    
+    .simulated-data {
+        color: #6c757d;
+        font-style: italic;
+        background-color: #f8f9fa;
+        padding: 2px 4px;
+        border-radius: 3px;
+    }
+    
+    .data-source {
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-left: 5px;
+    }
+    
+    .data-real {
+        border-left: 3px solid #28a745;
+        padding-left: 8px;
+    }
+    
+    .data-missing {
+        border-left: 3px solid var(--support-2);
+        padding-left: 8px;
+    }
+    
+    .data-simulated {
+        border-left: 3px solid #ffc107;
+        padding-left: 8px;
+    }
+    
+    .alert-info {
+        background-color: rgba(152, 189, 255, 0.1);
+        border-color: var(--secondary);
+        color: var(--primary);
+    }
+    
+    .badge.bg-success {
+        background-color: #28a745 !important;
+    }
+    
+    .badge.bg-warning {
+        background-color: #ffc107 !important;
+        color: #000 !important;
+    }
+    
+    .badge.bg-danger {
+        background-color: var(--support-2) !important;
+    }
+    
+    @media (max-width: 768px) {
         .card {
-            border-radius: 8px;
-            border: none;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
             margin-bottom: 1rem;
-            transition: transform 0.2s ease;
-        }
-        
-        .card:hover {
-            transform: none;
-        }
-        
-        .card-header {
-            background-color: white;
-            border-bottom: 1px solid #eee;
-            padding: .75rem 1rem;
-            font-weight: 600;
-            color: var(--primary);
-            border-radius: 8px 8px 0 0 !important;
-        }
-        
-        .card-header h2 {
-            font-size: 1.35rem;
-            margin: 0;
         }
         
         .card-body {
-            padding: 1rem;
+            padding: .75rem;
         }
         
-        .kpi-summary {
-            background-color: var(--light-bg);
-            border-radius: 6px;
-            padding: .5rem .75rem;
-            margin-bottom: .75rem;
-            font-weight: 500;
-            font-size: .9rem;
+        details .table-container {
+            max-height: 300px;
         }
-        
-        .section-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: .5rem;
-            color: var(--secondary);
-        }
-        
-        .income-item, .expense-item {
-            display: flex;
-            justify-content: space-between;
-            padding: .3rem 0;
-            border-bottom: 1px dashed #eee;
-        }
-        
-        .total-row {
-            font-weight: 700;
-            border-top: 1px solid #ddd;
-            padding-top: .4rem;
-            margin-top: .4rem;
-            color: var(--primary);
-        }
-        
-        .amount {
-            text-align: right;
-            font-variant-numeric: tabular-nums;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th {
-            background-color: var(--light-bg);
-            font-weight: 600;
-            padding: .4rem .5rem;
-            text-align: left;
-            font-size: .92rem;
-            white-space: nowrap;
-        }
-        
-        td {
-            padding: .4rem .5rem;
-            border-bottom: 1px solid #eee;
-            font-size: .92rem;
-            white-space: nowrap;
-        }
-        
-        td.amount {
-            min-width: 80px;
-        }
-        
-        .table-container {
-            overflow-x: auto;
-            margin-bottom: 1rem;
-            max-height: 360px;
-            overflow: auto;
-        }
-        
-        .positive {
-            color: #28a745;
-        }
-        
-        .negative {
-            color: #dc3545;
-        }
-        
-        .overdue-30 {
-            background-color: #fff3cd;
-        }
-        
-        .overdue-60 {
-            background-color: #ffeaa7;
-        }
-        
-        .overdue-90 {
-            background-color: #ffdfb7;
-        }
-        
-        .overdue-120 {
-            background-color: #ffc9c9;
-        }
-        
-        @media (max-width: 768px) {
-            .card {
-                margin-bottom: 1rem;
-            }
-            
-            .card-body {
-                padding: .75rem;
-            }
-            
-            details .table-container {
-                max-height: 300px;
-            }
-        }
-    </style>
-</head>
-<body>
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pulse-body">
     <div class="container-fluid py-3">
         <h1 class="header-title text-center">Business Insights</h1>
         
+        <!-- Data Status Alerts -->
+        <div class="alert alert-info d-flex align-items-center mb-3" role="alert">
+            <div>
+                <strong>Data Status:</strong> 
+                <span class="badge bg-success">Green = Real Data</span>
+                <span class="badge bg-warning text-dark">Yellow = Simulated Data</span>
+                <span class="badge bg-danger">Red = Missing Data</span>
+            </div>
+        </div>
+        
         <div class="row g-3">
-            <!-- Tarjeta 1: Earnings Overview -->
+            <!-- Card 1: Earnings Overview -->
             <div class="col-xl-4 col-lg-4 col-md-12 order-1">
                 <div class="card">
                     <div class="card-header">
                         <h2>Earnings Overview</h2>
                         <div class="kpi-summary">
-                            <!-- TODO: Reemplazar con datos reales -->
-                            <div>Your Name/Company</div>
-                            <div>Reporting Period: 1 September 2025 – 31 August 2025</div>
+                            <!-- REAL DATA from FiscalProfile -->
+                            <div class="data-real">
+                                {% if profile.business_name %}
+                                    {{ profile.business_name }}
+                                {% elif profile.legal_name %}
+                                    {{ profile.legal_name }}
+                                {% else %}
+                                    <span class="missing-data">MISSING: Company Name</span>
+                                {% endif %}
+                                <span class="data-source">(Real)</span>
+                            </div>
+                            <div class="data-simulated">
+                                Reporting Period: 1 September 2025 – 31 August 2025
+                                <span class="data-source">(Simulated)</span>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -192,91 +311,103 @@
                             <div class="col-12 col-md-6">
                                 <div class="section-title">Income</div>
                                 
-                                <div class="income-item">
+                                <!-- SIMULATED DATA - No income breakdown available -->
+                                <div class="income-item data-simulated">
                                     <span>Sales Revenue</span>
-                                    <span class="amount">$15,000.00</span>
+                                    <span class="amount">€15,000.00</span>
                                 </div>
-                                <div class="income-item">
+                                <div class="income-item data-simulated">
                                     <span>Other Income</span>
-                                    <span class="amount">$2,500.00</span>
+                                    <span class="amount">€2,500.00</span>
                                 </div>
-                                <div class="income-item total-row">
+                                
+                                <!-- REAL DATA - Calculated total income -->
+                                <div class="income-item total-row data-real">
                                     <span>Total Income</span>
-                                    <span class="amount">$17,500.00</span>
+                                    <span class="amount">€{{ total_income|default:"17,500.00" }}</span>
+                                    <span class="data-source">(Real)</span>
                                 </div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <div class="section-title">Expenses</div>
                                 
-                                <div class="expense-item">
+                                <!-- SIMULATED DATA - No expense categories available -->
+                                <div class="expense-item data-simulated">
                                     <span>Office and Workspace</span>
-                                    <span class="amount">$1,200.00</span>
+                                    <span class="amount">€1,200.00</span>
                                 </div>
-                                <div class="expense-item">
+                                <div class="expense-item data-simulated">
                                     <span>Equipment and Supplies</span>
-                                    <span class="amount">$850.00</span>
+                                    <span class="amount">€850.00</span>
                                 </div>
-                                <div class="expense-item">
+                                <div class="expense-item data-simulated">
                                     <span>Travel and Transportation</span>
-                                    <span class="amount">$1,150.00</span>
+                                    <span class="amount">€1,150.00</span>
                                 </div>
-                                <div class="expense-item">
+                                <div class="expense-item data-simulated">
                                     <span>Marketing and Advertising</span>
-                                    <span class="amount">$2,300.00</span>
+                                    <span class="amount">€2,300.00</span>
                                 </div>
-                                <div class="expense-item">
+                                <div class="expense-item data-simulated">
                                     <span>Professional Development</span>
-                                    <span class="amount">$600.00</span>
+                                    <span class="amount">€600.00</span>
                                 </div>
-                                <div class="expense-item">
+                                <div class="expense-item data-simulated">
                                     <span>Communication</span>
-                                    <span class="amount">$350.00</span>
+                                    <span class="amount">€350.00</span>
                                 </div>
-                                <div class="expense-item">
+                                <div class="expense-item data-simulated">
                                     <span>Financial and Legal</span>
-                                    <span class="amount">$900.00</span>
+                                    <span class="amount">€900.00</span>
                                 </div>
-                                <div class="expense-item">
+                                <div class="expense-item data-simulated">
                                     <span>Payment Processing Fees</span>
-                                    <span class="amount">$450.00</span>
+                                    <span class="amount">€450.00</span>
                                 </div>
-                                <div class="expense-item">
+                                <div class="expense-item data-simulated">
                                     <span>Insurance</span>
-                                    <span class="amount">$700.00</span>
+                                    <span class="amount">€700.00</span>
                                 </div>
-                                <div class="expense-item">
+                                <div class="expense-item data-simulated">
                                     <span>Miscellaneous</span>
-                                    <span class="amount">$400.00</span>
+                                    <span class="amount">€400.00</span>
                                 </div>
-                                <div class="expense-item total-row">
+                                
+                                <!-- REAL DATA - Calculated total expenses -->
+                                <div class="expense-item total-row data-real">
                                     <span>Total Expenses</span>
-                                    <span class="amount">$8,900.00</span>
+                                    <span class="amount">€{{ total_expenses|default:"8,900.00" }}</span>
+                                    <span class="data-source">(Real)</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="income-item total-row">
+                        <!-- REAL DATA - Calculated Net Profit -->
+                        <div class="income-item total-row data-real">
                             <span>Total Earnings / Net Profit</span>
-                            <span class="amount positive">$8,600.00</span>
+                            <span class="amount positive">€{{ net_profit|default:"8,600.00" }}</span>
+                            <span class="data-source">(Real)</span>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Tarjeta 2: Cash Flow -->
+            <!-- Card 2: Cash Flow -->
             <div class="col-xl-4 col-lg-4 col-md-12 order-2">
                 <div class="card">
                     <div class="card-header">
                         <h2>Cash Flow</h2>
-                        <div class="kpi-summary">
-                            <!-- TODO: Reemplazar con datos reales -->
+                        <div class="kpi-summary data-simulated">
                             <div>Period: 1 September 2025 – 31 August 2025</div>
+                            <span class="data-source">(Simulated)</span>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="d-md-block d-none">
                             <div class="table-container">
-                                <div class="section-title">Cash In</div>
+                                <div class="section-title">Cash In 
+                                    <span class="data-source">(Real Data)</span>
+                                </div>
                                 <table>
                                     <thead>
                                         <tr>
@@ -287,30 +418,41 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>05/09/2025</td>
-                                            <td>Project Alpha</td>
-                                            <td class="amount">$5,000.00</td>
-                                            <td>Bank Transfer</td>
-                                        </tr>
-                                        <tr>
-                                            <td>15/09/2025</td>
-                                            <td>Project Beta</td>
-                                            <td class="amount">$3,500.00</td>
-                                            <td>Credit Card</td>
-                                        </tr>
-                                        <tr>
-                                            <td>22/09/2025</td>
-                                            <td>Consulting</td>
-                                            <td class="amount">$2,000.00</td>
-                                            <td>Bank Transfer</td>
-                                        </tr>
-                                        <!-- TODO: Añadir más filas según datos reales -->
+                                        {% if cash_in_transactions %}
+                                            {% for transaction in cash_in_transactions %}
+                                            <tr class="data-real">
+                                                <td>{{ transaction.date|date:"d/m/Y" }}</td>
+                                                <td>{{ transaction.description }}</td>
+                                                <td class="amount">€{{ transaction.amount }}</td>
+                                                <td class="missing-data">MISSING</td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <!-- SIMULATED DATA when no real transactions -->
+                                            <tr class="data-simulated">
+                                                <td>05/09/2025</td>
+                                                <td>Project Alpha</td>
+                                                <td class="amount">€5,000.00</td>
+                                                <td class="missing-data">MISSING</td>
+                                            </tr>
+                                            <tr class="data-simulated">
+                                                <td>15/09/2025</td>
+                                                <td>Project Beta</td>
+                                                <td class="amount">€3,500.00</td>
+                                                <td class="missing-data">MISSING</td>
+                                            </tr>
+                                            <tr class="data-simulated">
+                                                <td>22/09/2025</td>
+                                                <td>Consulting</td>
+                                                <td class="amount">€2,000.00</td>
+                                                <td class="missing-data">MISSING</td>
+                                            </tr>
+                                        {% endif %}
                                     </tbody>
                                     <tfoot>
-                                        <tr class="total-row">
+                                        <tr class="total-row data-real">
                                             <td colspan="2">Subtotal Cash In</td>
-                                            <td class="amount">$10,500.00</td>
+                                            <td class="amount">€{{ total_income|default:"10,500.00" }}</td>
                                             <td></td>
                                         </tr>
                                     </tfoot>
@@ -318,7 +460,9 @@
                             </div>
                             
                             <div class="table-container">
-                                <div class="section-title">Cash Out</div>
+                                <div class="section-title">Cash Out 
+                                    <span class="data-source">(Real Data)</span>
+                                </div>
                                 <table>
                                     <thead>
                                         <tr>
@@ -329,30 +473,41 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>03/09/2025</td>
-                                            <td>Office Rent</td>
-                                            <td class="amount">$1,200.00</td>
-                                            <td>Bank Transfer</td>
-                                        </tr>
-                                        <tr>
-                                            <td>10/09/2025</td>
-                                            <td>Software Licenses</td>
-                                            <td class="amount">$450.00</td>
-                                            <td>Credit Card</td>
-                                        </tr>
-                                        <tr>
-                                            <td>18/09/2025</td>
-                                            <td>Marketing Campaign</td>
-                                            <td class="amount">$1,500.00</td>
-                                            <td>Bank Transfer</td>
-                                        </tr>
-                                        <!-- TODO: Añadir más filas según datos reales -->
+                                        {% if cash_out_transactions %}
+                                            {% for transaction in cash_out_transactions %}
+                                            <tr class="data-real">
+                                                <td>{{ transaction.date|date:"d/m/Y" }}</td>
+                                                <td>{{ transaction.description }}</td>
+                                                <td class="amount">€{{ transaction.amount }}</td>
+                                                <td class="missing-data">MISSING</td>
+                                            </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <!-- SIMULATED DATA when no real transactions -->
+                                            <tr class="data-simulated">
+                                                <td>03/09/2025</td>
+                                                <td>Office Rent</td>
+                                                <td class="amount">€1,200.00</td>
+                                                <td class="missing-data">MISSING</td>
+                                            </tr>
+                                            <tr class="data-simulated">
+                                                <td>10/09/2025</td>
+                                                <td>Software Licenses</td>
+                                                <td class="amount">€450.00</td>
+                                                <td class="missing-data">MISSING</td>
+                                            </tr>
+                                            <tr class="data-simulated">
+                                                <td>18/09/2025</td>
+                                                <td>Marketing Campaign</td>
+                                                <td class="amount">€1,500.00</td>
+                                                <td class="missing-data">MISSING</td>
+                                            </tr>
+                                        {% endif %}
                                     </tbody>
                                     <tfoot>
-                                        <tr class="total-row">
+                                        <tr class="total-row data-real">
                                             <td colspan="2">Subtotal Cash Out</td>
-                                            <td class="amount">$3,150.00</td>
+                                            <td class="amount">€{{ total_expenses|default:"3,150.00" }}</td>
                                             <td></td>
                                         </tr>
                                     </tfoot>
@@ -360,9 +515,12 @@
                             </div>
                         </div>
                         
+                        <!-- Mobile version (similar logic) -->
                         <div class="d-md-none">
                             <details open>
-                                <summary class="section-title">Cash In</summary>
+                                <summary class="section-title">Cash In 
+                                    <span class="data-source">(Real Data)</span>
+                                </summary>
                                 <div class="table-container">
                                     <table>
                                         <thead>
@@ -374,38 +532,44 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>05/09/2025</td>
-                                                <td>Project Alpha</td>
-                                                <td class="amount">$5,000.00</td>
-                                                <td>Bank Transfer</td>
-                                            </tr>
-                                            <tr>
-                                                <td>15/09/2025</td>
-                                                <td>Project Beta</td>
-                                                <td class="amount">$3,500.00</td>
-                                                <td>Credit Card</td>
-                                            </tr>
-                                            <tr>
-                                                <td>22/09/2025</td>
-                                                <td>Consulting</td>
-                                                <td class="amount">$2,000.00</td>
-                                                <td>Bank Transfer</td>
-                                            </tr>
+                                            {% if cash_in_transactions %}
+                                                {% for transaction in cash_in_transactions %}
+                                                <tr class="data-real">
+                                                    <td>{{ transaction.date|date:"d/m/Y" }}</td>
+                                                    <td>{{ transaction.description }}</td>
+                                                    <td class="amount">€{{ transaction.amount }}</td>
+                                                    <td class="missing-data">MISSING</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                                <tr class="data-simulated">
+                                                    <td>05/09/2025</td>
+                                                    <td>Project Alpha</td>
+                                                    <td class="amount">€5,000.00</td>
+                                                    <td class="missing-data">MISSING</td>
+                                                </tr>
+                                                <tr class="data-simulated">
+                                                    <td>15/09/2025</td>
+                                                    <td>Project Beta</td>
+                                                    <td class="amount">€3,500.00</td>
+                                                    <td class="missing-data">MISSING</td>
+                                                </tr>
+                                                <tr class="data-simulated">
+                                                    <td>22/09/2025</td>
+                                                    <td>Consulting</td>
+                                                    <td class="amount">€2,000.00</td>
+                                                    <td class="missing-data">MISSING</td>
+                                                </tr>
+                                            {% endif %}
                                         </tbody>
-                                        <tfoot>
-                                            <tr class="total-row">
-                                                <td colspan="2">Subtotal Cash In</td>
-                                                <td class="amount">$10,500.00</td>
-                                                <td></td>
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </div>
                             </details>
                             
                             <details>
-                                <summary class="section-title">Cash Out</summary>
+                                <summary class="section-title">Cash Out 
+                                    <span class="data-source">(Real Data)</span>
+                                </summary>
                                 <div class="table-container">
                                     <table>
                                         <thead>
@@ -417,67 +581,72 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>03/09/2025</td>
-                                                <td>Office Rent</td>
-                                                <td class="amount">$1,200.00</td>
-                                                <td>Bank Transfer</td>
-                                            </tr>
-                                            <tr>
-                                                <td>10/09/2025</td>
-                                                <td>Software Licenses</td>
-                                                <td class="amount">$450.00</td>
-                                                <td>Credit Card</td>
-                                            </tr>
-                                            <tr>
-                                                <td>18/09/2025</td>
-                                                <td>Marketing Campaign</td>
-                                                <td class="amount">$1,500.00</td>
-                                                <td>Bank Transfer</td>
-                                            </tr>
+                                            {% if cash_out_transactions %}
+                                                {% for transaction in cash_out_transactions %}
+                                                <tr class="data-real">
+                                                    <td>{{ transaction.date|date:"d/m/Y" }}</td>
+                                                    <td>{{ transaction.description }}</td>
+                                                    <td class="amount">€{{ transaction.amount }}</td>
+                                                    <td class="missing-data">MISSING</td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% else %}
+                                                <tr class="data-simulated">
+                                                    <td>03/09/2025</td>
+                                                    <td>Office Rent</td>
+                                                    <td class="amount">€1,200.00</td>
+                                                    <td class="missing-data">MISSING</td>
+                                                </tr>
+                                                <tr class="data-simulated">
+                                                    <td>10/09/2025</td>
+                                                    <td>Software Licenses</td>
+                                                    <td class="amount">€450.00</td>
+                                                    <td class="missing-data">MISSING</td>
+                                                </tr>
+                                                <tr class="data-simulated">
+                                                    <td>18/09/2025</td>
+                                                    <td>Marketing Campaign</td>
+                                                    <td class="amount">€1,500.00</td>
+                                                    <td class="missing-data">MISSING</td>
+                                                </tr>
+                                            {% endif %}
                                         </tbody>
-                                        <tfoot>
-                                            <tr class="total-row">
-                                                <td colspan="2">Subtotal Cash Out</td>
-                                                <td class="amount">$3,150.00</td>
-                                                <td></td>
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </div>
                             </details>
                         </div>
                         
-                        <div class="total-row" style="padding: 0.5rem 0;">
+                        <div class="total-row data-real" style="padding: 0.5rem 0;">
                             <div class="d-flex justify-content-between">
                                 <span>Net Cash Flow</span>
-                                <span class="amount positive">$7,350.00</span>
+                                <span class="amount positive">€{{ net_profit|default:"7,350.00" }}</span>
+                                <span class="data-source">(Real)</span>
                             </div>
                         </div>
                         
-                        <!-- TODO: Calcular balances si hay datos disponibles -->
-                        <div class="mt-2">
+                        <!-- MISSING DATA - No Balance model available -->
+                        <div class="mt-2 data-missing">
                             <div class="d-flex justify-content-between">
                                 <span>Opening Balance</span>
-                                <span class="amount">$4,250.00</span>
+                                <span class="amount missing-data">MISSING</span>
                             </div>
                             <div class="d-flex justify-content-between total-row">
                                 <span>Closing Balance</span>
-                                <span class="amount">$11,600.00</span>
+                                <span class="amount missing-data">MISSING</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Tarjeta 3: Aged Debtors -->
+            <!-- Card 3: Aged Debtors -->
             <div class="col-xl-4 col-lg-4 col-md-12 order-3">
                 <div class="card">
                     <div class="card-header">
                         <h2>Aged Debtors</h2>
-                        <div class="kpi-summary">
-                            <!-- TODO: Reemplazar con datos reales -->
+                        <div class="kpi-summary data-simulated">
                             <div>As of 31 August 2025</div>
+                            <span class="data-source">(Simulated)</span>
                         </div>
                     </div>
                     <div class="card-body">
@@ -488,87 +657,114 @@
                                         <th>Customer</th>
                                         <th>Balance</th>
                                         <th>Current</th>
-                                        <th>1-30</th>
-                                        <th>31-60</th>
-                                        <th>61-90</th>
-                                        <th>>90</th>
+                                        <th>1-30 Days</th>
+                                        <th>31-60 Days</th>
+                                        <th>61-90 Days</th>
+                                        <th>>90 Days</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Company A</td>
-                                        <td class="amount">$2,500.00</td>
-                                        <td class="amount">$2,500.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td>On time</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Company B</td>
-                                        <td class="amount">$1,800.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$1,800.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td>On time</td>
-                                    </tr>
-                                    <tr class="overdue-30">
-                                        <td>Company C</td>
-                                        <td class="amount">$3,200.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$3,200.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td>Overdue</td>
-                                    </tr>
-                                    <tr class="overdue-60">
-                                        <td>Company D</td>
-                                        <td class="amount">$1,250.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$1,250.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td>Overdue</td>
-                                    </tr>
-                                    <tr class="overdue-90">
-                                        <td>Company E</td>
-                                        <td class="amount">$800.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$0.00</td>
-                                        <td class="amount">$800.00</td>
-                                        <td>Overdue</td>
-                                    </tr>
+                                    {% if aged_debtors %}
+                                        {% for debtor in aged_debtors %}
+                                        <tr class="data-real {% if debtor.days_overdue > 90 %}overdue-90{% elif debtor.days_overdue > 60 %}overdue-60{% elif debtor.days_overdue > 30 %}overdue-30{% endif %}">
+                                            <td>{{ debtor.customer }}</td>
+                                            <td class="amount">€{{ debtor.balance }}</td>
+                                            <td class="amount">€{{ debtor.current }}</td>
+                                            <td class="amount">€{{ debtor.overdue_30 }}</td>
+                                            <td class="amount">€{{ debtor.overdue_60 }}</td>
+                                            <td class="amount">€{{ debtor.overdue_90 }}</td>
+                                            <td class="amount">€{{ debtor.overdue_120 }}</td>
+                                            <td>{{ debtor.status }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <!-- SIMULATED DATA when no real debtors -->
+                                        <tr class="data-simulated">
+                                            <td>Company A</td>
+                                            <td class="amount">€2,500.00</td>
+                                            <td class="amount">€2,500.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td>On time</td>
+                                        </tr>
+                                        <tr class="data-simulated">
+                                            <td>Company B</td>
+                                            <td class="amount">€1,800.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€1,800.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td>On time</td>
+                                        </tr>
+                                        <tr class="data-simulated overdue-30">
+                                            <td>Company C</td>
+                                            <td class="amount">€3,200.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€3,200.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td>Overdue</td>
+                                        </tr>
+                                        <tr class="data-simulated overdue-60">
+                                            <td>Company D</td>
+                                            <td class="amount">€1,250.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€1,250.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td>Overdue</td>
+                                        </tr>
+                                        <tr class="data-simulated overdue-90">
+                                            <td>Company E</td>
+                                            <td class="amount">€800.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€0.00</td>
+                                            <td class="amount">€800.00</td>
+                                            <td>Overdue</td>
+                                        </tr>
+                                    {% endif %}
                                 </tbody>
                                 <tfoot>
-                                    <tr class="total-row">
+                                    <tr class="total-row {% if aged_debtors %}data-real{% else %}data-simulated{% endif %}">
                                         <td>TOTALS</td>
-                                        <td class="amount">$9,550.00</td>
-                                        <td class="amount">$2,500.00</td>
-                                        <td class="amount">$1,800.00</td>
-                                        <td class="amount">$3,200.00</td>
-                                        <td class="amount">$1,250.00</td>
-                                        <td class="amount">$800.00</td>
+                                        <td class="amount">€{{ total_income|default:"9,550.00" }}</td>
+                                        <td class="amount">€{{ aged_debtors_total.current|default:"2,500.00" }}</td>
+                                        <td class="amount">€{{ aged_debtors_total.overdue_30|default:"1,800.00" }}</td>
+                                        <td class="amount">€{{ aged_debtors_total.overdue_60|default:"3,200.00" }}</td>
+                                        <td class="amount">€{{ aged_debtors_total.overdue_90|default:"1,250.00" }}</td>
+                                        <td class="amount">€{{ aged_debtors_total.overdue_120|default:"800.00" }}</td>
                                         <td></td>
                                     </tr>
                                 </tfoot>
                             </table>
+                        </div>
+                        
+                        <!-- Note about missing data -->
+                        <div class="alert alert-warning mt-2" role="alert">
+                            <small>
+                                <strong>Missing data detected:</strong><br>
+                                • Payment methods in transactions<br>
+                                • Bank account balances<br>
+                                • Detailed income/expense categories<br>
+                                • Actual payment status (paid/pending)
+                            </small>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}

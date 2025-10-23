@@ -22,15 +22,16 @@
       <div style="background: white; border-radius: 0.5rem; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); height: 100%;">
         <div style="text-align: center; padding: 2rem;">
           <img src="{% static 'tax.jpg' %}" alt="Tax" style="max-width: 250px; margin-bottom: 1rem;">
-          <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Invoices</h3>
+          <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Sales Invoices</h3>
           <p style="color: #6c757d;">You have created <span style="font-weight: 700; color: #4B49AC;">{{ invoice_count }}</span> invoices so far.</p>
-          <form method="post" action="{% url 'invoice_create' %}" style="margin-top: 1rem;">
-            {% csrf_token %}
-            <button type="submit" style="background-color: #4B49AC; color: white; border: none; padding: 0.5rem 1rem; border-radius: 9999px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
-              <i class="fas fa-plus"></i>Create New Invoice
-              llevarme a: invoice_created.html
-            </button>
-          </form>
+          
+          <!-- ENLACE CORREGIDO - Usa GET en lugar de POST -->
+          <a href="{% url 'invoice_create' %}" 
+             style="background-color: #4B49AC; color: white; border: none; padding: 0.5rem 1rem; 
+                    border-radius: 9999px; text-decoration: none; display: inline-flex; 
+                    align-items: center; gap: 0.5rem; cursor: pointer; margin-top: 1rem;">
+            <i class="fas fa-plus"></i>Create New Invoice
+          </a>
         </div>
       </div>
     </div>
@@ -47,10 +48,30 @@
             <span style="padding: 0.5rem; background: transparent;"><i class="fas fa-search" style="color: #6c757d;"></i></span>
             <input type="text" id="customerSearch" placeholder="Search customers..." style="flex: 1; padding: 0.5rem; border: none; outline: none;">
           </div>
-          <div id="customerList" style="border-top: 1px solid #e9ecef; padding-top: 1rem; text-align: center; color: #6c757d;">
-            <i class="fas fa-user-friends" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-            <p>No favorite customers yet</p>
-            <small>Customers you mark as favorite will appear here</small>
+
+          <div id="customerList" style="border-top: 1px solid #e9ecef; padding-top: 1rem;">
+            {% if favorite_customers %}
+              {% for customer in favorite_customers %}
+                <div class="customer-card" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-bottom: 1px solid #e9ecef;">
+                  <div style="text-align: left;">
+                    <strong style="color: #4B49AC;">{{ customer.name }}</strong><br>
+                    {% if customer.email %}
+                      <small style="color: #6c757d;">{{ customer.email }}</small>
+                    {% endif %}
+                  </div>
+                  <a href="{% url 'invoice_create' %}?customer={{ customer.id }}" 
+                     style="background: #4B49AC; color: white; border-radius: 9999px; padding: 0.25rem 0.75rem; text-decoration: none; font-size: 0.75rem;">
+                    + Invoice
+                  </a>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div style="text-align: center; color: #6c757d;">
+                <i class="fas fa-user-friends" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
+                <p>No favorite customers yet</p>
+                <small>Customers you mark as favorite will appear here</small>
+              </div>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -60,7 +81,7 @@
     <div style="flex: 1 1 30%; min-width: 280px;">
       <div style="background: white; border-radius: 0.5rem; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075); height: 100%;">
         <div style="padding: 1rem; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
-          <h5 style="margin: 0;">Invoice List</h5>
+          <h5 style="margin: 0;">Sales Invoice List</h5>
           <i class="fas fa-receipt" style="color: #4B49AC;"></i>
         </div>
         <div style="padding: 1rem 0;">
@@ -71,21 +92,63 @@
             </div>
           </div>
           <div style="max-height: 400px; overflow-y: auto; padding: 1rem;">
-            {% if invoices %}
+            {% if sales_invoices %}
               <div id="invoiceList">
-                {% for invoice in invoices %}
-                  <div style="padding: 1rem; border-bottom: 1px solid #e9ecef; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                      <h6 style="margin: 0;">Invoice #{{ invoice.id }}</h6>
-                      <small style="color: #6c757d;">{{ invoice.date|date:"d M Y" }}</small>
-                      <p style="margin: 0; font-size: 0.9rem; color: #4B49AC;">
-                        {{ invoice.contact.name }} — {{ invoice.total }} {{ invoice.currency }}
-                      </p>
+                {% for invoice in sales_invoices %}
+                  <div class="invoice-item" style="padding: 1rem; border-bottom: 1px solid #e9ecef;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                      <div>
+                        <h6 style="margin: 0; color: #4B49AC;">Invoice #{{ invoice.invoice_number }}</h6>
+                        <small style="color: #6c757d;">{{ invoice.date|date:"d M Y" }}</small>
+                        <p style="margin: 0.25rem 0; font-size: 0.9rem; color: #495057;">
+                          {{ invoice.contact.name }} — <strong>€{{ invoice.total }}</strong>
+                        </p>
+                        {% if invoice.description %}
+                        <p style="margin: 0.25rem 0; font-size: 0.8rem; color: #6c757d;">
+                          {{ invoice.description|truncatewords:10 }}
+                        </p>
+                        {% endif %}
+                      </div>
+                      <div style="display: flex; gap: 0.5rem;">
+                     
+                        <!-- Email - Send -->
+                        <button class="action-btn send-email-btn" 
+                                title="Send via Email" 
+                                data-invoice-id="{{ invoice.id }}">
+                          <i class="fas fa-envelope"></i>
+                        </button>
+                        
+                        <!-- Download -->
+                        {% if invoice.original_file %}
+                        <a href="{{ invoice.original_file.url }}" 
+                           download 
+                           class="action-btn" 
+                           title="Download Invoice">
+                          <i class="fas fa-download"></i>
+                        </a>
+                        {% else %}
+                        <button class="action-btn" title="No file to download" disabled>
+                          <i class="fas fa-download"></i>
+                        </button>
+                        {% endif %}
+                        
+                        <!-- Credit Note -->
+                        <a href="{% url 'credit_note' %}?invoice={{ invoice.id }}" 
+                           class="action-btn" 
+                           title="Create Credit Note">
+                          <i class="fas fa-file-invoice-dollar"></i>
+                        </a>
+                      </div>
                     </div>
-                    <div>
-                      <button style="background: none; border: 1px solid #6c757d; border-radius: 0.25rem; padding: 0.25rem 0.5rem; cursor: pointer;">
-                        <i class="fas fa-ellipsis-h"></i>
-                      </button>
+                    
+                    <!-- Status Badge -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                      <span class="status-badge {% if invoice.is_confirmed %}confirmed{% else %}pending{% endif %}">
+                        {{ invoice.is_confirmed|yesno:"Confirmed,Pending" }}
+                      </span>
+                      <small style="color: #6c757d;">
+                        Subtotal: €{{ invoice.subtotal }} | VAT: €{{ invoice.vat_amount }}
+                      </small>
                     </div>
                   </div>
                 {% endfor %}
@@ -104,24 +167,185 @@
   </div>
 </div>
 
+<!-- Modal para enviar email -->
+<div id="emailModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+  <div style="background-color: white; margin: 15% auto; padding: 0; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+    <div style="padding: 20px 24px; border-bottom: 1px solid rgba(75, 73, 172, 0.1); display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; color: #4B49AC;">Send Invoice via Email</h3>
+      <span class="close-modal" style="color: #6b7a90; font-size: 24px; font-weight: bold; cursor: pointer; background: none; border: none;">&times;</span>
+    </div>
+    <div style="padding: 24px;">
+      <p style="margin-top: 0;">Enter the client's email address:</p>
+      <input type="email" id="clientEmail" placeholder="client@example.com" style="width: 100%; padding: 12px 16px; border: 1px solid rgba(75, 73, 172, 0.3); border-radius: 10px; font-size: 14px; margin-top: 12px;">
+      <div style="display: flex; gap: 12px; margin-top: 20px;">
+        <button id="confirmSendEmail" style="background: linear-gradient(135deg, #7DA0FA, #4B49AC); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block;">Send Invoice</button>
+        <button class="close-modal" style="background: #fff; color: #4B49AC; border: 2px solid #4B49AC; padding: 12px 24px; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block;">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #f8f9ff;
+  border: 1px solid rgba(75, 73, 172, 0.2);
+  color: #4B49AC;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.action-btn:hover {
+  background: #4B49AC;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(75, 73, 172, 0.3);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-btn:disabled:hover {
+  background: #f8f9ff;
+  color: #4B49AC;
+  box-shadow: none;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-badge.confirmed {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge.pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.invoice-item {
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+}
+
+.invoice-item:hover {
+  background-color: #f8f9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(75, 73, 172, 0.1);
+}
+
+.customer-card {
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+}
+
+.customer-card:hover {
+  background-color: #f8f9ff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(75, 73, 172, 0.1);
+}
+</style>
 
 <script>
   document.getElementById('invoiceSearch').addEventListener('keyup', function() {
     const searchText = this.value.toLowerCase();
-    const invoiceItems = document.querySelectorAll('#invoiceList > div');
+    const invoiceItems = document.querySelectorAll('.invoice-item');
     invoiceItems.forEach(item => {
       const text = item.textContent.toLowerCase();
-      item.style.display = text.includes(searchText) ? 'flex' : 'none';
+      item.style.display = text.includes(searchText) ? 'block' : 'none';
     });
   });
 
   document.getElementById('customerSearch').addEventListener('keyup', function() {
-    console.log('Searching for:', this.value);
+    const searchText = this.value.toLowerCase();
+    const customerCards = document.querySelectorAll('.customer-card');
+    customerCards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(searchText) ? 'flex' : 'none';
+    });
   });
+
+  // Funcionalidad de email
+  let currentInvoiceId = null;
+
+  document.querySelectorAll('.send-email-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      currentInvoiceId = this.getAttribute('data-invoice-id');
+      document.getElementById('emailModal').style.display = 'block';
+    });
+  });
+
+  // Cerrar modal
+  document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.getElementById('emailModal').style.display = 'none';
+      document.getElementById('clientEmail').value = '';
+    });
+  });
+
+  // Confirmar envío de email
+  document.getElementById('confirmSendEmail').addEventListener('click', function() {
+    const email = document.getElementById('clientEmail').value.trim();
+    
+    if (!email) {
+      alert('Please enter an email address');
+      return;
+    }
+    
+    if (!validateEmail(email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+    
+    // Aquí iría la lógica real para enviar el email
+    // Por ahora solo mostramos un mensaje
+    alert(`Invoice will be sent to: ${email}`);
+    document.getElementById('emailModal').style.display = 'none';
+    document.getElementById('clientEmail').value = '';
+  });
+
+  // Validación de email
+  function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  }
+
+  // Cerrar modal al hacer click fuera
+  window.addEventListener('click', function(event) {
+    const modal = document.getElementById('emailModal');
+    if (event.target === modal) {
+      modal.style.display = 'none';
+      document.getElementById('clientEmail').value = '';
+    }
+  });
+
+  // Mostrar mensajes de Django si existen
+  {% if messages %}
+    {% for message in messages %}
+      {% if message.tags == 'success' %}
+        setTimeout(function() {
+          alert('{{ message }}');
+        }, 100);
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 </script>
-
-
-
 
 {% endblock %}

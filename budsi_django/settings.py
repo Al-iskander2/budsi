@@ -20,16 +20,18 @@ print("============================")
 
 # SECURITY - CAMBIOS IMPORTANTES
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "your-secret-key")
-DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"  # False por defecto para producción
+DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"  # True por defecto para desarrollo
 
-# ALLOWED_HOSTS para Render - CAMBIO IMPORTANTE
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS para desarrollo
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'testserver']
+
+# Solo añadir Render en producción
 RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
+if RENDER_EXTERNAL_HOSTNAME and not DEBUG:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])  # Para desarrollo local
 
-# APPS (sin cambios)
+# APPS
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -37,16 +39,18 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'django.contrib.humanize',
 
     # Apps del proyecto
     "budsi_database",
     "budsi_django",
 ]
 
-# MIDDLEWARE - AÑADIR WHITENOISE
+# MIDDLEWARE - SOLO whitenoise en producción
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # ¡AÑADIR ESTA LÍNEA!
+    # WhiteNoise solo en producción
+    "whitenoise.middleware.WhiteNoiseMiddleware" if not DEBUG else "django.middleware.common.CommonMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -55,9 +59,12 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# Limpiar middleware None (si DEBUG=True, whitenoise se convierte en None)
+MIDDLEWARE = [mw for mw in MIDDLEWARE if mw is not None]
+
 ROOT_URLCONF = "budsi_django.urls"
 
-# TEMPLATES - AÑADIR MEDIA CONTEXT PROCESSOR
+# TEMPLATES - CON MEDIA CONTEXT PROCESSOR
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -69,7 +76,8 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "django.template.context_processors.media",  # ¡AÑADIR ESTA LÍNEA!
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",  # Añadir este también
             ],
         },
     },
@@ -77,11 +85,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "budsi_django.wsgi.application"
 
-# VARIABLES API / Secrets (sin cambios)
+# VARIABLES API / Secrets
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY", "")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 
-# DATABASE (sin cambios)
+# DATABASE
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -93,7 +101,7 @@ DATABASES = {
     }
 }
 
-# AUTH (sin cambios)
+# AUTH
 AUTH_USER_MODEL = "budsi_database.User"
 AUTHENTICATION_BACKENDS = [
     "budsi_django.backends.EmailBackend",
@@ -107,26 +115,55 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# INTERNACIONALIZACIÓN (sin cambios)
+# INTERNACIONALIZACIÓN
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Europe/Dublin"
 USE_I18N = True
 USE_TZ = True
 
-# STATIC & MEDIA - AÑADIR WHITENOISE STORAGE
+# STATIC & MEDIA - CONFIGURACIÓN MEJORADA
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# En desarrollo: usar STATICFILES_DIRS directamente
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# En producción: STATIC_ROOT para collectstatic
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# AÑADIR ESTA CONFIGURACIÓN PARA WHITENOISE
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+# Configuración de WhiteNoise SOLO en producción
+if not DEBUG:
+    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+else:
+    # En desarrollo, servir estáticos directamente desde STATICFILES_DIRS
+    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Configuración de autenticación (sin cambios)
+# Configuración de autenticación
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Configuración adicional para desarrollo
+if DEBUG:
+    # En desarrollo, mostrar logs de static files
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+            },
+        },
+    }

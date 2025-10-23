@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQs - BudsiDesk</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8fafc;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #4B49AC 0%, #7978E9 100%);
+            color: white;
+            padding: 80px 0 60px;
+            text-align: center;
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 50px;
+        }
+        
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        /* Tabs Navigation */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            color: #64748b;
+        }
+        
+        .tab.active {
+            color: #4B49AC;
+            border-bottom: 3px solid #4B49AC;
+        }
+        
+        .tab:hover:not(.active) {
+            color: #4B49AC;
+        }
+        
+        /* FAQ Content */
+        .faq-content {
+            display: none;
+        }
+        
+        .faq-content.active {
+            display: block;
+        }
+        
+        .faq-section {
+            margin-bottom: 50px;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: #4B49AC;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #98BDFF;
+        }
+        
+        /* FAQ Items */
+        .faq-item {
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(75, 73, 172, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-left: 4px solid #4B49AC;
+        }
+        
+        .faq-item:hover {
+            box-shadow: 0 5px 15px rgba(75, 73, 172, 0.12);
+            transform: translateY(-2px);
+        }
+        
+        .faq-question {
+            padding: 20px 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            transition: background-color 0.3s;
+        }
+        
+        .faq-question:hover {
+            background-color: #f8faff;
+        }
+        
+        .faq-question::after {
+            content: '+';
+            font-size: 1.5rem;
+            color: #4B49AC;
+            transition: transform 0.3s;
+        }
+        
+        .faq-item.active .faq-question::after {
+            transform: rotate(45deg);
+        }
+        
+        .faq-answer {
+            padding: 0 25px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 0 25px 20px;
+            max-height: 500px;
+        }
+        
+        .highlight {
+            color: #4B49AC;
+            font-weight: 600;
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #4B49AC 0%, #7978E9 100%);
+            color: white;
+            padding: 50px 0 30px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .footer-brand {
+            flex: 1;
+            min-width: 300px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #4B49AC;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column ul li a {
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-column ul li a:hover {
+            color: white;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .social-links a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tab {
+                width: 100%;
+                text-align: center;
+                border-bottom: 1px solid #e2e8f0;
+                border-left: 3px solid transparent;
+            }
+            
+            .tab.active {
+                border-bottom: 1px solid #e2e8f0;
+                border-left: 3px solid #4B49AC;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+            }
+            
+            .footer-links {
+                margin-top: 30px;
+                gap: 30px;
+            }
+        }
+        
+        /* Search Box */
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(75, 73, 172, 0.1);
+            font-size: 1rem;
+            outline: none;
+            transition: box-shadow 0.3s;
+        }
+        
+        .search-box input:focus {
+            box-shadow: 0 5px 20px rgba(75, 73, 172, 0.2);
+        }
+        
+        .search-box i {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #4B49AC;
+        }
+        
+        /* Badge for new features */
+        .new-badge {
+            display: inline-block;
+            background-color: #F3797E;
+            color: white;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            margin-left: 10px;
+            vertical-align: super;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="container">
+            <h1>Frequently Asked Questions</h1>
+            
+        </div>
+    </section>
+    
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-tab="plans">BudsiDesk Plans</div>
+            <div class="tab" data-tab="modules">BudsiDesk Modules</div>
+        </div>
+        
+        <div class="faq-content active" id="plans-content">
+            <div class="faq-section">
+                <h2 class="section-title">FAQs – BudsiDesk Plans</h2>
+                
+                <div class="faq-item">
+                    <div class="faq-question">1. What's included in the free Budsi Lite plan?</div>
+                    <div class="faq-answer">
+                        <p>Budsi Lite gives you the essentials to get your solo business organised, invoicing, receipts tracking, taxation insights and a personal dashboard. It's totally free, with no hidden fees.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">2. Can I try a paid plan before committing?</div>
+                    <div class="faq-answer">
+                        <p>Yes! You can start with <span class="highlight">Budsi Smart</span> with a 7-day free trial. Cancel anytime during the trial if it's not for you.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">3. What's the difference between Budsi Smart and Budsi Elite?</div>
+                    <div class="faq-answer">
+                        <p><span class="highlight">Budsi Smart</span> gives you structure, and <span class="highlight">Budsi Elite</span> gives you power. Choose Smart to stay organised or Elite to automate, analyse, and grow.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">4. Do I have to sign a long-term contract?</div>
+                    <div class="faq-answer">
+                        <p>Nope! All plans are billed monthly or annually; you can cancel or switch anytime. Annual plans come with a nice discount, too!</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">5. Can I upgrade or downgrade later?</div>
+                    <div class="faq-answer">
+                        <p>Absolutely. You can change your plan at the end of your current monthly contract.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">6. What payment methods do you accept?</div>
+                    <div class="faq-answer">
+                        <p>We accept a wide range of payment methods powered by Stripe, including:</p>
+                        <ul>
+                            <li>Credit & Debit Cards (Visa, Mastercard, American Express)</li>
+                            <li>Apple Pay & Google Pay</li>
+                            <li>Revolut Pay</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">7. What happens if I cancel my subscription?</div>
+                    <div class="faq-answer">
+                        <p>You'll keep full access to your paid plan until the end of your billing period. After that, your account will switch to <span class="highlight">Budsi Lite</span>, no data will be lost.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">8. Is BudsiDesk available in my country?</div>
+                    <div class="faq-answer">
+                        <p>BudsiDesk is built for solo traders and freelancers in Ireland. More regions coming soon! <span class="new-badge">NEW</span></p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">9. Is my financial data safe with BudsiDesk?</div>
+                    <div class="faq-answer">
+                        <p>Your trust is our priority. We design our systems to keep your data safe, compliant, and confidential. Importantly, we never access your bank account — we only process payments related to your subscription. We also fully comply with GDPR, ensuring your information remains secure, private, and handled with care.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="faq-content" id="modules-content">
+            <div class="faq-section">
+                <h2 class="section-title">FAQs – BudsiDesk Modules</h2>
+                
+                <h3 class="section-title" style="font-size: 1.5rem;">Invoices and Credit Notes</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">10. Can I create customised invoices?</div>
+                    <div class="faq-answer">
+                        <p>Yes! You can create and personalise invoices with your logo or/and adjust the template. Your details and clients' info are saved in your favourites for next time.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">11. Can I send invoices directly from BudsiDesk?</div>
+                    <div class="faq-answer">
+                        <p>Absolutely. You can send them via email or download a PDF version to share manually.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">12. Can I add my VAT number and bank account?</div>
+                    <div class="faq-answer">
+                        <p>Yes. Just make sure to enter the correct details:</p>
+                        <ul>
+                            <li><span class="highlight">IBAN:</span> 22 characters, starting with "IE" (no spaces)</li>
+                            <li><span class="highlight">VAT Reg:</span> 8–9 alphanumeric characters</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <h3 class="section-title" style="font-size: 1.5rem;">Tax</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">13. Does BudsiDesk calculate my taxes automatically?</div>
+                    <div class="faq-answer">
+                        <p>Yes! The Tax Report gives you real-time tax estimates as you input data.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">14. Can I download a summary for my tax return?</div>
+                    <div class="faq-answer">
+                        <p>Yes, in the Tax Report section you can generate and download reports for return reference.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">15. Will BudsiDesk remind me of tax deadlines?</div>
+                    <div class="faq-answer">
+                        <p>Definitely. You'll get friendly reminders about VAT returns, Form 11 deadlines, and other compliance dates.</p>
+                    </div>
+                </div>
+                
+                <h3 class="section-title" style="font-size: 1.5rem;">Track</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">16. Can I log my working hours?</div>
+                    <div class="faq-answer">
+                        <p>Yes. The Track module lets you record your hours daily or weekly for each project recorded.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">17. Can I track progress by client or project?</div>
+                    <div class="faq-answer">
+                        <p>Absolutely! BudsiDesk gives you visual productivity insights by client, project, or period.</p>
+                    </div>
+                </div>
+                
+                <h3 class="section-title" style="font-size: 1.5rem;">BudsiWhiz and Helpdesk</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">18. Where can I learn more about using the platform?</div>
+                    <div class="faq-answer">
+                        <p>In BudsiWhiz, you'll find handy walkthroughs, quick actions, and helpful resources tailored for freelancers.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">19. Can I reach real human support?</div>
+                    <div class="faq-answer">
+                        <p>Yes — through the Helpdesk. Our team offers real, human help (no bots!).</p>
+                    </div>
+                </div>
+                
+                <h3 class="section-title" style="font-size: 1.5rem;">Buzz</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question">20. What reminders can I set up?</div>
+                    <div class="faq-answer">
+                        <p>You can enable reminders in Budsi Buzz section adding them in the calendar for:</p>
+                        <ul>
+                            <li>Invoice payments</li>
+                            <li>Tax deadlines</li>
+                            <li>Subscription renewals</li>
+                            <li>Projects deadlines</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">21. How will I receive reminders?</div>
+                    <div class="faq-answer">
+                        <p>You choose — via email or dashboard alerts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">BudsiDesk</div>
+                    <p>Simplifying business management for solo entrepreneurs and freelancers.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h3>Product</h3>
+                        <ul>
+                            <li><a href="#">Features</a></li>
+                            <li><a href="#">Pricing</a></li>
+                            <li><a href="#">FAQs</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Company</h3>
+                        <ul>
+                            <li><a href="#">About Us</a></li>
+                            <li><a href="#">Contact</a></li>
+                            <li><a href="#">Blog</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Legal</h3>
+                        <ul>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">GDPR</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2023 BudsiDesk. All rights reserved.
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Accordion functionality for questions
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentNode;
+                item.classList.toggle('active');
+            });
+        });
+        
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => {
+                    t.classList.remove('active');
+                });
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Hide all content
+                document.querySelectorAll('.faq-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show corresponding content
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-content`).classList.add('active');
+            });
+        });
+        
+        // Search functionality
+        const searchInput = document.querySelector('.search-box input');
+        searchInput.addEventListener('keyup', function() {
+            const searchTerm = this.value.toLowerCase();
+            const activeContent = document.querySelector('.faq-content.active');
+            const questions = activeContent.querySelectorAll('.faq-item');
+            
+            questions.forEach(item => {
+                const question = item.querySelector('.faq-question').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

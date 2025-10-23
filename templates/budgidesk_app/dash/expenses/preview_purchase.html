@@ -77,6 +77,34 @@
               {{ form.vat_amount }}
             </div>
             <div style="grid-column:1/-1">
+              <label>Expense Category</label>
+              <select name="category" required>
+                <option value="">Select a category</option>
+                <option value="Office and Workspace">Office and Workspace</option>
+                <option value="Equipment and Supplies">Equipment and Supplies</option>
+                <option value="Travel and Transportation">Travel and Transportation</option>
+                <option value="Marketing and Advertising">Marketing and Advertising</option>
+                <option value="Professional Development">Professional Development</option>
+                <option value="Communication">Communication</option>
+                <option value="Financial and Legal">Financial and Legal</option>
+                <option value="Payment Processing Fees">Payment Processing Fees</option>
+                <option value="Insurance">Insurance</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+              </select>
+            </div>
+            <div style="grid-column:1/-1">
+              <label>Assign to Project (Optional)</label>
+              <select name="project">
+                  <option value="">No Project</option>
+                  {% for project in existing_projects %}
+                  <option value="{{ project }}" {% if invoice.project == project %}selected{% endif %}>
+                      {{ project }}
+                  </option>
+                  {% endfor %}
+              </select>
+              <p class="note">Assign this expense to a project for better tracking</p>
+            </div>
+            <div style="grid-column:1/-1">
               <label>Description</label>
               {{ form.description }}
             </div>

@@ -146,6 +146,8 @@ class Invoice(models.Model):
     date = models.DateField()
     description = models.CharField(max_length=255, blank=True)
 
+    project = models.CharField(max_length=200, blank=True, null=True)
+
     category = models.CharField(max_length=100, blank=True, null=True)
 
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
@@ -213,3 +215,52 @@ class FiscalConfig(models.Model):
 
     def __str__(self):
         return f'Config {self.year} for {self.user}'
+
+# -------- Project Model --------
+class Project(models.Model):
+    ACTIVE = 'active'
+    COMPLETED = 'completed'
+    ON_HOLD = 'on_hold'
+    STATUS_CHOICES = [
+        (ACTIVE, 'Active'),
+        (COMPLETED, 'Completed'),
+        (ON_HOLD, 'On Hold'),
+    ]
+
+    user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='projects')
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=ACTIVE)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    budget = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Proyecto'
+        verbose_name_plural = 'Proyectos'
+        unique_together = (('user', 'name'),)
+        indexes = [
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['user', 'start_date']),
+        ]
+
+    def __str__(self):
+        return f'{self.name} ({self.status})'
+    
+    def get_progress(self):
+        """Calcular progreso del proyecto basado en facturas asociadas"""
+        from django.db.models import Sum
+        try:
+            project_invoices = Invoice.objects.filter(user=self.user, project=self.name)
+            if project_invoices.exists():
+                total_invoiced = project_invoices.aggregate(Sum('total'))['total__sum'] or Decimal('0')
+                if self.budget > 0:
+                    progress = (total_invoiced / self.budget * 100).quantize(Decimal('0.01'))
+                    return min(float(progress), 100.0)
+            return 0.0
+        except:
+            return 0.0

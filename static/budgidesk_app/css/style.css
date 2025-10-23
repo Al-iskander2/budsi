@@ -1,13 +1,37 @@
-body {
-  font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  background-color: var(--white);
-  
-  margin: 0;
+/* RESET COMPLETO */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    overflow-x: hidden !important;
 }
 
+/* Main wrapper sin márgenes */
 .main-wrapper {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+/* Control de logos */
+.navbar-brand img, 
+header img,
+img[alt*="logo" i] {
+    max-height: 40px !important;
+    height: auto !important;
+    width: auto !important;
+}
+
+/* Header sin márgenes */
+header {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Eliminar cualquier margen/padding por defecto */
+.container {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
 }

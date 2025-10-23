@@ -3,26 +3,20 @@
 {% block content %}
 
 <div style="max-width: 1100px; margin: 32px auto; padding: 0 20px;">
-  <h1 style="text-align: center;">Invoice Created!</h1>
-  <p style="text-align: center;">You have now created {{ profile.invoice_count }} invoices.</p>
+  <h1 style="text-align: center;">Create New Invoice</h1>
+  <p style="text-align: center;">You have created {{ profile.invoice_count }} invoices so far.</p>
 
   <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
-    <!-- LEFT: Preview -->
+    <!-- LEFT: Invoice Information -->
     <div style="background: #fff; border: 1px solid rgba(75, 73, 172, 0.18); border-radius: 16px; box-shadow: 0 10px 24px rgba(75, 73, 172, 0.10);">
-      <h2 style="margin: 0; padding: 16px 18px; border-bottom: 1px solid rgba(75, 73, 172, 0.18); color: #4B49AC; font-size: 18px;">Invoice Preview</h2>
+      <h2 style="margin: 0; padding: 16px 18px; border-bottom: 1px solid rgba(75, 73, 172, 0.18); color: #4B49AC; font-size: 18px;">Invoice Details</h2>
       <div style="padding: 18px;">
-        {% if original_url %}
-          <div style="display: flex; align-items: center; justify-content: center; background: #f6f8ff; border: 1px dashed rgba(75, 73, 172, 0.35); border-radius: 12px; min-height: 560px; overflow: hidden;">
-            {% if is_pdf %}
-              <embed src="{{ original_url }}" type="application/pdf" style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
-            {% else %}
-              <img src="{{ original_url }}" alt="original invoice" style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
-            {% endif %}
-          </div>
-          <p style="margin-top: 8px; font-size: 12px; color: #6b7a90;">File: {{ invoice.original_file.name }}</p>
-        {% else %}
-          <div style="display: flex; align-items: center; justify-content: center; background: #f6f8ff; border: 1px dashed rgba(75, 73, 172, 0.35); border-radius: 12px; min-height: 560px; overflow: hidden;"><em>Invoice Preview.</em></div>
-        {% endif %}
+        
+        <div style="margin-top: 16px; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+          <h4 style="margin: 0 0 8px 0; color: #4B49AC;">Next Invoice Number</h4>
+          <p style="margin: 0; font-weight: 600; font-size: 18px;">INV-{{ profile.invoice_count|add:1|stringformat:"06d" }}</p>
+          <p style="margin: 8px 0 0 0; font-size: 12px; color: #6b7a90;">This number will be assigned automatically</p>
+        </div>
       </div>
     </div>
 
@@ -38,101 +32,174 @@
         </div>
         {% endif %}
 
-        <form method="post" action="{% url 'invoice_create' %}">
+        {% if messages %}
+        <div style="margin-bottom: 1rem;">
+          {% for message in messages %}
+          <div style="margin-bottom: 0.5rem; background: {% if message.tags == 'success' %}#d1edff{% else %}#f8d7da{% endif %}; color: {% if message.tags == 'success' %}#0c5460{% else %}#721c24{% endif %}; border: 1px solid {% if message.tags == 'success' %}#bee5eb{% else %}#f5c6cb{% endif %}; padding: 1rem; border-radius: 10px;">
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- FORM ACTUALIZADO: Ahora apunta a invoice_save -->
+        <form method="post" action="{% url 'invoice_save' %}">
           {% csrf_token %}
           <div style="display: grid; grid-template-columns: 1fr; gap: 14px;">
             <div>
-              <label for="contact" style="font-weight: 600; color: #2a3550; font-size: 14px;">Client / Supplier</label>
-              <input type="text" name="contact" id="contact" required value="{{ form_data.contact|default_if_none:'' }}" style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">
+              <label for="contact" style="font-weight: 600; color: #2a3550; font-size: 14px;">Client Name *</label>
+              <input type="text" name="contact" id="contact" required value="{{ form_data.contact|default_if_none:'' }}" 
+                     placeholder="Enter client or company name"
+                     style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">
+              <small style="color: #6b7a90; font-size: 12px;">This client will be added to your contacts</small>
             </div>
+            
             <div>
-              <label for="date" style="font-weight: 600; color: #2a3550; font-size: 14px;">Date</label>
-              <input type="date" name="date" id="date" required value="{{ form_data.date|default_if_none:'' }}" style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">
+              <label for="date" style="font-weight: 600; color: #2a3550; font-size: 14px;">Invoice Date *</label>
+              <input type="date" name="date" id="date" required value="{{ form_data.date|default_if_none:'' }}" 
+                     style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">
             </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+              <div>
+                <label for="subtotal" style="font-weight: 600; color: #2a3550; font-size: 14px;">Subtotal (€) *</label>
+                <input type="number" step="0.01" name="subtotal" id="subtotal" required 
+                       value="{{ form_data.subtotal|default_if_none:'' }}" placeholder="0.00"
+                       style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">
+              </div>
+              <div>
+                <label for="vat_amount" style="font-weight: 600; color: #2a3550; font-size: 14px;">VAT (€)</label>
+                <input type="number" step="0.01" name="vat_amount" id="vat_amount" 
+                       value="{{ form_data.vat_amount|default:'0' }}" placeholder="0.00"
+                       style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">
+              </div>
+            </div>
+            
             <div>
-              <label for="subtotal" style="font-weight: 600; color: #2a3550; font-size: 14px;">Subtotal</label>
-              <input type="number" step="0.01" name="subtotal" id="subtotal" required value="{{ form_data.subtotal|default_if_none:'' }}" style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <label for="total" style="font-weight: 600; color: #2a3550; font-size: 14px;">Total Amount</label>
+                <span id="totalDisplay" style="font-weight: 700; color: #4B49AC; font-size: 16px;">€0.00</span>
+              </div>
+              <input type="hidden" id="total" name="total">
+              <small style="color: #6b7a90; font-size: 12px;">Calculated automatically: Subtotal + VAT</small>
             </div>
-            <div>
-              <label for="vat_amount" style="font-weight: 600; color: #2a3550; font-size: 14px;">VAT</label>
-              <input type="number" step="0.01" name="vat_amount" id="vat_amount" value="{{ form_data.vat_amount|default:'0' }}" style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">
+
+            <!-- NUEVOS CAMPOS AÑADIDOS -->
+            <div style="grid-column:1/-1">
+              <label for="category" style="font-weight: 600; color: #2a3550; font-size: 14px;">Expense Category *</label>
+              <select name="category" id="category" required style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">
+                <option value="">Select a category</option>
+                <option value="Office and Workspace" {% if form_data.category == "Office and Workspace" %}selected{% endif %}>Office and Workspace</option>
+                <option value="Equipment and Supplies" {% if form_data.category == "Equipment and Supplies" %}selected{% endif %}>Equipment and Supplies</option>
+                <option value="Travel and Transportation" {% if form_data.category == "Travel and Transportation" %}selected{% endif %}>Travel and Transportation</option>
+                <option value="Marketing and Advertising" {% if form_data.category == "Marketing and Advertising" %}selected{% endif %}>Marketing and Advertising</option>
+                <option value="Professional Development" {% if form_data.category == "Professional Development" %}selected{% endif %}>Professional Development</option>
+                <option value="Communication" {% if form_data.category == "Communication" %}selected{% endif %}>Communication</option>
+                <option value="Financial and Legal" {% if form_data.category == "Financial and Legal" %}selected{% endif %}>Financial and Legal</option>
+                <option value="Payment Processing Fees" {% if form_data.category == "Payment Processing Fees" %}selected{% endif %}>Payment Processing Fees</option>
+                <option value="Insurance" {% if form_data.category == "Insurance" %}selected{% endif %}>Insurance</option>
+                <option value="Miscellaneous" {% if form_data.category == "Miscellaneous" %}selected{% endif %}>Miscellaneous</option>
+              </select>
             </div>
-            <div style="grid-column: 1 / -1">
+
+            <div style="grid-column:1/-1">
+              <label for="project" style="font-weight: 600; color: #2a3550; font-size: 14px;">Assign to Project (Optional)</label>
+              <select name="project" id="project" style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">
+                <option value="">No Project</option>
+                {% for project in existing_projects %}
+                <option value="{{ project }}" {% if form_data.project == project %}selected{% endif %}>
+                  {{ project }}
+                </option>
+                {% endfor %}
+              </select>
+              <small style="color: #6b7a90; font-size: 12px;">Assign this expense to a project for better tracking</small>
+            </div>
+
+            <div style="grid-column:1/-1">
               <label for="description" style="font-weight: 600; color: #2a3550; font-size: 14px;">Description</label>
-              <textarea name="description" id="description" rows="3" style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">{{ form_data.description }}</textarea>
+              <textarea name="description" id="description" rows="3" 
+                        placeholder="Describe the products or services provided..."
+                        style="width: 100%; padding: 10px 12px; border: 1px solid rgba(75, 73, 172, 0.35); border-radius: 10px;">{{ form_data.description }}</textarea>
             </div>
           </div>
 
-          <div id="vat-warning" style="display: none; margin-top: 8px; background: #fff0d6; border: 1px solid #f0c36d; color: #6b4a00; padding: 10px; border-radius: 10px;">VAT amount seems inconsistent with subtotal.</div>
-
-          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px;">
-            <button type="submit" style="border: 0; border-radius: 12px; padding: 12px 14px; font-weight: 700; cursor: pointer; background: linear-gradient(135deg, #7DA0FA, #4B49AC); color: #fff;">Save Invoice</button>
+          <div id="vat-warning" style="display: none; margin-top: 8px; background: #fff0d6; border: 1px solid #f0c36d; color: #6b4a00; padding: 10px; border-radius: 10px;">
+            <i class="fas fa-exclamation-triangle"></i> VAT amount seems inconsistent with subtotal.
           </div>
 
-          {% if messages %}
-          <div style="margin-top: 1rem;">
-            {% for message in messages %}
-            <div style="margin-bottom: 1rem; background: #e2e3e5; padding: 1rem; border-left: 4px solid #4B49AC; border-radius: 10px;">
-              {{ message }}
-            </div>
-            {% endfor %}
-          </div>
-          {% endif %}
-
-          <div style="margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 10px;">
-            <button id="downloadBtn" type="button" style="background: #fff; border: 2px solid #4B49AC; color: #4B49AC; border-radius: 12px; padding: 12px 14px; font-weight: 700; cursor: pointer;">Download Invoice</button>
-            <button id="showEmailBtn" type="button" style="background: #fff; border: 2px solid #4B49AC; color: #4B49AC; border-radius: 12px; padding: 12px 14px; font-weight: 700; cursor: pointer;">Send via Email</button>
-            <a href="{% url 'invoice_create' %}" style="display: inline-block; background: #fff; border: 2px solid #4B49AC; color: #4B49AC; border-radius: 12px; padding: 12px 14px; font-weight: 700; text-decoration: none;">Create Another Invoice</a>
-          </div>
-
-          <div id="sendSection" style="display: none; margin-top: 20px;">
-            <h4>Which email do you want to send it to?</h4>
-            <input type="email" id="emailInput" placeholder="Enter email" style="margin-top: 0.5rem; width: 100%; padding: 10px 12px; border: 1px solid #4B49AC; border-radius: 10px;">
-            <button type="button" id="sendEmailBtn" style="margin-top: 0.5rem; background: linear-gradient(135deg, #7DA0FA, #4B49AC); color: #fff; border: 0; border-radius: 12px; padding: 12px 14px; font-weight: 700; cursor: pointer;">Send Invoice</button>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 24px;">
+            <button type="submit" style="border: 0; border-radius: 12px; padding: 12px 24px; font-weight: 700; cursor: pointer; background: linear-gradient(135deg, #7DA0FA, #4B49AC); color: #fff; flex: 1;">
+              <i class="fas fa-save"></i> Create Invoice
+            </button>
+            <a href="{% url 'invoice_list' %}" style="display: inline-block; background: #fff; border: 2px solid #4B49AC; color: #4B49AC; border-radius: 12px; padding: 12px 14px; font-weight: 700; text-decoration: none;">
+              <i class="fas fa-arrow-left"></i> Back to List
+            </a>
           </div>
         </form>
+
+        <div id="sendSection" style="display: none; margin-top: 20px; padding: 16px; background: #f6f8ff; border-radius: 8px;">
+          <h5 style="margin: 0 0 8px 0; color: #4B49AC;">Send Invoice via Email</h5>
+          <input type="email" id="emailInput" placeholder="Enter client email address" 
+                 style="margin-top: 0.5rem; width: 100%; padding: 10px 12px; border: 1px solid #4B49AC; border-radius: 10px;">
+          <button type="button" id="sendEmailBtn" 
+                  style="margin-top: 0.5rem; background: linear-gradient(135deg, #7DA0FA, #4B49AC); color: #fff; border: 0; border-radius: 12px; padding: 10px 14px; font-weight: 600; cursor: pointer;">
+            <i class="fas fa-paper-plane"></i> Send Invoice
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <script>
-  // VAT Check
+  // VAT Check and Total Calculation
   (function(){
     const subtotal = document.getElementById('subtotal');
     const vat = document.getElementById('vat_amount');
+    const totalDisplay = document.getElementById('totalDisplay');
     const warn = document.getElementById('vat-warning');
 
-    function checkVAT(){
+    function calculateTotal(){
       const s = parseFloat(subtotal.value) || 0;
       const v = parseFloat(vat.value) || 0;
+      const total = s + v;
+      
+      // Update total display
+      totalDisplay.textContent = '€' + total.toFixed(2);
+      
+      // VAT validation
       warn.style.display = (v > 0 && s > 0 && v >= s) ? 'block' : 'none';
     }
 
-    subtotal.addEventListener('input', checkVAT);
-    vat.addEventListener('input', checkVAT);
-    checkVAT();
+    subtotal.addEventListener('input', calculateTotal);
+    vat.addEventListener('input', calculateTotal);
+    
+    // Initialize calculation
+    calculateTotal();
   })();
 
-  document.getElementById("downloadBtn").addEventListener("click", function() {
-    window.open("{% url 'generate_invoice' %}", "_blank");
-  });
-
-  document.getElementById("showEmailBtn").addEventListener("click", function() {
-    document.getElementById("sendSection").style.display = "block";
-  });
-
+  // Email functionality
   document.getElementById("sendEmailBtn").addEventListener("click", function() {
     const email = document.getElementById("emailInput").value.trim();
     if (!email) {
       alert("Please enter an email address.");
       return;
     }
-    window.open("{% url 'generate_invoice' %}", "_blank");
-    alert("Invoice sent successfully to " + email);
-    setTimeout(function() {
-      window.location.href = "{% url 'invoice_create' %}";
-    }, 1000);
+    
+    // For demo purposes - in a real app, this would send the email via backend
+    alert("Invoice will be sent to " + email + " once created.");
+    document.getElementById("sendSection").style.display = 'none';
+  });
+
+  // Set default date to today
+  document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().split('T')[0];
+    const dateField = document.getElementById('date');
+    if (!dateField.value) {
+      dateField.value = today;
+    }
   });
 </script>
 

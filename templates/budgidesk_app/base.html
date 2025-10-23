@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <title>{% block title %}BudgiDesk{% endblock %}</title>
 
-    
-    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'budgidesk_app/css/style.css' %}">
     
@@ -21,9 +19,9 @@
 <body>
     {% include 'budgidesk_app/navbar.html' %}
 
-    <!-- Messages -->
+    <!-- Messages - SIN container para que no añada márgenes -->
     {% if messages %}
-        <div class="container mt-3">
+        <div>
             {% for message in messages %}
                 <div class="alert alert-info">{{ message }}</div>
             {% endfor %}
@@ -35,9 +33,6 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Bootstrap JS -->
-    
-    
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>
