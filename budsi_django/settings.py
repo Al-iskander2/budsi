@@ -5,31 +5,53 @@ from dotenv import load_dotenv
 # BASE DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Cargar variables del .env
+# Cargar variables del .env SOLO en desarrollo
 load_dotenv(BASE_DIR / ".env")
 
-# VERIFICACIÓN TEMPORAL - eliminar después de probar
+# VERIFICACIÓN TEMPORAL
 print("=== VARIABLES DE ENTORNO ===")
-print("STRIPE_SECRET_KEY:", "CARGADA" if os.getenv("STRIPE_SECRET_KEY") else "NO CARGADA")
+print("DJANGO_SECRET_KEY:", "CARGADA" if os.getenv("DJANGO_SECRET_KEY") else "NO CARGADA")
+print("DJANGO_DEBUG:", os.getenv("DJANGO_DEBUG", "No configurado"))
 print("POSTGRES_DB:", os.getenv("POSTGRES_DB"))
-print("POSTGRES_USER:", os.getenv("POSTGRES_USER"))
-print("POSTGRES_PASSWORD:", "CARGADA" if os.getenv("POSTGRES_PASSWORD") else "NO CARGADA")
-print("POSTGRES_HOST:", os.getenv("POSTGRES_HOST"))
-print("POSTGRES_PORT:", os.getenv("POSTGRES_PORT"))
 print("============================")
 
-# SECURITY - CAMBIOS IMPORTANTES
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "your-secret-key")
-DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"  # True por defecto para desarrollo
+# SECURITY - MANEJO SEGURO DE SECRET_KEY
+DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
 
-# ALLOWED_HOSTS para desarrollo
+# SECRET_KEY con fallbacks diferentes para desarrollo/producción
+if DEBUG:
+    # En desarrollo: clave simple (puede estar en .env o no)
+    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "clave-simple-para-desarrollo-solo")
+else:
+    # En producción: EXIGIR clave segura
+    SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+    if not SECRET_KEY:
+        raise ValueError("DJANGO_SECRET_KEY debe estar configurada en producción")
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'testserver']
+# ALLOWED_HOSTS
+ALLOWED_HOSTS = [
+    'localhost', '127.0.0.1', '0.0.0.0', 'testserver',
+    'budsidesk.com', 'www.budsidesk.com', 
+    'budsi.onrender.com', '.onrender.com',
+]
 
-# Solo añadir Render en producción
 RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME and not DEBUG:
+if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# CSRF TRUSTED ORIGINS
+CSRF_TRUSTED_ORIGINS = [
+    'https://budsidesk.com',
+    'https://www.budsidesk.com', 
+    'https://budsi.onrender.com',
+]
+
+# SSL para producción
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 # APPS
 INSTALLED_APPS = [
@@ -46,11 +68,10 @@ INSTALLED_APPS = [
     "budsi_django",
 ]
 
-# MIDDLEWARE - SOLO whitenoise en producción
+# MIDDLEWARE - WHITENOISE SIEMPRE PRESENTE
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    # WhiteNoise solo en producción
-    "whitenoise.middleware.WhiteNoiseMiddleware" if not DEBUG else "django.middleware.common.CommonMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -58,9 +79,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
-
-# Limpiar middleware None (si DEBUG=True, whitenoise se convierte en None)
-MIDDLEWARE = [mw for mw in MIDDLEWARE if mw is not None]
 
 ROOT_URLCONF = "budsi_django.urls"
 
@@ -77,7 +95,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.media",
-                "django.template.context_processors.static",  # Añadir este también
+                "django.template.context_processors.static",
             ],
         },
     },
@@ -123,21 +141,11 @@ USE_TZ = True
 
 # STATIC & MEDIA - CONFIGURACIÓN MEJORADA
 STATIC_URL = "/static/"
-
-# En desarrollo: usar STATICFILES_DIRS directamente
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
-
-# En producción: STATIC_ROOT para collectstatic
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Configuración de WhiteNoise SOLO en producción
-if not DEBUG:
-    STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-else:
-    # En desarrollo, servir estáticos directamente desde STATICFILES_DIRS
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+# WhiteNoise configuration - SIEMPRE ACTIVO
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -149,21 +157,24 @@ LOGOUT_REDIRECT_URL = 'login'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Configuración adicional para desarrollo
-if DEBUG:
-    # En desarrollo, mostrar logs de static files
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'console': {
-                'class': 'logging.StreamHandler',
-            },
+# Configuración de logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
         },
-        'loggers': {
-            'django': {
-                'handlers': ['console'],
-                'level': 'INFO',
-            },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
         },
-    }
+    },
+}
