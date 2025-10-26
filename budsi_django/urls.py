@@ -74,7 +74,6 @@ urlpatterns = [
     path("dash/pulse/", views.pulse_view, name="dash_pulse"),
     path("dash/buzz/", views.buzz_view, name="dash_buzz"),
     path("dash/track/", views.track_view, name="dash_track"),
-    path("dash/tax/", views.tax_view, name="dash_tax"),
     path("dash/doc/", views.legal_templates_view, name="dash_doc"),
     path("dash/nest/", views.nest_view, name="dash_nest"),
     path("dash/whiz/", views.whiz_view, name="dash_whiz"),

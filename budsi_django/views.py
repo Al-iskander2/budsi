@@ -399,13 +399,39 @@ def expenses_create_view(request):
 
 @login_required
 def tax_view(request):
-    invoices = (
-        Invoice.objects
-        .filter(user=request.user, invoice_type="purchase", is_confirmed=True)
-        .select_related('contact')
-        .order_by('-date', '-id')
-    )
-    return render(request, "budgidesk_app/dash/expenses/main_expenses.html", {"invoices": invoices})
+    """✅ CORREGIDO: Vista para la sección Tax del dashboard"""
+    try:
+        # Obtener datos para el dashboard de tax
+        sales_invoices = Invoice.objects.filter(
+            user=request.user, 
+            invoice_type="sale", 
+            is_confirmed=True
+        )
+        
+        purchase_invoices = Invoice.objects.filter(
+            user=request.user, 
+            invoice_type="purchase", 
+            is_confirmed=True
+        )
+        
+        context = {
+            "sales_count": sales_invoices.count(),
+            "purchases_count": purchase_invoices.count(),
+            "total_sales": sales_invoices.aggregate(Sum('total'))['total__sum'] or 0,
+            "total_purchases": purchase_invoices.aggregate(Sum('total'))['total__sum'] or 0,
+        }
+        
+        # ✅ CORREGIDO: Renderizar la plantilla CORRECTA de tax
+        return render(request, "budgidesk_app/dash/tax/main_tax.html", context)
+        
+    except Exception as e:
+        print(f"Error en tax_view: {e}")
+        return render(request, "budgidesk_app/dash/tax/main_tax.html", {
+            "sales_count": 0,
+            "purchases_count": 0,
+            "total_sales": 0,
+            "total_purchases": 0,
+        })
 
 
 @login_required
