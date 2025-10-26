@@ -135,19 +135,24 @@ def invoice_upload_to(instance, filename):
 
 # -------- Invoice --------
 class Invoice(models.Model):
+    # ✅ ACTUALIZADO: Usar choices más descriptivos
     SALE = 'sale'
     PURCHASE = 'purchase'
-    INVOICE_TYPES = ((SALE, 'Sale'), (PURCHASE, 'Purchase'))
+    CREDIT_NOTE = 'credit_note'
+    INVOICE_TYPES = (
+        (SALE, 'Sale'),
+        (PURCHASE, 'Purchase'),
+        (CREDIT_NOTE, 'Credit Note')
+    )
 
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='invoices')
-    invoice_type = models.CharField(max_length=10, choices=INVOICE_TYPES, default=SALE)
+    invoice_type = models.CharField(max_length=12, choices=INVOICE_TYPES, default=SALE)  # ✅ Aumentado a 12
     contact = models.ForeignKey('Contact', on_delete=models.PROTECT, related_name='invoices')
     invoice_number = models.CharField(max_length=64)
     date = models.DateField()
     description = models.CharField(max_length=255, blank=True)
 
     project = models.CharField(max_length=200, blank=True, null=True)
-
     category = models.CharField(max_length=100, blank=True, null=True)
 
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
@@ -156,10 +161,13 @@ class Invoice(models.Model):
     currency = models.CharField(max_length=3, default='EUR')
 
     status = models.CharField(max_length=20, default='draft')
-    is_confirmed = models.BooleanField(default=False)  # NUEVO
+    is_confirmed = models.BooleanField(default=False)
+
+    # ✅ CAMPOS NUEVOS ASEGURADOS
+    original_file = models.FileField(upload_to=invoice_upload_to, blank=True, null=True)
+    credit_note_reason = models.TextField(blank=True, null=True)
 
     ocr_data = models.JSONField(default=dict, blank=True)
-    original_file = models.FileField(upload_to=invoice_upload_to, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

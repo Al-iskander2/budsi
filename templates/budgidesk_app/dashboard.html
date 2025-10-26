@@ -44,7 +44,7 @@ html, body.dashboard-page{
 .navbar-brand img,
 header img,
 img[alt*="logo" i]{
-  max-height:40px !important;
+  max-height:10px !important;
   height:auto !important;
   width:auto !important;
 }
@@ -78,7 +78,7 @@ main.main-wrapper{
   --white:#ffffff;--gray-light:#f5f5f5;--gray-border:#e0e0e0;--amber:#f39c12;
 }
 *{box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
-.logo{display:flex;align-items:center;margin-bottom:30px;padding-bottom:15px;border-bottom:1px solid var(--gray-border);}
+.logo{display:flex;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid var(--gray-border);}
 .menu-item{display:flex;align-items:center;padding:12px 15px;border-radius:8px;margin-bottom:8px;cursor:pointer;transition:.3s;text-decoration:none;color:var(--primary-1);}
 .menu-item:hover{background-color:rgba(75,73,172,.1);}
 .menu-item.active{background-color:var(--primary-1);color:#fff;}
@@ -136,7 +136,9 @@ main.main-wrapper{
 
 <div class="dashboard-container">
   <aside class="sidebar">
-    <div class="logo"><h1 style="color: #4B49AC;">Dashboard</h1></div>
+    <div class="logo">
+    <h1 style="color: #4B49AC; font-size: 1.2rem;">Dashboard</h1>
+    </div>
     <!-- Mantén tus rutas actuales para no romper navegación -->
     <a href="{% url 'invoice_list' %}" class="menu-item"><span>Invoices<br>Credit Notes</span></a>
     <a href="{% url 'expense_list' %}" class="menu-item"><span>Expenses</span></a>

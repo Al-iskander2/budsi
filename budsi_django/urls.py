@@ -24,10 +24,22 @@ urlpatterns = [
     path("onboarding/", views.onboarding_view, name="onboarding"),
 
     # =========================================================================
-    # URLs CORREGIDAS - COHERENTES CON VIEWS EXISTENTES
+    # URLs ACTUALIZADAS - ARQUITECTURA SEPARADA SALES/EXPENSES
     # =========================================================================
     
-    # Invoices
+    # ✅ SALES (Facturas de VENTA)
+    path("sales/", views.main_invoice_view, name="sales_list"),
+    path("sales/create/", views.invoice_create, name="sales_create"),
+    path("sales/upload/", views.invoice_upload_view, name="sales_upload"),
+    
+    # ✅ EXPENSES (Facturas de GASTO) - CORREGIDAS
+    path("expenses/", views.expense_list_view, name="expense_list"),
+    path("expenses/create/", views.expenses_create_view, name="expenses_create"),
+    path("expenses/upload/", views.expenses_upload_view, name="expense_upload"),
+
+    # =========================================================================
+    # URLs COMPATIBILIDAD (mantener temporalmente)
+    # =========================================================================
     path("invoices/", views.main_invoice_view, name="main_invoice"),
     path("invoices/create/", views.invoice_create, name="invoice_create"),
     path("invoices/save/", views.invoice_save, name="invoice_save"), 
@@ -36,10 +48,6 @@ urlpatterns = [
     path("invoices/<int:invoice_id>/preview/", views.invoice_preview_view, name="invoice_preview"),
     path("invoices/gallery/<int:invoice_id>/", views.invoice_gallery_view, name="invoice_gallery"),
     path("invoice/generate/", views.create_invoice_pdf_view, name="generate_invoice"),
-
-    # Expenses - CORREGIDAS para usar vistas existentes
-    path("expenses/", views.tax_view, name="expense_list"),  # ✅ USA VISTA EXISTENTE
-    path("expenses/upload/", views.invoice_upload_view, name="expense_upload"),  # ✅ USA VISTA EXISTENTE
 
     # Projects
     path("project/create/", views.create_project_view, name="create_project_view"),
@@ -71,6 +79,12 @@ urlpatterns = [
     path("dash/nest/", views.nest_view, name="dash_nest"),
     path("dash/whiz/", views.whiz_view, name="dash_whiz"),
     path("dash/help/", views.help_view, name="dash_help"),
+
+    # =========================================================================
+    # HELP & SUPPORT
+    # =========================================================================
+    path('help/faqs/', views.faqs_view, name='faqs'),
+    path('help/support/', views.help_view, name='help_support'),
 
     # =========================================================================
     # URLs CREDIT NOTES

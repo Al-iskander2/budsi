@@ -5,7 +5,7 @@
 # ---- 1. Standard library ----
 import time
 import json
-import re  # ✅ AGREGADO para manejo de contactos
+import re  
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from datetime import datetime
 
@@ -19,8 +19,16 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.dateparse import parse_date
 from django.db import transaction
 from django.contrib import messages
-from django.template.loader import render_to_string, get_template  # ✅ AGREGADO
-from django.db.models import Sum, Q  # ✅ AGREGADO
+from django.template.loader import render_to_string, get_template  
+from django.db.models import Sum, Q  
+from django.utils.text import slugify
+from django.db import IntegrityError
+
+# IMPORTS DE SERVICIOS DESDE LOGIC 
+from logic.invoice_service import InvoiceService
+from logic.create_contact import get_or_create_contact
+from logic.normalize_project import clean_project_name
+from logic.constants_invoice import InvoiceType, DEFAULT_VAT_RATE, MAX_UPLOAD_SIZE_MB
 
 # ---- 3. Stripe ----
 import stripe
@@ -42,36 +50,8 @@ from logic.tax_calculator import calculate_taxes
 #  FUNCIONES AUXILIARES
 #############################
 
-def _create_or_get_contact(user, name, is_supplier, is_client, tax_id=None):
-    """Crea o obtiene un contacto manejando duplicados"""
-    if not tax_id:
-        # Generar un tax_id temporal único para evitar conflictos
-        tax_id = f"temp-{slugify(name)}-{user.id}"
-    
-    try:
-        contact, created = Contact.objects.get_or_create(
-            user=user,
-            tax_id=tax_id,
-            defaults={
-                'name': name,
-                'is_supplier': is_supplier,
-                'is_client': is_client,
-            }
-        )
-        return contact
-    except IntegrityError:
-        # Si hay duplicado, intentar con un tax_id diferente
-        tax_id = f"temp-{slugify(name)}-{user.id}-{int(time.time())}"
-        contact, created = Contact.objects.get_or_create(
-            user=user,
-            tax_id=tax_id,
-            defaults={
-                'name': name,
-                'is_supplier': is_supplier,
-                'is_client': is_client,
-            }
-        )
-        return contact
+# ✅ NOTA: La función _create_or_get_contact ha sido ELIMINADA
+# porque ahora usamos la versión mejorada de logic/create_contact.py
 
 #############################
 #  AUTHENTICATION
@@ -167,7 +147,6 @@ def main_invoice_view(request):
     except FiscalProfile.DoesNotExist:
         return redirect("onboarding")
 
-    #  Cambiar 'invoices' por 'sales_invoices'
     sales_invoices = Invoice.objects.filter(
         user=request.user, 
         invoice_type="sale"
@@ -181,8 +160,8 @@ def main_invoice_view(request):
 
     context = {
         "invoice_count": profile.invoice_count,
-        "sales_invoices": sales_invoices,  # 
-        "favorite_customers": favorite_customers,  # 
+        "sales_invoices": sales_invoices,
+        "favorite_customers": favorite_customers,
     }
     return render(request, "budgidesk_app/dash/invoice/main_invoice.html", context)
 
@@ -221,77 +200,36 @@ def onboarding_view(request):
 
     return render(request, "budgidesk_app/onboard.html")
 
-
+@login_required
+def faqs_view(request):
+    """Vista para Preguntas Frecuentes (FAQs)"""
+    return render(request, "budgidesk_app/dash/help_support/faqs.html")
+    
 #############################
 #  MANUAL INVOICES
 #############################
+
 @login_required
 def invoice_create(request):
+    """✅ ACTUALIZADO: Usa InvoiceService para crear facturas de venta"""
     if request.method == 'POST':
-        contact_name = (request.POST.get("contact") or "").strip()
-        date_str = (request.POST.get("date") or "").strip()
-        subtotal_str = (request.POST.get("subtotal") or "0").strip()
-        vat_str = (request.POST.get("vat_amount") or "0").strip()
-        description = (request.POST.get("description") or "").strip()
-
-        errors = []
-        inv_date = parse_date(date_str)
-
         try:
-            subtotal = Decimal(subtotal_str)
-            vat_amount = Decimal(vat_str)
-        except InvalidOperation:
-            errors.append("Amount and VAT must be valid numbers.")
-            subtotal, vat_amount = Decimal("0"), Decimal("0")
-
-        if not contact_name:
-            errors.append("Contact name is required.")
-        if not inv_date:
-            errors.append("Invalid date.")
-
-        if errors:
-            messages.error(request, " ".join(errors))
-            
-            return render(request, "budgidesk_app/dash/invoice/create_invoice.html", {
-                "errors": errors,
-                "form_data": request.POST
-            })
-
-        try:
-            profile = FiscalProfile.objects.get(user=request.user)
-            with transaction.atomic():
-                # USAR FUNCIÓN MEJORADA para crear contacto
-                contact = _create_or_get_contact(
-                    user=request.user,
-                    name=contact_name,
-                    is_supplier=False,
-                    is_client=True
-                )
-                
-                # Generar número de factura único
-                invoice_count = profile.invoice_count + 1
-                invoice_number = f"INV-{invoice_count:06d}"
-                
-                Invoice.objects.create(
-                    user=request.user,
-                    contact=contact,
-                    invoice_type="sale",
-                    invoice_number=invoice_number,
-                    date=inv_date,
-                    subtotal=subtotal,
-                    vat_amount=vat_amount,
-                    total=subtotal + vat_amount,
-                    description=description,
-                    is_confirmed=True,
-                )
-                profile.invoice_count = invoice_count
-                profile.save()
-                
-            messages.success(request, f"Invoice {invoice_number} created successfully!")
+            # ✅ USAR NUEVO SERVICIO
+            invoice = InvoiceService.create_sale_invoice(
+                user=request.user,
+                form_data=request.POST
+            )
+            messages.success(request, f"Invoice {invoice.invoice_number} created successfully!")
             return redirect("main_invoice")
+            
         except FiscalProfile.DoesNotExist:
             return redirect("onboarding")
-
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+            return render(request, "budgidesk_app/dash/invoice/create_invoice.html", {
+                "errors": [str(e)],
+                "form_data": request.POST
+            })
     
     try:
         profile = FiscalProfile.objects.get(user=request.user)
@@ -303,12 +241,12 @@ def invoice_create(request):
         user=request.user
     ).exclude(project__isnull=True).exclude(project='').values_list('project', flat=True).distinct()
 
-    
     return render(request, "budgidesk_app/dash/invoice/create_invoice.html", {
         'profile': profile,
         'invoice_count': profile.invoice_count,
         'existing_projects': existing_projects
     })
+
 
 @login_required
 def invoice_save(request):
@@ -349,7 +287,7 @@ def invoice_preview_view(request, invoice_id: int):
 
 @login_required
 def expense_list_view(request):
-    """Listado de gastos - VERSIÓN CORREGIDA"""
+    """Listado de gastos - VERSIÓN MEJORADA"""
     expenses = (
         Invoice.objects
         .filter(user=request.user, invoice_type="purchase")
@@ -357,17 +295,102 @@ def expense_list_view(request):
         .order_by("-date", "-id")
     )
     
-    return render(request, "budgidesk_app/dash/expenses/main_expenses.html", {
+    # Calcular métricas
+    total_expenses = expenses.aggregate(total=Sum('total'))['total'] or 0
+    total_vat = expenses.aggregate(total=Sum('vat_amount'))['total'] or 0
+    total_net = expenses.aggregate(total=Sum('subtotal'))['total'] or 0
+    
+    # Gastos del mes actual
+    from datetime import datetime
+    current_month = datetime.now().month
+    month_expenses = expenses.filter(date__month=current_month).aggregate(
+        total=Sum('total')
+    )['total'] or 0
+    
+    # Promedio por gasto
+    avg_expense = total_expenses / len(expenses) if expenses else 0
+    
+    context = {
         "expenses": expenses,
         "confirmed_count": expenses.filter(is_confirmed=True).count(),
-        "pending_count": expenses.filter(is_confirmed=False).count()
-    })
+        "pending_count": expenses.filter(is_confirmed=False).count(),
+        "total_expenses": total_expenses,
+        "total_vat": total_vat,
+        "total_net": total_net,
+        "month_expenses": month_expenses,
+        "avg_expense": avg_expense,
+    }
+    
+    return render(request, "budgidesk_app/dash/expenses/main_expenses.html", context)
 
 
 @login_required
-def expense_upload(request):
-    """Carga y procesa facturas de gastos - VERSIÓN CORREGIDA"""
-    return invoice_upload_view(request)
+def expenses_upload_view(request):
+    """✅ VISTA FALTANTE: Subir gastos via OCR"""
+    if request.method == "POST" and request.FILES.get("file"):
+        try:
+            print(f"✅ Archivo recibido: {request.FILES['file'].name}")
+            
+            # ✅ USAR InvoiceService PARA GASTOS OCR
+            invoice = InvoiceService.create_expense_from_ocr(
+                user=request.user,
+                file=request.FILES["file"]
+            )
+            
+            messages.success(request, f"Gasto de {invoice.contact.name} procesado correctamente!")
+            return JsonResponse({
+                "success": True, 
+                "invoice_id": invoice.id,
+                "message": "Gasto procesado correctamente"
+            })
+        except Exception as e:
+            print(f"❌ Error en expenses_upload_view: {e}")
+            return JsonResponse({"error": str(e)}, status=400)
+    
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+@login_required
+def expenses_create_view(request):
+    """✅ NUEVA: Vista para crear gastos manualmente"""
+    if request.method == "POST":
+        try:
+            # Por ahora, usar lógica similar a sales pero para gastos
+            supplier_name = (request.POST.get("supplier") or "").strip()
+            
+            if not supplier_name:
+                messages.error(request, "Supplier name is required")
+                return redirect("expenses_list")
+            
+            # Crear contacto como PROVEEDOR
+            contact = get_or_create_contact(
+                user=request.user,
+                name=supplier_name,
+                is_supplier=True,
+                is_client=False
+            )
+            
+            # Crear invoice de GASTO
+            invoice = Invoice.objects.create(
+                user=request.user,
+                contact=contact,
+                invoice_type="purchase",
+                date=datetime.now().date(),
+                subtotal=Decimal(str(request.POST.get("subtotal", 0))),
+                vat_amount=Decimal(str(request.POST.get("vat_amount", 0))),
+                total=Decimal(str(request.POST.get("subtotal", 0))) + Decimal(str(request.POST.get("vat_amount", 0))),
+                description=request.POST.get("description", ""),
+                is_confirmed=True,
+                invoice_number=f"EXP-MAN-{int(time.time())}",
+            )
+            
+            messages.success(request, f"Gasto {invoice.invoice_number} creado exitosamente!")
+            return redirect("expenses_list")
+            
+        except Exception as e:
+            messages.error(request, f"Error creando gasto: {str(e)}")
+    
+    return render(request, "budgidesk_app/dash/expenses/expenses_create.html")
 
 
 #############################
@@ -385,43 +408,113 @@ def tax_view(request):
     return render(request, "budgidesk_app/dash/expenses/main_expenses.html", {"invoices": invoices})
 
 
+@login_required
 def budsi_tax_report(request):
-    """Vista de reporte de impuestos que lee de la base de datos"""
+    """Vista de reporte de impuestos CORREGIDA"""
     try:
-        # Leer de la base de datos en lugar de CSV
-        sales = Invoice.objects.filter(
+        # ✅ Esto está PERFECTO - obtienes datos reales de BD
+        sales_invoices = Invoice.objects.filter(
             user=request.user, 
             invoice_type="sale", 
             is_confirmed=True
         )
         
-        purchases = Invoice.objects.filter(
+        purchase_invoices = Invoice.objects.filter(
             user=request.user, 
             invoice_type="purchase", 
             is_confirmed=True
         )
         
-        # Convertir al formato que espera calculate_taxes
-        invoices_data = [{'total': str(inv.total)} for inv in sales]
-        purchases_data = [{'total': str(inv.total)} for inv in purchases]
+        # ✅ Esto está BIEN - conviertes a formato para calculate_taxes
+        invoices_data = []
+        for inv in sales_invoices:
+            invoices_data.append({
+                'total': str(inv.total),
+                'vat': str(inv.vat_amount)
+            })
         
+        purchases_data = []
+        for inv in purchase_invoices:
+            purchases_data.append({
+                'total': str(inv.total),
+                'vat_amount': str(inv.vat_amount),
+                'net_amount': str(inv.subtotal)
+            })
+        
+        # ✅ LLAMADA CORRECTA con 2 parámetros
         tax_data = calculate_taxes(invoices_data, purchases_data)
         
-        return render(request, "budgidesk_app/tax/report.html", {
+        return render(request, "budgidesk_app/dash/tax/report.html", {
             "tax_data": tax_data,
-            "sales_count": sales.count(),
-            "purchases_count": purchases.count()
+            "invoices": sales_invoices,  # ✅ Pasas los objetos reales al template
+            "purchases": purchase_invoices,  # ✅ Pasas los objetos reales al template
+            "sales_count": sales_invoices.count(),
+            "purchases_count": purchase_invoices.count()
         })
         
     except Exception as e:
+        # ✅ Manejo de errores robusto
         print(f"Error en tax report: {e}")
-        # Fallback: devolver datos vacíos pero no error
-        return render(request, "budgidesk_app/tax/report.html", {
-            "tax_data": {},
+        return render(request, "budgidesk_app/dash/tax/report.html", {
+            "tax_data": {
+                'vat': {'collected': 0, 'paid': 0, 'liability': 0},
+                'income': {'gross': 0, 'expenses': 0, 'taxable': 0},
+                'income_tax': {'gross': 0, 'credits': 0, 'net': 0},
+                'usc': {'total': 0, 'breakdown': []},
+                'prsi': 0,
+                'total_tax': 0
+            },
+            "invoices": [],
+            "purchases": [],
             "sales_count": 0,
             "purchases_count": 0
         })
 
+@login_required
+def budsi_tax_report(request):
+    """✅ CORREGIDO: Vista de reporte de impuestos con datos reales"""
+    try:
+        # Obtener datos REALES de la base de datos
+        sales_invoices = Invoice.objects.filter(
+            user=request.user, 
+            invoice_type="sale", 
+            is_confirmed=True
+        )
+        
+        purchase_invoices = Invoice.objects.filter(
+            user=request.user, 
+            invoice_type="purchase", 
+            is_confirmed=True
+        )
+        
+        # ✅ LLAMADA CORRECTA con QuerySets reales
+        tax_data = calculate_taxes(sales_invoices, purchase_invoices)
+        
+        return render(request, "budgidesk_app/dash/tax/report.html", {
+            "tax_data": tax_data,
+            "invoices": sales_invoices,  # ✅ Pasar al template
+            "purchases": purchase_invoices,  # ✅ Pasar al template
+            "sales_count": sales_invoices.count(),
+            "purchases_count": purchase_invoices.count()
+        })
+        
+    except Exception as e:
+        print(f"Error en tax report: {e}")
+        # Fallback con estructura correcta
+        return render(request, "budgidesk_app/dash/tax/report.html", {
+            "tax_data": {
+                'vat': {'collected': 0, 'paid': 0, 'liability': 0},
+                'income': {'gross': 0, 'expenses': 0, 'taxable': 0},
+                'income_tax': {'gross': 0, 'credits': 0, 'net': 0},
+                'usc': {'total': 0, 'breakdown': []},
+                'prsi': 0,
+                'total_tax': 0
+            },
+            "invoices": [],
+            "purchases": [],
+            "sales_count": 0,
+            "purchases_count": 0
+        })
 
 #############################
 #  FINANCES / BALANCE
@@ -479,7 +572,7 @@ def track_view(request):
 
 @login_required
 def create_project_view(request):
-    """Vista para crear nuevos proyectos"""
+    """✅ ACTUALIZADO: Vista para crear nuevos proyectos con normalización"""
     if request.method == "POST":
         try:
             name = request.POST.get("project_name", "").strip()
@@ -489,15 +582,18 @@ def create_project_view(request):
                 messages.error(request, "Project name is required")
                 return redirect("dash_track")
             
+            # ✅ NORMALIZAR NOMBRE DEL PROYECTO
+            normalized_name = clean_project_name(name)
+            
             # Crear proyecto
             project = Project.objects.create(
                 user=request.user,
-                name=name,
+                name=normalized_name,
                 description=description,
                 is_active=True
             )
             
-            messages.success(request, f"Project '{name}' created successfully!")
+            messages.success(request, f"Project '{normalized_name}' created successfully!")
             return redirect("dash_track")
             
         except Exception as e:
@@ -523,6 +619,8 @@ def account_settings_view(request):
 
 
 def intro_view(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")  
     return render(request, "budgidesk_app/intro.html")
 
 
@@ -676,52 +774,14 @@ def _parse_date_str(date_str: str):
 
 @login_required
 def invoice_upload_view(request):
-    """Vista mejorada para subir facturas OCR"""
+    """✅ ACTUALIZADO: Vista mejorada para subir facturas OCR usando servicio"""
     if request.method == 'POST' and request.FILES.get('file'):
         try:
-            f = request.FILES['file']
-            
-            # 1. PROCESAR OCR PRIMERO (simulado por ahora)
-            # En producción, usa tu función process_ocr real
-            ocr_data = {
-                'supplier_name': 'Proveedor Ejemplo',
-                'total': '120.00',
-                'date': datetime.now().strftime('%Y-%m-%d'),
-            }
-            
-            # 2. PARSEAR DATOS
-            total = Decimal(ocr_data.get('total', '0'))
-            subtotal = total / Decimal('1.23')  # Asume 23% VAT
-            vat_amount = total - subtotal
-            
-            # 3. CREAR O OBTENER CONTACTO
-            supplier_name = ocr_data.get('supplier_name', 'Unknown Supplier')
-            contact, created = Contact.objects.get_or_create(
+            # ✅ USAR SERVICIO EN LUGAR DE LÓGICA MANUAL
+            invoice = InvoiceService.create_expense_from_ocr(
                 user=request.user,
-                name=supplier_name,
-                defaults={
-                    'is_supplier': True,
-                    'is_client': False,
-                    'tax_id': f"temp-{int(time.time())}"
-                }
+                file=request.FILES['file']
             )
-            
-            # 4. CREAR INVOICE
-            invoice = Invoice(
-                user=request.user,
-                invoice_type="purchase",
-                date=datetime.now().date(),
-                subtotal=subtotal,
-                vat_amount=vat_amount,
-                total=total,
-                description=f"Factura de {supplier_name}",
-                original_file=f,
-                ocr_data=ocr_data,
-                is_confirmed=False,
-                invoice_number=f"PUR-{int(time.time())}",
-                contact=contact
-            )
-            invoice.save()
             
             return JsonResponse({
                 "success": True, 
@@ -773,13 +833,11 @@ def invoice_list_view(request):
     except FiscalProfile.DoesNotExist:
         return redirect('onboarding')
 
-    # 
     sales_invoices = Invoice.objects.filter(
         user=request.user, 
         invoice_type="sale"
     ).select_related('contact').order_by("-date")
 
-    # 
     favorite_customers = Contact.objects.filter(
         user=request.user, 
         is_client=True

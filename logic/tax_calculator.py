@@ -1,7 +1,11 @@
 from logic.data_manager import load_data
 
 def calculate_taxes(invoices, purchases):
-    VAT_RATE = 0.23
+    """
+    ✅ CORREGIDO: Usa los valores REALES de VAT de la base de datos
+    invoices: lista de dicts con 'total' y 'vat'
+    purchases: lista de dicts con 'total', 'vat_amount', 'net_amount'
+    """
     TAX_CREDITS = 4000
     INCOME_TAX_BRACKETS = [(44000, 0.2), (float('inf'), 0.4)]
     USC_BANDS = [
@@ -11,22 +15,23 @@ def calculate_taxes(invoices, purchases):
         (70044, float('inf'), 0.08)
     ]
 
-    # -- Cálculos compatibles con Excel --
-    vat_collected = sum(float(inv['total']) * VAT_RATE / (1 + VAT_RATE) for inv in invoices)
-    gross_income_net = sum(float(inv['total']) / (1 + VAT_RATE) for inv in invoices)
-
-    vat_paid = sum(float(pur['total']) * VAT_RATE / (1 + VAT_RATE) for pur in purchases)
-    expenses_net = sum(float(pur['total']) / (1 + VAT_RATE) for pur in purchases)
-
-    vat_collected = round(vat_collected, 2)
-    vat_paid = round(vat_paid, 2)
-    gross_income_net = round(gross_income_net, 2)
-    expenses_net = round(expenses_net, 2)
+    # ✅ USA LOS VALORES REALES DE LA BD - NO RECALCULES
+    # VAT recaudado (de ventas) - usa el 'vat' que ya viene calculado
+    vat_collected = sum(float(inv.get('vat', 0)) for inv in invoices)
+    
+    # VAT pagado (de gastos) - usa el 'vat_amount' que ya viene calculado  
+    vat_paid = sum(float(pur.get('vat_amount', 0)) for pur in purchases)
+    
+    # Ingresos brutos (total de ventas)
+    gross_income = sum(float(inv.get('total', 0)) for inv in invoices)
+    
+    # Gastos (net_amount de compras - ya viene como subtotal)
+    expenses = sum(float(pur.get('net_amount', 0)) for pur in purchases)
 
     vat_liability = round(vat_collected - vat_paid, 2)
-    taxable_income = round(gross_income_net - expenses_net, 2)
+    taxable_income = round(gross_income - expenses, 2)
 
-    # Income tax
+    # Income tax (mismo cálculo)
     income_tax = 0
     remaining_income = taxable_income
     for bracket, rate in INCOME_TAX_BRACKETS:
@@ -35,9 +40,10 @@ def calculate_taxes(invoices, purchases):
         amount = min(remaining_income, bracket)
         income_tax += round(amount * rate, 2)
         remaining_income -= amount
+    
     net_income_tax = max(0, round(income_tax - TAX_CREDITS, 2))
 
-    # USC
+    # USC (mismo cálculo)
     usc = 0
     remaining_income = round(taxable_income, 2)
     usc_breakdown = []
@@ -66,8 +72,8 @@ def calculate_taxes(invoices, purchases):
             'liability': vat_liability
         },
         'income': {
-            'gross': gross_income_net,
-            'expenses': expenses_net,
+            'gross': gross_income,
+            'expenses': expenses,
             'taxable': taxable_income
         },
         'income_tax': {
@@ -82,8 +88,7 @@ def calculate_taxes(invoices, purchases):
         'prsi': prsi,
         'total_tax': total_tax,
         'metadata': {
-            'vat_rate': VAT_RATE,
             'currency': 'EUR',
-            'calculation_method': 'net_base'
+            'calculation_method': 'actual_values_from_db'
         }
     }

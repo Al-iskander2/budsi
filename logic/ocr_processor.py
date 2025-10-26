@@ -2,13 +2,16 @@ import re
 import os
 import platform
 from typing import Tuple, List
-
-import pytesseract
+from decimal import Decimal
+from datetime import datetime
+import fitz  # PyMuPDF - ✅ REEMPLAZA pdf2image
 from PIL import Image, ImageEnhance, ImageFilter
-from pdf2image import convert_from_path
+import logging
+
+logger = logging.getLogger(__name__)
 
 # =============================================================================
-# Tesseract Configuration
+# Configuración Tesseract (mantener para compatibilidad)
 # =============================================================================
 
 def _maybe_set_tesseract_path():
@@ -23,6 +26,7 @@ def _maybe_set_tesseract_path():
         ]
         for p in win_paths:
             if os.path.exists(p):
+                import pytesseract
                 pytesseract.pytesseract.tesseract_cmd = p
                 return
     else:
@@ -30,12 +34,11 @@ def _maybe_set_tesseract_path():
         # On macOS with Homebrew, adjust if needed:
         brew_path = '/opt/homebrew/bin/tesseract'
         if os.path.exists(brew_path):
+            import pytesseract
             pytesseract.pytesseract.tesseract_cmd = brew_path
 
-_maybe_set_tesseract_path()
-
 # =============================================================================
-# OCR utilities
+# OCR utilities - ACTUALIZADO CON PyMuPDF
 # =============================================================================
 
 def _preprocess_image(img: Image.Image) -> Image.Image:
@@ -60,42 +63,55 @@ def _preprocess_image(img: Image.Image) -> Image.Image:
     return img
 
 def image_to_text(file_path: str) -> str:
-    img = Image.open(file_path)
-    img = _preprocess_image(img)
-    # psm 6: assume block of text; oem 3: default LSTM
-    config = '--oem 3 --psm 6'
+    """✅ MANTENIDO: Para procesar imágenes (no PDFs)"""
     try:
+        import pytesseract
+        img = Image.open(file_path)
+        img = _preprocess_image(img)
+        config = '--oem 3 --psm 6'
         text = pytesseract.image_to_string(img, lang='eng', config=config)
+        return text
     except Exception as e:
-        print(f"[OCR] Error in image_to_text: {e}")
-        text = ""
-    return text
-
-def pdf_to_text(file_path: str) -> str:
-    try:
-        pages = convert_from_path(file_path, dpi=300)
-    except Exception as e:
-        print(f"[OCR] Error converting PDF to images: {e}")
+        logger.error(f"[OCR] Error in image_to_text: {e}")
         return ""
 
-    all_text = []
-    for i, page in enumerate(pages, start=1):
-        try:
-            page_img = _preprocess_image(page)
-            config = '--oem 3 --psm 6'
-            page_text = pytesseract.image_to_string(page_img, lang='eng', config=config)
-            print(f"[OCR] Page {i}: {len(page_text)} characters extracted.")
+def pdf_to_text(file_path: str) -> str:
+    """
+    ✅ ACTUALIZADO: Extrae texto de PDF usando PyMuPDF
+    """
+    print(f"🔍 Intentando procesar PDF: {file_path}")
+    
+    # Primero intentar con PyMuPDF
+    text = process_pdf_with_fitz(file_path)
+    if text and len(text.strip()) > 10:  # Si tiene contenido significativo
+        return text
+    
+    print("⚠️  PyMuPDF no pudo extraer texto, intentando fallback...")
+    
+    # Fallback: intentar con pdf2image + Tesseract si está disponible
+    try:
+        from pdf2image import convert_from_path
+        import pytesseract
+        
+        pages = convert_from_path(file_path, dpi=200)
+        all_text = []
+        for i, page in enumerate(pages):
+            page_text = pytesseract.image_to_string(page, lang='eng')
             all_text.append(page_text)
-        except Exception as e:
-            print(f"[OCR] Error in OCR for page {i}: {e}")
-    return "\n".join(all_text)
+            print(f"🔤 Página {i+1} (OCR): {len(page_text)} caracteres")
+        
+        return "\n".join(all_text)
+        
+    except Exception as e:
+        print(f"❌ Fallback también falló: {e}")
+        return ""
 
 # =============================================================================
-# Parsing and extraction utilities
+# Parsing and extraction utilities - MEJORADOS
 # =============================================================================
 
 MONEY_TOKEN = re.compile(
-    r'([€$]?\s*[+-]?(?:\d{1,3}(?:[.,]\d{3})+|\d+)(?:[.,]\d{2}))'
+    r'([€$]?\s*[+-]?(?:\d{1,3}(?:[.,]\d{3})+|\d+)(?:[.,]\d{2})?)'
 )
 
 def _money_tokens_in(text: str):
@@ -104,12 +120,7 @@ def _money_tokens_in(text: str):
 
 def parse_money(s: str) -> float:
     """
-    Convert monetary string to float handling:
-    - 10,000.00
-    - 100.000.00
-    - 2.300,00
-    - € 1.234,56
-    Rule: the LAST separator ('.' or ',') is the decimal; the others are thousands.
+    Convert monetary string to float handling European formats.
     """
     if s is None:
         return 0.0
@@ -150,103 +161,128 @@ def extract_date(text: str) -> str:
     Return a date in the format found (dd/mm/yyyy, dd-mm-yyyy, yyyy-mm-dd).
     If not found, return an empty string.
     """
-    m = re.search(r'\b(\d{2}[/-]\d{2}[/-]\d{4})\b', text)
-    if m:
-        return m.group(1)
-    m = re.search(r'\b(\d{4}-\d{2}-\d{2})\b', text)
-    if m:
-        return m.group(1)
+    date_patterns = [
+        r'\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b',
+        r'\b(\d{4}-\d{1,2}-\d{1,2})\b',
+        r'\b(\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\s+\d{2,4})\b',
+    ]
+    
+    for pattern in date_patterns:
+        m = re.search(pattern, text.lower())
+        if m:
+            date_str = m.group(1)
+            # Try multiple date formats
+            for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d", "%d %b %Y", "%d %B %Y"):
+                try:
+                    parsed_date = datetime.strptime(date_str, fmt)
+                    return parsed_date.strftime("%Y-%m-%d")
+                except:
+                    continue
     return ""
 
 def extract_amounts(text: str) -> Tuple[float, float]:
     """
-    Extract Total and VAT robustly:
-      - 'Total' per line (avoids 'Subtotal')
-      - 'VAT/IVA' per line, avoiding 'VAT No', 'VAT Number', 'Tax ID', etc.
-      - Monetary tokens with decimal or symbol.
-      - Sanity check: if VAT > Total, try to fix; if not, set VAT=0.
+    ✅ MEJORADO: Extrae Total y VAT de manera más robusta
     """
     lines = _clean_lines(text)
 
     # --- TOTAL ---
     total = 0.0
-    total_lines = [ln for ln in lines
-                   if re.search(r'(?i)\btotal\b', ln)
-                   and not re.search(r'(?i)sub\s*total', ln)]
-    for ln in reversed(total_lines):
-        toks = _money_tokens_in(ln)
-        if toks:
-            total = parse_money(toks[-1])
-            break
-
-    if total == 0.0:
-        m = re.search(
-            r'(?is)\btotal\b[^0-9€$+-]*([€$]?\s*[+-]?(?:\d{1,3}(?:[.,]\d{3})+|\d+)(?:[.,]\d{2}))',
-            text
-        )
-        if m:
-            total = parse_money(m.group(1))
+    total_patterns = [
+        r'(?i)\btotal\b[^0-9€$]*(?:[€$]?\s*)([0-9.,]+)',
+        r'(?i)\bamount\s+due\b[^0-9€$]*(?:[€$]?\s*)([0-9.,]+)',
+        r'(?i)\bbalance\s+due\b[^0-9€$]*(?:[€$]?\s*)([0-9.,]+)',
+        r'(?i)\bgrand\s+total\b[^0-9€$]*(?:[€$]?\s*)([0-9.,]+)',
+    ]
+    
+    for pattern in total_patterns:
+        matches = re.findall(pattern, text)
+        if matches:
+            try:
+                total = parse_money(matches[-1])
+                if total > 0:
+                    break
+            except:
+                continue
 
     # --- VAT ---
     vat = 0.0
-    vat_exclude = re.compile(r'(?i)\b(vat\s*(no|number)|tax\s*id|nif|cif)\b')
-    vat_lines = [ln for ln in lines
-                 if re.search(r'(?i)\b(vat|iva)\b', ln) and not vat_exclude.search(ln)]
+    vat_patterns = [
+        r'(?i)\bvat\b[^0-9€$]*(?:[€$]?\s*)([0-9.,]+)',
+        r'(?i)\btax\b[^0-9€$]*(?:[€$]?\s*)([0-9.,]+)',
+        r'(?i)\biva\b[^0-9€$]*(?:[€$]?\s*)([0-9.,]+)',
+    ]
+    
+    for pattern in vat_patterns:
+        matches = re.findall(pattern, text)
+        if matches:
+            try:
+                candidate = parse_money(matches[-1])
+                if 0 < candidate <= total:  # Sanity check
+                    vat = candidate
+                    break
+            except:
+                continue
 
-    vat_lines_sorted = sorted(
-        vat_lines,
-        key=lambda s: 0 if re.search(r'(?i)@\s*\d{1,2}', s) else 1
-    )
-
-    for ln in vat_lines_sorted:
-        toks = _money_tokens_in(ln)
-        if toks:
-            candidate = parse_money(toks[-1])
-            vat = candidate
-            break
-
+    # Si no se encontró VAT, calcular como 23% del total (para Irlanda)
     if vat == 0.0 and total > 0:
         vat = round(total * 0.23, 2)
 
-    if total > 0 and vat > total:
-        toks_all = [parse_money(t) for t in _money_tokens_in(text)]
-        plausibles = [t for t in toks_all if 0 < t <= total]
-        if plausibles:
-            vat = max(plausibles)
-        else:
-            vat = 0.0
-
-    print(f"[PARSE] Total: {total} | VAT: {vat}")
+    logger.info(f"[PARSE] Total: {total} | VAT: {vat}")
     return total, vat
 
+def extract_supplier(text: str) -> str:
+    """
+    ✅ MEJORADO: Extrae nombre del proveedor de manera más inteligente
+    """
+    lines = _clean_lines(text)
+    
+    # Patrones de exclusion (no son nombres de proveedor)
+    exclude_patterns = [
+        r'^invoice$', r'^bill$', r'^receipt$', r'^date$', r'^total$',
+        r'^vat$', r'^tax$', r'^amount$', r'^page\d+$', r'^\d+[/-]\d+[/-]\d+$',
+        r'^tel:', r'^phone:', r'^email:', r'^www\.', r'^http://', r'^https://'
+    ]
+    
+    for line in lines:
+        line = line.strip()
+        if (len(line) > 3 and 
+            any(c.isalpha() for c in line) and
+            not any(re.match(pattern, line.lower()) for pattern in exclude_patterns) and
+            not line.isdigit() and
+            not re.match(r'^\d+[/-]\d+[/-]\d+$', line)):
+            return line[:100]  # Limitar longitud
+    
+    return "Proveedor No Identificado"
+
 # =============================================================================
-# Main API
+# Main API - COMPATIBLE CON TU CÓDIGO EXISTENTE
 # =============================================================================
 
 def process_invoice(file_path: str) -> dict:
     """
-    Process an invoice image or PDF and return a dictionary with:
-      - supplier
-      - date
-      - total
-      - vat
-      - description
-    Does not return net_amount or vat_amount (calculated later in data_manager for purchases).
+    ✅ MANTIENE COMPATIBILIDAD: Procesa facturas y devuelve el mismo formato
     """
-    print(f"[OCR] Processing file: {file_path}")
+    logger.info(f"[OCR] Processing file: {file_path}")
+    
+    # Determinar tipo de archivo y extraer texto
     if file_path.lower().endswith('.pdf'):
-        text = pdf_to_text(file_path)
+        text = pdf_to_text(file_path)  # ✅ Usa PyMuPDF ahora
     else:
         text = image_to_text(file_path)
 
+    # Log preview del texto extraído
     preview = (text or '')[:300]
-    print(f"[OCR] Extracted text (first 300 chars): {preview!r}")
+    logger.info(f"[OCR] Extracted text preview: {preview}")
 
-    lines = _first_nonempty_lines(text, n=4)
-    supplier = lines[0] if lines else 'Unknown supplier'
+    # Extraer información
+    supplier = extract_supplier(text)
     date_str = extract_date(text)
     total, vat = extract_amounts(text)
-    description = ' | '.join(lines[1:3]) if len(lines) > 1 else ''
+    
+    # Descripción basada en líneas relevantes
+    lines = _first_nonempty_lines(text, n=4)
+    description = ' | '.join(lines[1:3]) if len(lines) > 1 else 'Factura procesada'
 
     result = {
         'supplier': supplier,
@@ -256,5 +292,80 @@ def process_invoice(file_path: str) -> dict:
         'description': description
     }
 
-    print(f"[OCR] Processed result: {result}")
+    logger.info(f"[OCR] Final result: {result}")
     return result
+
+# =============================================================================
+# Clase adicional para mejor organización (opcional)
+# =============================================================================
+
+class OCRProcessor:
+    """
+    ✅ NUEVO: Clase para procesamiento OCR más organizado
+    """
+    
+    @staticmethod
+    def extract_invoice_data(file_path: str) -> dict:
+        """
+        Extrae datos de facturas usando PyMuPDF (más robusto)
+        """
+        try:
+            # Usar PyMuPDF para extraer texto
+            text = ""
+            with fitz.open(file_path) as doc:
+                for page_num in range(doc.page_count):
+                    page = doc[page_num]
+                    text += page.get_text() + "\n"
+            
+            # Procesar el texto extraído
+            supplier = extract_supplier(text)
+            date_str = extract_date(text)
+            total, vat = extract_amounts(text)
+            
+            return {
+                "supplier": supplier,
+                "date": date_str,
+                "total": float(total),
+                "vat": float(vat),
+                "description": text[:500] if text else "Sin descripción"
+            }
+            
+        except Exception as e:
+            logger.error(f"Error procesando PDF con OCRProcessor: {e}")
+            return {
+                "supplier": "Proveedor No Identificado",
+                "total": 0.0,
+                "vat": 0.0,
+                "date": "",
+                "description": "Error en procesamiento OCR"
+            }
+
+def process_pdf_with_fitz(file_path: str) -> str:
+    """
+    ✅ NUEVO: Procesa PDF con PyMuPDF de manera robusta
+    """
+    try:
+        # Verificar que el archivo existe y tiene contenido
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Archivo no encontrado: {file_path}")
+        
+        file_size = os.path.getsize(file_path)
+        if file_size == 0:
+            raise ValueError("Archivo PDF está vacío")
+            
+        print(f"📄 Procesando PDF: {file_path} ({file_size} bytes)")
+        
+        text = ""
+        with fitz.open(file_path) as doc:
+            print(f"📑 PDF tiene {doc.page_count} páginas")
+            for page_num in range(doc.page_count):
+                page = doc[page_num]
+                page_text = page.get_text()
+                text += page_text + "\n"
+                print(f"📝 Página {page_num + 1}: {len(page_text)} caracteres")
+        
+        return text
+        
+    except Exception as e:
+        print(f"❌ Error en process_pdf_with_fitz: {e}")
+        return ""
