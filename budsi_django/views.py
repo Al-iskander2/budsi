@@ -398,136 +398,28 @@ def expenses_create_view(request):
 #############################
 
 @login_required
-def tax_view(request):
-    """✅ CORREGIDO: Vista para la sección Tax del dashboard"""
+def tax_report_view(request):
+    """Reporte de impuestos con datos reales"""
     try:
-        # Obtener datos para el dashboard de tax
         sales_invoices = Invoice.objects.filter(
-            user=request.user, 
-            invoice_type="sale", 
-            is_confirmed=True
+            user=request.user, invoice_type="sale", is_confirmed=True
         )
-        
         purchase_invoices = Invoice.objects.filter(
-            user=request.user, 
-            invoice_type="purchase", 
-            is_confirmed=True
+            user=request.user, invoice_type="purchase", is_confirmed=True
         )
-        
-        context = {
-            "sales_count": sales_invoices.count(),
-            "purchases_count": purchase_invoices.count(),
-            "total_sales": sales_invoices.aggregate(Sum('total'))['total__sum'] or 0,
-            "total_purchases": purchase_invoices.aggregate(Sum('total'))['total__sum'] or 0,
-        }
-        
-        # ✅ CORREGIDO: Renderizar la plantilla CORRECTA de tax
-        return render(request, "budgidesk_app/dash/tax/main_tax.html", context)
-        
-    except Exception as e:
-        print(f"Error en tax_view: {e}")
-        return render(request, "budgidesk_app/dash/tax/main_tax.html", {
-            "sales_count": 0,
-            "purchases_count": 0,
-            "total_sales": 0,
-            "total_purchases": 0,
-        })
 
-
-@login_required
-def budsi_tax_report(request):
-    """Vista de reporte de impuestos CORREGIDA"""
-    try:
-        # ✅ Esto está PERFECTO - obtienes datos reales de BD
-        sales_invoices = Invoice.objects.filter(
-            user=request.user, 
-            invoice_type="sale", 
-            is_confirmed=True
-        )
-        
-        purchase_invoices = Invoice.objects.filter(
-            user=request.user, 
-            invoice_type="purchase", 
-            is_confirmed=True
-        )
-        
-        # ✅ Esto está BIEN - conviertes a formato para calculate_taxes
-        invoices_data = []
-        for inv in sales_invoices:
-            invoices_data.append({
-                'total': str(inv.total),
-                'vat': str(inv.vat_amount)
-            })
-        
-        purchases_data = []
-        for inv in purchase_invoices:
-            purchases_data.append({
-                'total': str(inv.total),
-                'vat_amount': str(inv.vat_amount),
-                'net_amount': str(inv.subtotal)
-            })
-        
-        # ✅ LLAMADA CORRECTA con 2 parámetros
-        tax_data = calculate_taxes(invoices_data, purchases_data)
-        
-        return render(request, "budgidesk_app/dash/tax/report.html", {
-            "tax_data": tax_data,
-            "invoices": sales_invoices,  # ✅ Pasas los objetos reales al template
-            "purchases": purchase_invoices,  # ✅ Pasas los objetos reales al template
-            "sales_count": sales_invoices.count(),
-            "purchases_count": purchase_invoices.count()
-        })
-        
-    except Exception as e:
-        # ✅ Manejo de errores robusto
-        print(f"Error en tax report: {e}")
-        return render(request, "budgidesk_app/dash/tax/report.html", {
-            "tax_data": {
-                'vat': {'collected': 0, 'paid': 0, 'liability': 0},
-                'income': {'gross': 0, 'expenses': 0, 'taxable': 0},
-                'income_tax': {'gross': 0, 'credits': 0, 'net': 0},
-                'usc': {'total': 0, 'breakdown': []},
-                'prsi': 0,
-                'total_tax': 0
-            },
-            "invoices": [],
-            "purchases": [],
-            "sales_count": 0,
-            "purchases_count": 0
-        })
-
-@login_required
-def budsi_tax_report(request):
-    """✅ CORREGIDO: Vista de reporte de impuestos con datos reales"""
-    try:
-        # Obtener datos REALES de la base de datos
-        sales_invoices = Invoice.objects.filter(
-            user=request.user, 
-            invoice_type="sale", 
-            is_confirmed=True
-        )
-        
-        purchase_invoices = Invoice.objects.filter(
-            user=request.user, 
-            invoice_type="purchase", 
-            is_confirmed=True
-        )
-        
-        # ✅ LLAMADA CORRECTA con QuerySets reales
         tax_data = calculate_taxes(sales_invoices, purchase_invoices)
-        
-        return render(request, "budgidesk_app/dash/tax/report.html", {
+
+        return render(request, "budgidesk_app/dash/tax_report/tax_report.html", {
             "tax_data": tax_data,
-            "invoices": sales_invoices,  # ✅ Pasar al template
-            "purchases": purchase_invoices,  # ✅ Pasar al template
+            "invoices": sales_invoices,
+            "purchases": purchase_invoices,
             "sales_count": sales_invoices.count(),
             "purchases_count": purchase_invoices.count()
         })
-        
     except Exception as e:
         print(f"Error en tax report: {e}")
-        # Fallback con estructura correcta
-        return render(request, "budgidesk_app/dash/tax/report.html", {
+        return render(request, "budgidesk_app/dash/tax_report/tax_report.html", {
             "tax_data": {
                 'vat': {'collected': 0, 'paid': 0, 'liability': 0},
                 'income': {'gross': 0, 'expenses': 0, 'taxable': 0},
@@ -541,6 +433,8 @@ def budsi_tax_report(request):
             "sales_count": 0,
             "purchases_count": 0
         })
+
+
 
 #############################
 #  FINANCES / BALANCE

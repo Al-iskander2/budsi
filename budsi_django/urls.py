@@ -53,8 +53,7 @@ urlpatterns = [
     path("project/create/", views.create_project_view, name="create_project_view"),
 
     # Reports
-    path("tax/report/", views.budsi_tax_report, name="tax_report"),
-    path("budsi/report/", views.budsi_tax_report, name="budsi_tax_report"),
+    path("dash/tax_report/", views.tax_report_view, name="tax_report"),
 
     # Account & Settings
     path("account/settings/", views.account_settings_view, name="account_settings"),

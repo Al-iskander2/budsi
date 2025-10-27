@@ -1,0 +1,301 @@
+{% extends 'budgidesk_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<title>Tax Report</title>
+<style>
+    :root {
+      --primary: #4B49AC;
+      --secondary: #98BDFF;
+      --support-1: #7DAOFA;
+      --support-2: #7978E9;
+      --contrast: #F3797E;
+      --light: #f8f9fa;
+      --dark: #343a40;
+    }
+
+    .tax-report-body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f7fa;
+      color: #333;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--secondary);
+    }
+
+    .header h1 {
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .back-btn {
+      display: inline-block;
+      background: var(--support-2);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-top: 20px;
+    }
+    .back-btn:hover {
+      background: var(--primary);
+    }
+
+    .section {
+      margin-bottom: 30px;
+      background: #fff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+    }
+
+    .section h2 {
+      color: var(--primary);
+      border-bottom: 2px solid var(--light);
+      padding-bottom: 10px;
+      margin-top: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background: var(--primary);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    tr:hover {
+      background: #f9f9f9;
+    }
+
+    .excel-style {
+      font-family: Arial;
+      background: #f8f9fa;
+    }
+    .excel-style td {
+      border: 1px solid #ddd;
+    }
+    .excel-style .total-row {
+      font-weight: bold;
+      background: var(--secondary);
+    }
+    .excel-style .formula {
+      font-style: italic;
+      color: var(--support-1);
+    }
+    .excel-style .note {
+      font-size: .9em;
+      color: #666;
+    }
+
+    .section-title {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: var(--primary);
+      border-bottom: 2px solid var(--secondary);
+      padding-bottom: 5px;
+    }
+</style>
+
+
+
+<div class="tax-report-body">
+  <div class="header">
+    <h1>Tax Report</h1>
+  </div>
+
+  <!-- Issued Invoices - CORREGIDO -->
+  <div class="section">
+    <div class="section-title">Sales</div>
+    <table class="excel-style">
+      <thead>
+        <tr>
+          <th>Invoice</th>
+          <th>Subtotal (Net)</th>
+          <th>VAT</th>
+          <th>Total (Gross)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for invoice in invoices %}
+        <tr>
+          <td>{{ invoice.invoice_number }}</td>
+          <td class="formula">€{{ invoice.subtotal|floatformat:2 }}</td>
+          <td class="formula">€{{ invoice.vat_amount|floatformat:2 }}</td>
+          <td>€{{ invoice.total|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4"><em>No issued invoices.</em></td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td>Totals</td>
+          <td class="formula">€{{ tax_data.income.gross|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.vat.collected|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.income.gross|add:tax_data.vat.collected|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Expense Invoices - CORREGIDO -->
+  <div class="section">
+    <div class="section-title">Purchases</div>
+    <table class="excel-style">
+      <thead>
+        <tr>
+          <th>Invoice</th>
+          <th>Subtotal (Net)</th>
+          <th>VAT</th>
+          <th>Total (Gross)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for purchase in purchases %}
+        <tr>
+          <td>{{ purchase.invoice_number }}</td>
+          <td class="formula">€{{ purchase.subtotal|floatformat:2 }}</td>
+          <td class="formula">€{{ purchase.vat_amount|floatformat:2 }}</td>
+          <td>€{{ purchase.total|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4"><em>No expense invoices.</em></td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td>Totals</td>
+          <td class="formula">€{{ tax_data.income.expenses|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.vat.paid|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.income.expenses|add:tax_data.vat.paid|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- VAT Summary - CORREGIDO -->
+  <div class="section">
+    <div class="section-title">VAT Summary</div>
+    <table class="excel-style">
+      <tr><td>Tax collected</td><td class="formula">€{{ tax_data.vat.collected|floatformat:2 }}</td></tr>
+      <tr><td>Tax paid</td><td class="formula">€{{ tax_data.vat.paid|floatformat:2 }}</td></tr>
+      <tr class="total-row"><td>Tax liability</td><td class="formula">€{{ tax_data.vat.liability|floatformat:2 }}</td></tr>
+      <tr><td colspan="2" class="note">*VAT Return</td></tr>
+    </table>
+  </div>
+
+  <!-- Tax Summary - CORREGIDO -->
+  <div class="section">
+    <div class="section-title">Tax Summary</div>
+    <table class="excel-style">
+      <thead>
+        <tr>
+          <th>Gross Income</th><th>Expenses</th><th>Taxable Income</th>
+          <th>Income Tax</th><th>Tax Credits</th><th>USC</th><th>PRSI</th><th>Total Tax</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="formula">€{{ tax_data.income.gross|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.income.expenses|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.income.taxable|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.income_tax.net|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.income_tax.credits|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.usc.total|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.prsi|floatformat:2 }}</td>
+          <td class="formula">€{{ tax_data.total_tax|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Income Tax Detail - SIMPLIFICADO (sin variables faltantes) -->
+  <div class="section">
+    <div class="section-title">1. Income Tax</div>
+    <table class="excel-style">
+      <thead>
+        <tr><th>Description</th><th>Amount</th><th>Calculation</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Taxable Income</td>
+          <td class="formula">€{{ tax_data.income.taxable|floatformat:2 }}</td>
+          <td>Gross Income - Expenses</td>
+        </tr>
+        <tr>
+          <td>Gross Income Tax</td>
+          <td class="formula">€{{ tax_data.income_tax.gross|floatformat:2 }}</td>
+          <td>Calculated per tax bands</td>
+        </tr>
+        <tr>
+          <td>Tax Credits</td>
+          <td class="formula">-€{{ tax_data.income_tax.credits|floatformat:2 }}</td>
+          <td>Personal tax credits</td>
+        </tr>
+        <tr class="total-row">
+          <td>Net Income Tax</td>
+          <td class="formula">€{{ tax_data.income_tax.net|floatformat:2 }}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- USC Detail - CORREGIDO -->
+  <div class="section">
+    <div class="section-title">2. USC - Universal Social Charge</div>
+    <table class="excel-style">
+      <thead>
+        <tr><th>Band</th><th>From</th><th>To</th><th>Rate</th><th>Amount</th><th>Tax</th></tr>
+      </thead>
+      <tbody>
+        {% for band in tax_data.usc.breakdown %}
+        <tr>
+          <td>Band {{ forloop.counter }}</td>
+          <td>{{ band.band }}</td>  <!-- SIMPLIFICADO: usar band.band directamente -->
+          <td>{{ band.rate }}</td>
+          <td class="formula">€{{ band.amount|floatformat:2 }}</td>
+          <td class="formula">€{{ band.tax|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6"><em>No USC bands.</em></td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="5">Total USC</td>
+          <td class="formula">€{{ tax_data.usc.total|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PRSI - CORREGIDO -->
+  <div class="section">
+    <div class="section-title">3. PRSI (Class S)</div>
+    <table class="excel-style">
+      <thead><tr><th>Base</th><th>Rate</th><th>Tax</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="formula">€{{ tax_data.income.taxable|floatformat:2 }}</td>
+          <td>4%</td>
+          <td class="formula">€{{ tax_data.prsi|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
