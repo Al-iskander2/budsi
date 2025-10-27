@@ -6,6 +6,7 @@
 import time
 import json
 import re  
+import os
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from datetime import datetime
 
@@ -258,17 +259,41 @@ def invoice_save(request):
 def invoice_preview_view(request, invoice_id: int):
     invoice = get_object_or_404(Invoice, id=invoice_id, user=request.user)
 
+    # ✅ OBTENER PROYECTOS EXISTENTES
+    existing_projects = Invoice.objects.filter(
+        user=request.user
+    ).exclude(project__isnull=True).exclude(project='').values_list('project', flat=True).distinct()
+
     if request.method == "POST":
-        form = InvoiceForm(request.POST, instance=invoice, user=request.user)
-        if form.is_valid():
-            inv = form.save(commit=False)
+        try:
+            # ✅ USAR VALORES DIRECTOS del formulario HTML
+            subtotal = Decimal(request.POST.get("subtotal", invoice.subtotal))
+            vat_amount = Decimal(request.POST.get("vat_amount", invoice.vat_amount))
+            category = request.POST.get("category", "")
+            project = request.POST.get("project", "")
+            
+            # ✅ ACTUALIZAR LA FACTURA con los valores del formulario
+            invoice.subtotal = subtotal
+            invoice.vat_amount = vat_amount
+            invoice.total = subtotal + vat_amount
+            invoice.description = request.POST.get("description", invoice.description)
+            invoice.category = category
+            invoice.project = project
+            
             if "confirm" in request.POST:
-                inv.is_confirmed = True
-            inv.total = inv.subtotal + inv.vat_amount
-            inv.save()
-            return redirect("dash_tax")
-    else:
-        form = InvoiceForm(instance=invoice, user=request.user)
+                invoice.is_confirmed = True
+            
+            invoice.save()
+            
+            messages.success(request, "Expense confirmed successfully!")
+            return redirect("expense_list")
+            
+        except Exception as e:
+            messages.error(request, f"Error updating expense: {str(e)}")
+            print(f"❌ ERROR en invoice_preview_view: {str(e)}")
+
+    # Para GET requests, usar formulario normal pero solo para campos no problemáticos
+    form = InvoiceForm(instance=invoice, user=request.user)
 
     original_url = invoice.original_file.url if invoice.original_file else None
     is_pdf = (original_url or "").lower().endswith(".pdf")
@@ -278,8 +303,8 @@ def invoice_preview_view(request, invoice_id: int):
         "form": form,
         "original_url": original_url,
         "is_pdf": is_pdf,
+        "existing_projects": existing_projects
     })
-
 
 #############################
 #  EXPENSES (PURCHASES)
@@ -323,29 +348,95 @@ def expense_list_view(request):
     
     return render(request, "budgidesk_app/dash/expenses/main_expenses.html", context)
 
-
 @login_required
 def expenses_upload_view(request):
-    """✅ VISTA FALTANTE: Subir gastos via OCR"""
+    """✅ VERSIÓN CORREGIDA - Con importación de os y manejo mejorado"""
+    print(f"🔍 [1/5] expenses_upload_view INICIADA - Method: {request.method}")
+    
     if request.method == "POST" and request.FILES.get("file"):
         try:
-            print(f"✅ Archivo recibido: {request.FILES['file'].name}")
+            file = request.FILES["file"]
+            print(f"🔍 [2/5] Archivo recibido: {file.name} ({file.size} bytes)")
             
-            # ✅ USAR InvoiceService PARA GASTOS OCR
+            # ✅ Validación adicional de tipo de archivo (AHORA FUNCIONA)
+            allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
+            file_extension = os.path.splitext(file.name)[1].lower()
+            
+            if file_extension not in allowed_extensions:
+                error_msg = f"Formato no soportado. Use: {', '.join(allowed_extensions)}"
+                print(f"❌ [3/5] {error_msg}")
+                return _handle_upload_response(request, error=error_msg, status=400)
+            
+            print(f"🔄 [3/5] Llamando a InvoiceService.create_expense_from_ocr...")
             invoice = InvoiceService.create_expense_from_ocr(
                 user=request.user,
-                file=request.FILES["file"]
+                file=file
             )
             
-            messages.success(request, f"Gasto de {invoice.contact.name} procesado correctamente!")
+            print(f"✅ [4/5] OCR PROCESADO EXITOSAMENTE: Invoice {invoice.id} creada")
+            print(f"📋 [5/5] Detalles: {invoice.contact.name} - €{invoice.total}")
+            
+            success_msg = f"Gasto de {invoice.contact.name} procesado correctamente!"
+            return _handle_upload_response(request, success=True, invoice=invoice, message=success_msg)
+            
+        except Exception as e:
+            error_msg = f"Error procesando archivo: {str(e)}"
+            print(f"❌ ERROR en expenses_upload_view: {error_msg}")
+            import traceback
+            print(f"🔍 Stack trace: {traceback.format_exc()}")
+            
+            return _handle_upload_response(request, error=error_msg, status=400)
+    
+    print("❌ Método no permitido o sin archivo")
+    return _handle_upload_response(request, error="Método no permitido", status=405)
+
+
+
+
+def _handle_upload_response(request, success=False, invoice=None, message="", error="", status=200):
+    """✅ FUNCIÓN AUXILIAR: Maneja respuestas consistentes para AJAX y normal"""
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
+    if is_ajax:
+        print(f"🔗 Respondiendo vía AJAX - Success: {success}")
+        if success and invoice:
             return JsonResponse({
                 "success": True, 
                 "invoice_id": invoice.id,
-                "message": "Gasto procesado correctamente"
-            })
+                "redirect_url": f"/invoices/{invoice.id}/preview/",
+                "message": message
+            }, status=status)
+        else:
+            return JsonResponse({"success": False, "error": error}, status=status)
+    else:
+        # Request normal - usar messages de Django
+        print(f"🔗 Redirigiendo normalmente - Success: {success}")
+        if success and invoice:
+            messages.success(request, message)
+            return redirect("invoice_preview", invoice_id=invoice.id)
+        else:
+            messages.error(request, error)
+            return redirect("expenses_list")
+
+# También modificar invoice_upload_view de la misma manera
+@login_required
+def invoice_upload_view(request):
+    """✅ CORREGIDO: Redirige al preview después del OCR"""
+    if request.method == 'POST' and request.FILES.get('file'):
+        try:
+            invoice = InvoiceService.create_expense_from_ocr(
+                user=request.user,
+                file=request.FILES['file']
+            )
+            
+            messages.success(request, "Factura procesada correctamente!")
+            # ✅ REDIRIGIR AL PREVIEW
+            return redirect("invoice_preview", invoice_id=invoice.id)
+            
         except Exception as e:
-            print(f"❌ Error en expenses_upload_view: {e}")
-            return JsonResponse({"error": str(e)}, status=400)
+            print(f"Error en OCR upload: {e}")
+            messages.error(request, f"Error procesando archivo: {str(e)}")
+            return redirect("main_invoice")
     
     return JsonResponse({"error": "Método no permitido"}, status=405)
 
@@ -385,7 +476,7 @@ def expenses_create_view(request):
             )
             
             messages.success(request, f"Gasto {invoice.invoice_number} creado exitosamente!")
-            return redirect("expenses_list")
+            return redirect("expense_list")
             
         except Exception as e:
             messages.error(request, f"Error creando gasto: {str(e)}")
@@ -692,28 +783,7 @@ def _parse_date_str(date_str: str):
     return None
 
 
-@login_required
-def invoice_upload_view(request):
-    """✅ ACTUALIZADO: Vista mejorada para subir facturas OCR usando servicio"""
-    if request.method == 'POST' and request.FILES.get('file'):
-        try:
-            # ✅ USAR SERVICIO EN LUGAR DE LÓGICA MANUAL
-            invoice = InvoiceService.create_expense_from_ocr(
-                user=request.user,
-                file=request.FILES['file']
-            )
-            
-            return JsonResponse({
-                "success": True, 
-                "invoice_id": invoice.id,
-                "message": "Factura procesada correctamente"
-            })
-            
-        except Exception as e:
-            print(f"Error en OCR upload: {e}")
-            return JsonResponse({"error": str(e)}, status=400)
-    
-    return JsonResponse({"error": "Método no permitido"}, status=405)
+
 
 
 #############################

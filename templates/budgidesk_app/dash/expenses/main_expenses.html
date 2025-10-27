@@ -250,109 +250,83 @@
 </style>
 
 <script>
-// Funcionalidad de búsqueda
 document.addEventListener('DOMContentLoaded', function() {
-  const searchInput = document.getElementById('expenseSearch');
-  if (searchInput) {
-    searchInput.addEventListener('keyup', function() {
-      const searchText = this.value.toLowerCase();
-      const expenseItems = document.querySelectorAll('.expense-item');
-      
-      expenseItems.forEach(item => {
-        const text = item.textContent.toLowerCase();
-        if (text.includes(searchText)) {
-          item.style.display = 'block';
-        } else {
-          item.style.display = 'none';
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file');
+    const fileName = document.getElementById('file-name');
+    const fileChip = document.getElementById('file-chip');
+    const uploadForm = document.getElementById('upload-form');
+
+    // 1. Abrir file picker al hacer clic en el dropzone
+    dropzone.addEventListener('click', function(e) {
+        fileInput.click();
+    });
+
+    // 2. Mostrar nombre del archivo seleccionado
+    fileInput.addEventListener('change', function() {
+        if (fileInput.files && fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            fileName.textContent = file.name;
+            fileChip.style.display = 'inline-flex';
         }
-      });
     });
-  }
 
-  // Funcionalidad para la carga de archivos
-  const dz = document.getElementById('dropzone');
-  const fileInput = document.getElementById('file');
-  const chip = document.getElementById('file-chip');
-  const fileName = document.getElementById('file-name');
-
-  if (dz && fileInput) {
-    dz.addEventListener('click', () => fileInput.click());
-    
-    dz.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dz.classList.add('drag');
-    });
-    
-    dz.addEventListener('dragleave', () => {
-      dz.classList.remove('drag');
-    });
-    
-    dz.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dz.classList.remove('drag');
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        fileInput.files = files;
-        handleFileSelection(files[0]);
-      }
-    });
-  }
-
-  if (fileInput) {
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) {
-        handleFileSelection(e.target.files[0]);
-      }
-    });
-  }
-
-  function handleFileSelection(file) {
-    if (chip && fileName) {
-      chip.style.display = 'inline-flex';
-      fileName.textContent = `${file.name} • ${(file.size/1024/1024).toFixed(2)} MB`;
-    }
-  }
-
-  // AJAX para el formulario de subida
-  const uploadForm = document.getElementById('upload-form');
-  if (uploadForm) {
-    uploadForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      
-      // Mostrar loading
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-      submitBtn.disabled = true;
-      
-      try {
-        const formData = new FormData(this);
-        const response = await fetch(this.action, {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-          }
+    // 3. Drag & drop functionality
+    ['dragenter', 'dragover'].forEach(evt => {
+        dropzone.addEventListener(evt, function(e) {
+            e.preventDefault();
+            dropzone.classList.add('drag');
         });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          // Recargar la página para mostrar el nuevo gasto
-          window.location.reload();
-        } else {
-          alert(data.error || 'Error processing file');
-          submitBtn.innerHTML = originalText;
-          submitBtn.disabled = false;
-        }
-      } catch (error) {
-        alert('Error uploading file: ' + error.message);
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-      }
     });
-  }
+
+    ['dragleave', 'drop'].forEach(evt => {
+        dropzone.addEventListener(evt, function(e) {
+            e.preventDefault();
+            dropzone.classList.remove('drag');
+        });
+    });
+
+    dropzone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files && files.length > 0) {
+            fileInput.files = files;
+            const file = files[0];
+            fileName.textContent = file.name;
+            fileChip.style.display = 'inline-flex';
+        }
+    });
+
+    // 4. Buscador de gastos
+    const expenseSearch = document.getElementById('expenseSearch');
+    if (expenseSearch) {
+        expenseSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const expenseItems = document.querySelectorAll('.expense-item');
+            expenseItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // 5. Manejar envío del formulario - SIMPLIFICADO
+    uploadForm.addEventListener('submit', function(e) {
+        if (!fileInput.files.length) {
+            e.preventDefault();
+            alert('Por favor selecciona un archivo primero');
+            return;
+        }
+        
+        // Mostrar loading state
+        const submitBtn = uploadForm.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing OCR...';
+        submitBtn.disabled = true;
+    });
 });
 </script>
 

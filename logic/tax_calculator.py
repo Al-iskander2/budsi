@@ -1,94 +1,81 @@
-from logic.data_manager import load_data
+from decimal import Decimal
 
-def calculate_taxes(invoices, purchases):
+def calculate_taxes(sales_invoices, purchase_invoices):
     """
-    ✅ CORREGIDO: Usa los valores REALES de VAT de la base de datos
-    invoices: lista de dicts con 'total' y 'vat'
-    purchases: lista de dicts con 'total', 'vat_amount', 'net_amount'
+    ✅ CORREGIDO: Trabaja con objetos Invoice reales
     """
-    TAX_CREDITS = 4000
-    INCOME_TAX_BRACKETS = [(44000, 0.2), (float('inf'), 0.4)]
+    TAX_CREDITS = Decimal('4000')
+    INCOME_TAX_BRACKETS = [(Decimal('44000'), Decimal('0.20')), (Decimal('9999999'), Decimal('0.40'))]
     USC_BANDS = [
-        (0, 12012, 0.005),
-        (12012, 25760, 0.02),
-        (25760, 70044, 0.045),
-        (70044, float('inf'), 0.08)
+        (Decimal('0'), Decimal('12012'), Decimal('0.005')),
+        (Decimal('12012'), Decimal('25760'), Decimal('0.02')),
+        (Decimal('25760'), Decimal('70044'), Decimal('0.045')),
+        (Decimal('70044'), Decimal('9999999'), Decimal('0.08'))
     ]
 
-    # ✅ USA LOS VALORES REALES DE LA BD - NO RECALCULES
-    # VAT recaudado (de ventas) - usa el 'vat' que ya viene calculado
-    vat_collected = sum(float(inv.get('vat', 0)) for inv in invoices)
+    # ✅ USAR ATRIBUTOS DE OBJETOS INVOICE
+    vat_collected = sum(inv.vat_amount for inv in sales_invoices) if sales_invoices else Decimal('0')
+    vat_paid = sum(inv.vat_amount for inv in purchase_invoices) if purchase_invoices else Decimal('0')
     
-    # VAT pagado (de gastos) - usa el 'vat_amount' que ya viene calculado  
-    vat_paid = sum(float(pur.get('vat_amount', 0)) for pur in purchases)
-    
-    # Ingresos brutos (total de ventas)
-    gross_income = sum(float(inv.get('total', 0)) for inv in invoices)
-    
-    # Gastos (net_amount de compras - ya viene como subtotal)
-    expenses = sum(float(pur.get('net_amount', 0)) for pur in purchases)
+    gross_income = sum(inv.total for inv in sales_invoices) if sales_invoices else Decimal('0')
+    expenses = sum(inv.total for inv in purchase_invoices) if purchase_invoices else Decimal('0')
 
-    vat_liability = round(vat_collected - vat_paid, 2)
-    taxable_income = round(gross_income - expenses, 2)
+    vat_liability = vat_collected - vat_paid
+    taxable_income = gross_income - expenses
 
-    # Income tax (mismo cálculo)
-    income_tax = 0
+    # Income tax calculation
+    income_tax = Decimal('0')
     remaining_income = taxable_income
     for bracket, rate in INCOME_TAX_BRACKETS:
-        if remaining_income <= 0:
+        if remaining_income <= Decimal('0'):
             break
         amount = min(remaining_income, bracket)
-        income_tax += round(amount * rate, 2)
+        income_tax += amount * rate
         remaining_income -= amount
     
-    net_income_tax = max(0, round(income_tax - TAX_CREDITS, 2))
+    net_income_tax = max(Decimal('0'), income_tax - TAX_CREDITS)
 
-    # USC (mismo cálculo)
-    usc = 0
-    remaining_income = round(taxable_income, 2)
+    # USC calculation
+    usc = Decimal('0')
+    remaining_income = taxable_income
     usc_breakdown = []
     for lower, upper, rate in USC_BANDS:
-        if remaining_income <= 0:
+        if remaining_income <= Decimal('0'):
             break
-        band_amount = round(min(remaining_income, upper - lower), 2)
-        band_tax = round(band_amount * rate, 2)
+        band_amount = min(remaining_income, upper - lower)
+        band_tax = band_amount * rate
         usc += band_tax
         usc_breakdown.append({
             'band': f"€{lower:,.2f} - €{upper:,.2f}",
             'rate': f"{rate*100}%",
-            'amount': band_amount,
-            'tax': band_tax
+            'amount': float(band_amount),
+            'tax': float(band_tax)
         })
         remaining_income -= band_amount
-    usc = round(usc, 2)
 
-    prsi = round(max(0, taxable_income) * 0.04, 2)
-    total_tax = round(net_income_tax + usc + prsi, 2)
+    prsi = max(Decimal('0'), taxable_income) * Decimal('0.04')
+    total_tax = net_income_tax + usc + prsi
 
     return {
         'vat': {
-            'collected': vat_collected,
-            'paid': vat_paid,
-            'liability': vat_liability
+            'collected': float(vat_collected),
+            'paid': float(vat_paid),
+            'liability': float(vat_liability)
         },
         'income': {
-            'gross': gross_income,
-            'expenses': expenses,
-            'taxable': taxable_income
+            'gross': float(gross_income),
+            'expenses': float(expenses),
+            'taxable': float(taxable_income)
         },
         'income_tax': {
-            'gross': income_tax,
-            'credits': TAX_CREDITS,
-            'net': net_income_tax
+            'gross': float(income_tax),
+            'credits': float(TAX_CREDITS),
+            'net': float(net_income_tax)
         },
         'usc': {
-            'total': usc,
+            'total': float(usc),
             'breakdown': usc_breakdown
         },
-        'prsi': prsi,
-        'total_tax': total_tax,
-        'metadata': {
-            'currency': 'EUR',
-            'calculation_method': 'actual_values_from_db'
-        }
+        'prsi': float(prsi),
+        'total_tax': float(total_tax)
     }
