@@ -6,6 +6,14 @@ echo "=== INICIANDO DEPLOY ==="
 # Instalar dependencias
 pip install -r requirements.txt
 
+#  CREAR DIRECTORIO TEMPORAL PARA MEDIA EN RENDER
+if [ "$RENDER" ]; then
+    echo "=== CREANDO DIRECTORIO TEMPORAL PARA MEDIA ==="
+    mkdir -p /tmp/media
+    chmod -R 755 /tmp/media
+    echo "=== DIRECTORIO CREADO: /tmp/media ==="
+fi
+
 # VERIFICAR ESTADO ANTES
 echo "=== ESTADO DE MIGRACIONES (ANTES) ==="
 python manage.py showmigrations --list

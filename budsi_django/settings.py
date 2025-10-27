@@ -258,3 +258,24 @@ SECURE_REFERRER_POLICY = 'same-origin'
 
 # Timeout para requests largos (especialmente para OCR)
 REQUEST_TIMEOUT = 30  # segundos
+
+
+# STATIC & MEDIA - CONFIGURACIÓN MEJORADA PARA PRODUCCIÓN
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise configuration - OPTIMIZADO
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+WHITENOISE_MAX_AGE = 31536000  # 1 year for cache
+
+# ✅ CONFIGURACIÓN MEDIA MEJORADA PARA RENDER
+import os
+RENDER = bool(os.getenv("RENDER"))
+
+if RENDER:
+    MEDIA_ROOT = "/tmp/media"     # ✅ Render permite escribir en /tmp
+else:
+    MEDIA_ROOT = BASE_DIR / "media"
+
+MEDIA_URL = "/media/"
