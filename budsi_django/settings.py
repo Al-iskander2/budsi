@@ -47,7 +47,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://budsidesk.com',
     'https://www.budsidesk.com', 
     'https://budsi.onrender.com',
-    'https://*.onrender.com',
 ]
 
 # SSL para producción
@@ -74,7 +73,7 @@ INSTALLED_APPS = [
 
     # Apps del proyecto
     "budsi_database",
-    "budsi_django",
+    "budsi_django.apps.BudsiDjangoConfig",  # ✅ CORREGIDO: Usar AppConfig
 ]
 
 # MIDDLEWARE - WHITENOISE SIEMPRE PRESENTE
@@ -164,19 +163,6 @@ TIME_ZONE = "Europe/Dublin"
 USE_I18N = True
 USE_TZ = True
 
-# STATIC & MEDIA - CONFIGURACIÓN MEJORADA PARA PRODUCCIÓN
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# WhiteNoise configuration - OPTIMIZADO
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-WHITENOISE_MAX_AGE = 31536000  # 1 year for cache
-
-MEDIA_URL = "/media/"
-# En Render, usar disco persistente si está configurado
-MEDIA_ROOT = os.getenv("MEDIA_ROOT", BASE_DIR / "media")
-
 # Límites para upload de archivos
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
@@ -259,8 +245,7 @@ SECURE_REFERRER_POLICY = 'same-origin'
 # Timeout para requests largos (especialmente para OCR)
 REQUEST_TIMEOUT = 30  # segundos
 
-
-# STATIC & MEDIA - CONFIGURACIÓN MEJORADA PARA PRODUCCIÓN
+# ✅ CONFIGURACIÓN STATIC & MEDIA MEJORADA (SIN DUPLICADOS)
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -270,7 +255,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 WHITENOISE_MAX_AGE = 31536000  # 1 year for cache
 
 # ✅ CONFIGURACIÓN MEDIA MEJORADA PARA RENDER
-import os
 RENDER = bool(os.getenv("RENDER"))
 
 if RENDER:

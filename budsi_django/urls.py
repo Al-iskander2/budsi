@@ -23,23 +23,19 @@ urlpatterns = [
     # Onboarding
     path("onboarding/", views.onboarding_view, name="onboarding"),
 
-    # =========================================================================
     # URLs ACTUALIZADAS - ARQUITECTURA SEPARADA SALES/EXPENSES
-    # =========================================================================
     
-    # ✅ SALES (Facturas de VENTA)
+    # SALES (Facturas de VENTA)
     path("sales/", views.main_invoice_view, name="sales_list"),
     path("sales/create/", views.invoice_create, name="sales_create"),
     path("sales/upload/", views.invoice_upload_view, name="sales_upload"),
     
-    # ✅ EXPENSES (Facturas de GASTO) - CORREGIDAS
+    # EXPENSES (Facturas de GASTO) - CORREGIDAS
     path("expenses/", views.expense_list_view, name="expense_list"),
     path("expenses/create/", views.expenses_create_view, name="expenses_create"),
     path("expenses/upload/", views.expenses_upload_view, name="expense_upload"),
 
-    # =========================================================================
     # URLs COMPATIBILIDAD (mantener temporalmente)
-    # =========================================================================
     path("invoices/", views.main_invoice_view, name="main_invoice"),
     path("invoices/create/", views.invoice_create, name="invoice_create"),
     path("invoices/save/", views.invoice_save, name="invoice_save"), 
@@ -66,9 +62,7 @@ urlpatterns = [
     path("crear-intento-pago/", views.create_payment_intent_view, name="create-payment-intent"),
     path("pricing/", views.pricing_view, name="pricing"),
 
-    # =========================================================================
     # Dashboard Sections
-    # =========================================================================
     path("dash/flow/", views.flow_view, name="dash_flow"),
     path("dash/pulse/", views.pulse_view, name="dash_pulse"),
     path("dash/buzz/", views.buzz_view, name="dash_buzz"),
@@ -78,15 +72,11 @@ urlpatterns = [
     path("dash/whiz/", views.whiz_view, name="dash_whiz"),
     path("dash/help/", views.help_view, name="dash_help"),
 
-    # =========================================================================
     # HELP & SUPPORT
-    # =========================================================================
     path('help/faqs/', views.faqs_view, name='faqs'),
     path('help/support/', views.help_view, name='help_support'),
 
-    # =========================================================================
     # URLs CREDIT NOTES
-    # =========================================================================
     path("credit/note/", views.credit_note_create_view, name="credit_note"),
     path("credit/note/save/", views.credit_note_save_view, name="credit_note_save"),
 ]
@@ -95,3 +85,7 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# SERVIR ARCHIVOS MEDIA EN RENDER (producción)
+if hasattr(settings, 'RENDER') and settings.RENDER:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
