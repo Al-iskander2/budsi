@@ -3,28 +3,25 @@ set -o errexit
 
 echo "=== INICIANDO DEPLOY ==="
 
-# Instalar dependencias
+# Instalar Tesseract OCR para Render - FORMA CORRECTA
+echo "=== INSTALANDO TESSERACT OCR ==="
+pip install pytesseract
+pip install opencv-python-headless
+
+# Instalar dependencias de Python
+echo "=== INSTALANDO DEPENDENCIAS PYTHON ==="
 pip install -r requirements.txt
 
-#  CREAR DIRECTORIO TEMPORAL PARA MEDIA EN RENDER
+# Crear directorio temporal para media en Render
 if [ "$RENDER" ]; then
-    echo "=== CREANDO DIRECTORIO TEMPORAL PARA MEDIA ==="
+    echo "=== CONFIGURANDO ENTORNO RENDER ==="
     mkdir -p /tmp/media
     chmod -R 755 /tmp/media
-    echo "=== DIRECTORIO CREADO: /tmp/media ==="
 fi
-
-# VERIFICAR ESTADO ANTES
-echo "=== ESTADO DE MIGRACIONES (ANTES) ==="
-python manage.py showmigrations --list
 
 # Aplicar migraciones
 echo "=== APLICANDO MIGRACIONES ==="
 python manage.py migrate --noinput
-
-# VERIFICAR ESTADO DESPUÉS
-echo "=== ESTADO DE MIGRACIONES (DESPUÉS) ==="
-python manage.py showmigrations --list
 
 # Colectar archivos estáticos
 echo "=== COLECTANDO ARCHIVOS ESTÁTICOS ==="

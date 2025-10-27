@@ -5,6 +5,9 @@ from typing import Tuple, Dict, List
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
 
+from logic.ocr_config import configure_ocr
+configure_ocr()
+
 logger = logging.getLogger(__name__)
 
 try:
