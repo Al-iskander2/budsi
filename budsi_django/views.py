@@ -416,7 +416,7 @@ def _handle_upload_response(request, success=False, invoice=None, message="", er
             return redirect("invoice_preview", invoice_id=invoice.id)
         else:
             messages.error(request, error)
-            return redirect("expenses_list")
+            return redirect("expense_list")
 
 # También modificar invoice_upload_view de la misma manera
 @login_required
