@@ -5,11 +5,13 @@ echo "=== INICIANDO DEPLOY ==="
 
 # Instalar Tesseract OCR para Render - FORMA CORRECTA
 echo "=== INSTALANDO TESSERACT OCR ==="
-pip install pytesseract
-pip install opencv-python-headless
+apt-get update
+apt-get install -y tesseract-ocr
 
 # Instalar dependencias de Python
 echo "=== INSTALANDO DEPENDENCIAS PYTHON ==="
+pip install pytesseract
+pip install opencv-python-headless
 pip install -r requirements.txt
 
 # Crear directorio temporal para media en Render
