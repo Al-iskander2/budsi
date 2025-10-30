@@ -3,40 +3,37 @@ set -o errexit
 
 echo "=== INICIANDO DEPLOY ==="
 
-# ✅ DETECTAR ENTORNO Y ACTUAR EN CONSECUENCIA
-if [ -z "$RENDER" ]; then
-    echo "=== ENTORNO LOCAL: Instalando Tesseract con sudo ==="
-    sudo apt-get update
-    sudo apt-get install -y tesseract-ocr tesseract-ocr-eng tesseract-ocr-spa
+# ✅ ACTUALIZAR E INSTALAR TESSERACT CORRECTAMENTE
+echo "=== ACTUALIZANDO E INSTALANDO TESSERACT OCR ==="
+apt-get update
+apt-get install -y tesseract-ocr tesseract-ocr-eng tesseract-ocr-spa libtesseract-dev
+
+# ✅ VERIFICAR INSTALACIÓN MÁS DETALLADA
+echo "=== VERIFICANDO TESSERACT ==="
+if command -v tesseract > /dev/null; then
+    echo "✅ Tesseract encontrado en PATH"
+    tesseract --version
 else
-    echo "=== ENTORNO RENDER: Instalando Tesseract sin sudo ==="
-    apt-get update && apt-get install -y tesseract-ocr tesseract-ocr-eng tesseract-ocr-spa
+    echo "❌ Tesseract no en PATH - buscando ubicación..."
+    # Buscar en ubicaciones comunes
+    find /usr -name tesseract 2>/dev/null || echo "Tesseract no encontrado"
 fi
 
-# ✅ VERIFICAR TESSERACT
-echo "=== VERIFICANDO TESSERACT ==="
-if command -v tesseract &> /dev/null; then
-    tesseract --version
-    echo "✅ Tesseract disponible"
-else
-    echo "❌ Tesseract NO disponible - Intentando alternativas..."
-    
-    # Buscar Tesseract en ubicaciones alternativas
-    if [ -f "/usr/bin/tesseract" ]; then
-        echo "✅ Tesseract encontrado en /usr/bin/tesseract"
-    elif [ -f "/usr/local/bin/tesseract" ]; then
-        echo "✅ Tesseract encontrado en /usr/local/bin/tesseract"
-    else
-        echo "⚠️  Tesseract no encontrado - OCR usará valores por defecto"
-    fi
-fi
+# ✅ VERIFICAR LENGUAJES INSTALADOS
+echo "=== VERIFICANDO LENGUAJES TESSERACT ==="
+tesseract --list-langs 2>/dev/null || echo "No se pueden listar lenguajes"
 
 echo "=== INSTALANDO DEPENDENCIAS PYTHON ==="
+pip install --upgrade pip
 pip install -r requirements.txt
-pip install pytesseract opencv-python-headless
+
+# ✅ VERIFICAR QUE PYTESSERACT PUEDE IMPORTARSE
+python -c "import pytesseract; print('✅ pytesseract importado correctamente')" || echo "❌ Error importando pytesseract"
 
 echo "=== CONFIGURANDO ENTORNO RENDER ==="
-mkdir -p mediafiles
+# ✅ CORREGIR: Crear estructura de directorios consistente
+mkdir -p media/invoices
+mkdir -p media/logos
 mkdir -p staticfiles
 
 echo "=== APLICANDO MIGRACIONES ==="
