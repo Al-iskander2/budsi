@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = os.getenv("TESSERACT_CMD", "/usr/bin/tesseract")
+
 # BASE DIR
 BASE_DIR = Path(__file__).resolve().parent.parent
 
